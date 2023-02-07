@@ -1,0 +1,257 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+// Modulo
+model Module {
+    id         Int         @id @default(autoincrement())
+    name       String      @db.VarChar(25)
+    operations Operation[]
+}
+
+// Nombre de Operacion
+enum OperationName {
+    CREATE
+    READ
+    UPDATE
+    DELETE
+}
+
+// Operacion
+model Operation {
+    id       Int               @id @default(autoincrement())
+    name     OperationName
+    module   Module            @relation(fields: [moduleId], references: [id])
+    moduleId Int
+    roles    OperationByRole[]
+}
+
+// Nombre de Rol
+enum RoleName {
+    ADMIN
+    COORDINATOR
+    TEACHER
+    REPRESENTATIVE
+}
+
+// Rol
+model Role {
+    id         Int               @id @default(autoincrement())
+    name       RoleName          @unique
+    users      User[]
+    operations OperationByRole[]
+}
+
+// Operacion por Rol
+model OperationByRole {
+    id          Int       @id @default(autoincrement())
+    operation   Operation @relation(fields: [operationId], references: [id])
+    operationId Int
+    role        Role      @relation(fields: [roleId], references: [id])
+    roleId      Int
+}
+
+// Usuario
+model User {
+    id            Int                       @id @default(autoincrement())
+    createdAt     DateTime                  @default(now())
+    updatedAt     DateTime                  @updatedAt
+    email         String                    @unique
+    identityCard  String                    @unique
+    password      String
+    firstname     String                    @db.VarChar(25)
+    lastname      String                    @db.VarChar(25)
+    role          Role                      @relation(fields: [roleId], references: [id])
+    roleId        Int
+    academicLoads AcademicLoad[]
+    students      RepresentativeByStudent[]
+    phones        Phone[]
+    coordinator   Coordinator?
+}
+
+// Telefono
+model Phone {
+    id          Int      @id @default(autoincrement())
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    user        User     @relation(fields: [userId], references: [id])
+    userId      Int
+    phoneNumber String
+}
+
+// Coordinador
+model Coordinator {
+    id             Int       @id
+    user           User      @relation(fields: [id], references: [id])
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+    entryDate      DateTime  @default(dbgenerated("(CURDATE())")) @db.Date
+    retirementDate DateTime? @db.Date
+    isActive       Boolean   @default(true)
+}
+
+// Estudiante
+model Student {
+    id              Int                       @id @default(autoincrement())
+    createdAt       DateTime                  @default(now())
+    updatedAt       DateTime                  @updatedAt
+    identityCard    String                    @unique
+    firstname       String                    @db.VarChar(25)
+    lastname        String                    @db.VarChar(25)
+    birthDate       DateTime                  @db.Date
+    grades          Grade[]
+    representatives RepresentativeByStudent[]
+    enrollments     Enrollment[]
+    sections        StudentBySection[]
+}
+
+// Representante
+model RepresentativeByStudent {
+    id               Int      @id @default(autoincrement())
+    createdAt        DateTime @default(now())
+    representative   User     @relation(fields: [representativeId], references: [id], onDelete: Cascade)
+    representativeId Int
+    student          Student  @relation(fields: [studentId], references: [id])
+    studentId        Int
+}
+
+// Periodo Academico
+model AcademicPeriod {
+    id            Int                         @id @default(autoincrement())
+    createdAt     DateTime                    @default(now())
+    updatedAt     DateTime                    @updatedAt
+    startDate     DateTime                    @db.Date
+    endDate       DateTime                    @db.Date
+    academicLoads AcademicLoad[]
+    studyYears    StudyYearByAcademicPeriod[]
+}
+
+// Año de Estudio
+model StudyYear {
+    id              Int                         @id @default(autoincrement())
+    year            Int                         @db.UnsignedInt
+    academicPeriods StudyYearByAcademicPeriod[]
+    courses         Course[]
+}
+
+// Año de Estudio por Periodo Academico
+model StudyYearByAcademicPeriod {
+    id               Int            @id @default(autoincrement())
+    createdAt        DateTime       @default(now())
+    academicPeriod   AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+    academicPeriodId Int
+    studyYear        StudyYear      @relation(fields: [studyYearId], references: [id])
+    studyYearId      Int
+    enrollments      Enrollment[]
+    sections         Section[]
+
+    @@unique([academicPeriodId, studyYearId])
+}
+
+// Curso
+model Course {
+    id            Int            @id @default(autoincrement())
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    studyYear     StudyYear      @relation(fields: [studyYearId], references: [id])
+    studyYearId   Int
+    title         String
+    academicLoads AcademicLoad[]
+
+    @@unique([studyYearId, title])
+}
+
+// Lapso
+model Lapse {
+    id          Int     @id @default(autoincrement())
+    description Int     @db.UnsignedInt
+    grades      Grade[]
+}
+
+// Carga Academica
+model AcademicLoad {
+    id               Int            @id @default(autoincrement())
+    createdAt        DateTime       @default(now())
+    updatedAt        DateTime       @updatedAt
+    academicPeriod   AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+    academicPeriodId Int
+    teacher          User           @relation(fields: [teacherId], references: [id])
+    teacherId        Int
+    course           Course         @relation(fields: [courseId], references: [id])
+    courseId         Int
+    assignments      Assignment[]
+
+    @@unique([academicPeriodId, teacherId, courseId])
+}
+
+// Evaluacion
+model Assignment {
+    id             Int          @id @default(autoincrement())
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    academicLoad   AcademicLoad @relation(fields: [academicLoadId], references: [id])
+    academicLoadId Int
+    description    String
+    weight         Int          @db.UnsignedInt
+    grades         Grade[]
+}
+
+// Calificacion
+model Grade {
+    id           Int        @id @default(autoincrement())
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+    lapse        Lapse      @relation(fields: [lapseId], references: [id])
+    lapseId      Int
+    student      Student    @relation(fields: [studentId], references: [id])
+    studentId    Int
+    assignment   Assignment @relation(fields: [assignmentId], references: [id])
+    assignmentId Int
+    score        Float
+    note         String
+
+    @@unique([lapseId, studentId, assignmentId])
+}
+
+// Inscripcion
+model Enrollment {
+    id                          Int                       @id @default(autoincrement())
+    createdAt                   DateTime                  @default(now())
+    student                     Student                   @relation(fields: [studentId], references: [id])
+    studentId                   Int
+    studyYearByAcademicPeriod   StudyYearByAcademicPeriod @relation(fields: [studyYearByAcademicPeriodId], references: [id])
+    studyYearByAcademicPeriodId Int
+
+    @@unique([studentId, studyYearByAcademicPeriodId])
+}
+
+// Seccion
+model Section {
+    id                          Int                       @id @default(autoincrement())
+    createdAt                   DateTime                  @default(now())
+    updatedAt                   DateTime                  @updatedAt
+    studyYearByAcademicPeriod   StudyYearByAcademicPeriod @relation(fields: [studyYearByAcademicPeriodId], references: [id])
+    studyYearByAcademicPeriodId Int
+    description                 String                    @db.Char(1)
+    students                    StudentBySection[]
+}
+
+// Estudiante por Seccion
+model StudentBySection {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    section   Section  @relation(fields: [sectionId], references: [id])
+    sectionId Int
+    student   Student  @relation(fields: [studentId], references: [id])
+    studentId Int
+
+    @@unique([studentId, sectionId])
+}
