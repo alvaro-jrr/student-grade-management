@@ -13,6 +13,7 @@
 		"typecheck": "tsc"
 	},
 	"dependencies": {
+		"@heroicons/react": "^2.0.14",
 		"@prisma/client": "^4.9.0",
 		"@remix-run/node": "^1.12.0",
 		"@remix-run/react": "^1.12.0",
