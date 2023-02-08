@@ -4,7 +4,7 @@ import { Bars3BottomRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import bookIconUrl from "~/assets/book-icon.svg";
 
 const LINKS = [
-	{ name: "Cursos", to: "/courses" },
+	{ name: "Asignaturas", to: "/courses" },
 	{ name: "Sobre Nosotros", to: "/about-us" },
 	{ name: "Contacto", to: "/contact" },
 ];
@@ -65,9 +65,9 @@ function MobileMenu() {
 				onClick={() => setIsOpen((isOpen) => !isOpen)}
 			>
 				{isOpen ? (
-					<XMarkIcon className="h-6 w-6" />
+					<XMarkIcon className="w-6 h-6" />
 				) : (
-					<Bars3BottomRightIcon className="h-6 w-6" />
+					<Bars3BottomRightIcon className="w-6 h-6" />
 				)}
 
 				<span className="sr-only">Menu</span>
@@ -85,7 +85,7 @@ export default function NavBar() {
 				<Link className="flex gap-x-2" to="/">
 					<img src={bookIconUrl} alt="Libro" className="w-8" />
 
-					<h1 className="font-heading text-2xl font-medium uppercase text-slate-700">
+					<h1 className="text-2xl font-medium uppercase font-heading text-slate-700">
 						Santa Marta
 					</h1>
 				</Link>
@@ -94,7 +94,7 @@ export default function NavBar() {
 					{LINKS.map((link) => (
 						<li
 							key={link.to}
-							className="whitespace-nowrap font-medium text-slate-500 transition-colors hover:text-slate-600"
+							className="font-medium transition-colors whitespace-nowrap text-slate-500 hover:text-slate-600"
 						>
 							<NavLink className="block px-5 py-2" to={link.to}>
 								{link.name}
@@ -110,7 +110,7 @@ export default function NavBar() {
 				<div className="hidden justify-self-end lg:block">
 					<NavLink
 						to="/login"
-						className="block px-5 py-2 font-medium text-slate-500 transition-colors hover:text-slate-600"
+						className="block px-5 py-2 font-medium transition-colors text-slate-500 hover:text-slate-600"
 					>
 						Iniciar Sesión
 					</NavLink>
