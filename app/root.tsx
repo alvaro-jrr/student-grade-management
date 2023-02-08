@@ -7,7 +7,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "@remix-run/react";
-
+import syne from "@fontsource/syne/variable.css";
 import styles from "./styles/app.css";
 
 export const meta: MetaFunction = () => ({
@@ -20,6 +20,10 @@ export const links: LinksFunction = () => [
 	{
 		rel: "stylesheet",
 		href: styles,
+	},
+	{
+		rel: "stylesheet",
+		href: syne,
 	},
 ];
 

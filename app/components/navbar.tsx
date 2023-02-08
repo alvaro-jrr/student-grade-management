@@ -85,7 +85,7 @@ export default function NavBar() {
 				<Link className="flex gap-x-2" to="/">
 					<img src={bookIconUrl} alt="Libro" className="w-8" />
 
-					<h1 className="text-2xl font-medium uppercase text-slate-700">
+					<h1 className="font-heading text-2xl font-medium uppercase text-slate-700">
 						Santa Marta
 					</h1>
 				</Link>
