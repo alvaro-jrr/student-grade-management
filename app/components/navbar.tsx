@@ -16,21 +16,31 @@ const MOBILE_LINKS = [
 ];
 
 function MobileMenuList({ isOpen }: { isOpen: boolean }) {
+	const [scrollTop, setScrollTop] = useState(0);
+
 	useEffect(() => {
 		if (isOpen) {
-			// don't use overflow-hidden, as that toggles the scrollbar and causes layout shift
+			// Get document current position
+			setScrollTop(document.documentElement.scrollTop);
+
+			// Don't use overflow-hidden, as that toggles the scrollbar and causes layout shift
 			document.body.classList.add("fixed");
 			document.body.classList.add("inset-0");
 			document.body.classList.add("overflow-y-scroll");
 
-			// alternatively, get bounding box of the menu, and set body height to that.
+			// Alternatively, get bounding box of the menu, and set body height to that.
 			document.body.style.height = "100vh";
 		} else {
 			document.body.classList.remove("fixed");
 			document.body.classList.remove("inset-0");
 			document.body.classList.remove("overflow-y-scroll");
 			document.body.style.removeProperty("height");
+
+			// Restore document position
+			document.documentElement.scrollTop = scrollTop;
 		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isOpen]);
 
 	return (
@@ -80,8 +90,8 @@ function MobileMenu() {
 
 export default function NavBar() {
 	return (
-		<div className="px-[5vw] py-6">
-			<nav className="flex items-center justify-between lg:grid lg:grid-cols-3 ">
+		<div className="sticky top-0 bg-white px-[5vw] py-6">
+			<nav className="flex items-center justify-between lg:grid lg:grid-cols-3">
 				<Link className="flex gap-x-2" to="/">
 					<img src={bookIconUrl} alt="Libro" className="w-8" />
 
@@ -90,7 +100,7 @@ export default function NavBar() {
 					</h1>
 				</Link>
 
-				<ul className="hidden lg:flex lg:justify-between">
+				<ul className="hidden lg:flex lg:justify-evenly">
 					{LINKS.map((link) => (
 						<li
 							key={link.to}
