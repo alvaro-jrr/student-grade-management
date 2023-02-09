@@ -2,14 +2,20 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { ButtonLink } from "~/components/button";
 import StatCard from "~/components/stat-card";
-import { H2, H3, Paragraph } from "~/components/typography";
+import { H2, Paragraph } from "~/components/typography";
 import { db } from "~/utils/db.server";
 
 export const loader = async () => {
 	// Get counters
 	const studentsCount = await db.student.count();
 	const coursesCount = await db.course.count();
-	const teachersCount = await db.course.count();
+	const teachersCount = await db.user.count({
+		where: {
+			role: {
+				name: "TEACHER",
+			},
+		},
+	});
 
 	return json({
 		stats: [
