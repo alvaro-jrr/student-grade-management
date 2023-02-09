@@ -104,9 +104,12 @@ export default function NavBar() {
 					{LINKS.map((link) => (
 						<li
 							key={link.to}
-							className="whitespace-nowrap font-medium text-slate-500 transition-colors hover:text-slate-600"
+							className="whitespace-nowrap font-medium  transition-colors"
 						>
-							<NavLink className="block px-5 py-2" to={link.to}>
+							<NavLink
+								className="block px-5 py-2 text-slate-500 hover:text-slate-600 aria-[current=page]:text-slate-600"
+								to={link.to}
+							>
 								{link.name}
 							</NavLink>
 						</li>
@@ -120,7 +123,7 @@ export default function NavBar() {
 				<div className="hidden justify-self-end lg:block">
 					<NavLink
 						to="/login"
-						className="block px-5 py-2 font-medium text-slate-500 transition-colors hover:text-slate-600"
+						className="block px-5 py-2 font-medium text-slate-500 transition-colors hover:text-slate-600 aria-[current=page]:text-slate-600"
 					>
 						Iniciar Sesión
 					</NavLink>

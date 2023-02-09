@@ -42,9 +42,9 @@ export default function IndexRoute() {
 				</div>
 
 				<div className="flex flex-col gap-4 md:flex-row lg:justify-center">
-					<ButtonLink>Conocer más</ButtonLink>
+					<ButtonLink to="/about-us">Conocer más</ButtonLink>
 
-					<ButtonLink variant="secondary">
+					<ButtonLink to="/courses" variant="secondary">
 						Explorar asignaturas
 					</ButtonLink>
 				</div>
