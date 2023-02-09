@@ -29,6 +29,19 @@ async function seed() {
 	for (const operationByRole of getOperationsByRole()) {
 		await prisma.operationByRole.create({ data: operationByRole });
 	}
+
+	await prisma.user.create({
+		data: {
+			email: "alvarojrr79@gmail.com",
+			identityCard: "28385587",
+			// Paris.2022 hashed
+			password:
+				"$2a$10$c3.M5h0wtX1rXwehx3TazOyUKZqV32/xYXgphuPECRi.6ZzCrbCxK",
+			roleId: 4,
+			firstname: "Alvaro",
+			lastname: "Resplandor",
+		},
+	});
 }
 
 seed()

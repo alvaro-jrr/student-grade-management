@@ -1,7 +1,12 @@
 import { NavLink, Link } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { Bars3BottomRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+	ArrowRightIcon,
+	Bars3BottomRightIcon,
+	XMarkIcon,
+} from "@heroicons/react/24/outline";
 import bookIconUrl from "~/assets/book-icon.svg";
+import { ButtonLink } from "./button";
 
 const LINKS = [
 	{ name: "Asignaturas", to: "/courses" },
@@ -9,13 +14,15 @@ const LINKS = [
 	{ name: "Contacto", to: "/contact" },
 ];
 
-const MOBILE_LINKS = [
-	{ name: "Inicio", to: "/" },
-	...LINKS,
-	{ name: "Iniciar Sesión", to: "/login" },
-];
+const MOBILE_LINKS = [{ name: "Inicio", to: "/" }, ...LINKS];
 
-function MobileMenuList({ isOpen }: { isOpen: boolean }) {
+function MobileMenuList({
+	isOpen,
+	isLoggedIn,
+}: {
+	isOpen: boolean;
+	isLoggedIn: boolean;
+}) {
 	const [scrollTop, setScrollTop] = useState(0);
 
 	useEffect(() => {
@@ -59,11 +66,31 @@ function MobileMenuList({ isOpen }: { isOpen: boolean }) {
 					</Link>
 				</li>
 			))}
+
+			{isLoggedIn ? (
+				<li>
+					<Link
+						className="block px-2 py-4 font-medium text-slate-500"
+						to="/management"
+					>
+						Volver al sistema
+					</Link>
+				</li>
+			) : (
+				<li>
+					<Link
+						className="block px-2 py-4 font-medium text-slate-500"
+						to="/login"
+					>
+						Iniciar sesión
+					</Link>
+				</li>
+			)}
 		</ul>
 	);
 }
 
-function MobileMenu() {
+function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (
@@ -83,12 +110,12 @@ function MobileMenu() {
 				<span className="sr-only">Menu</span>
 			</button>
 
-			<MobileMenuList isOpen={isOpen} />
+			<MobileMenuList isLoggedIn={isLoggedIn} isOpen={isOpen} />
 		</>
 	);
 }
 
-export default function NavBar() {
+export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 	return (
 		<div className="sticky top-0 z-10 bg-white px-[5vw] py-6">
 			<nav className="flex items-center justify-between lg:grid lg:grid-cols-3">
@@ -117,16 +144,27 @@ export default function NavBar() {
 				</ul>
 
 				<div className="lg:hidden">
-					<MobileMenu />
+					<MobileMenu isLoggedIn={isLoggedIn} />
 				</div>
 
 				<div className="hidden justify-self-end lg:block">
-					<NavLink
-						to="/login"
-						className="block px-5 py-2 font-medium text-slate-500 transition-colors hover:text-slate-600 aria-[current=page]:text-slate-600"
-					>
-						Iniciar Sesión
-					</NavLink>
+					{isLoggedIn ? (
+						<ButtonLink
+							variant="text"
+							size="small"
+							to="/management"
+							Icon={ArrowRightIcon}
+						>
+							Volver al sistema
+						</ButtonLink>
+					) : (
+						<NavLink
+							to="/login"
+							className="block px-5 py-2 font-medium text-slate-500 transition-colors hover:text-slate-600 aria-[current=page]:text-slate-600"
+						>
+							Iniciar Sesión
+						</NavLink>
+					)}
 				</div>
 			</nav>
 		</div>

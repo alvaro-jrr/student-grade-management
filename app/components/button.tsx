@@ -30,7 +30,12 @@ type ButtonWidth = keyof typeof widthLookup;
 
 interface ButtonProps {
 	children: JSX.Element | string;
-	Icon?: (props: ComponentPropsWithoutRef<"svg">) => JSX.Element;
+	Icon?: React.ForwardRefExoticComponent<
+		React.SVGProps<SVGSVGElement> & {
+			title?: string | undefined;
+			titleId?: string | undefined;
+		}
+	>;
 	size?: ButtonSize;
 	variant?: ButtonVariant;
 	width?: ButtonWidth;
@@ -96,7 +101,7 @@ const ButtonLink = forwardRef<
 			ref={ref}
 			{...rest}
 		>
-			<ButtonInner>{children}</ButtonInner>
+			<ButtonInner Icon={Icon}>{children}</ButtonInner>
 		</AnchorOrLink>
 	);
 });
