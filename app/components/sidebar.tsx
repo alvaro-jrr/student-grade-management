@@ -3,7 +3,10 @@ import { NavLink } from "@remix-run/react";
 import bookIconUrl from "~/assets/book-icon.svg";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-const LINKS = [{ name: "Inicio", to: "/management" }];
+const LINKS = [
+	{ name: "Inicio", to: "/management" },
+	{ name: "Periodos Académicos", to: "/academic-periods" },
+];
 
 interface SideBarProps {
 	children?: ReactNode;
@@ -48,12 +51,13 @@ export default function SideBar({ children, isOpen, setIsOpen }: SideBarProps) {
 							{LINKS.map((link) => (
 								<li key={link.to}>
 									<NavLink
-										className="block rounded-md px-6 py-2 font-medium text-slate-700 hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
+										className="block rounded-md px-6 py-2 font-medium text-slate-700 transition-colors hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
 										to={
 											link.to === "/management"
 												? link.to
 												: `/management${link.to}`
 										}
+										end={link.to === "/management"}
 									>
 										{link.name}
 									</NavLink>
