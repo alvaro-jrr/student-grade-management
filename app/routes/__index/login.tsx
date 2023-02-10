@@ -6,6 +6,7 @@ import { TextField } from "~/components/form-elements";
 import { Form, useSearchParams, useActionData } from "@remix-run/react";
 import { badRequest } from "~/utils/request.server";
 import { createUserSession, login } from "~/utils/session.server";
+import { H2 } from "~/components/typography";
 
 function validateEmail(email: unknown) {
 	if (typeof email !== "string" || email.length < 3) {
@@ -81,7 +82,9 @@ export default function LoginRoute() {
 	const [searchParams] = useSearchParams();
 
 	return (
-		<Article title="Iniciar Sesión">
+		<div className="flex flex-col items-center gap-y-4 py-28">
+			<H2>Iniciar Sesión</H2>
+
 			<Card variant="elevated">
 				<Form method="post" className="space-y-6">
 					<div className="space-y-4">
@@ -115,6 +118,6 @@ export default function LoginRoute() {
 					</Button>
 				</Form>
 			</Card>
-		</Article>
+		</div>
 	);
 }

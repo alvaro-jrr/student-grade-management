@@ -2,6 +2,7 @@
 	"private": true,
 	"sideEffects": false,
 	"prisma": {
+		"setup": "npx prisma db push --force-reset && npx prisma db seed",
 		"seed": "node --require esbuild-register prisma/seed.ts"
 	},
 	"scripts": {

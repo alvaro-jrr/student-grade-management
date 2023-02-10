@@ -556,6 +556,10 @@ video {
   z-index: 10;
 }
 
+.z-20 {
+  z-index: 20;
+}
+
 .mx-\[10vw\] {
   margin-left: 10vw;
   margin-right: 10vw;
@@ -832,6 +836,10 @@ video {
 .py-28 {
   padding-top: 7rem;
   padding-bottom: 7rem;
+}
+
+.pt-28 {
+  padding-top: 7rem;
 }
 
 .font-heading {
