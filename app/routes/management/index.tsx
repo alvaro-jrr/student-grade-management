@@ -1,3 +1,5 @@
+import Section from "~/components/section";
+
 export default function ManagementIndexRoute() {
-	return <></>;
+	return <Section title="Inicio" />;
 }

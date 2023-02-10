@@ -65,6 +65,33 @@ export async function requireUserId(
 	return userId;
 }
 
+export async function getUser(request: Request) {
+	const userId = await getUserId(request);
+
+	if (typeof userId !== "number") return null;
+
+	try {
+		const user = await db.user.findUnique({
+			where: { id: userId },
+			select: { id: true, firstname: true, lastname: true, email: true },
+		});
+
+		return user;
+	} catch {
+		throw logout(request);
+	}
+}
+
+export async function logout(request: Request) {
+	const session = await getUserSession(request);
+
+	return redirect("/login", {
+		headers: {
+			"Set-Cookie": await storage.destroySession(session),
+		},
+	});
+}
+
 export async function createUserSession(userId: number, redirectTo: string) {
 	const session = await storage.getSession();
 	session.set("userId", userId);
