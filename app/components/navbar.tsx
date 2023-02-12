@@ -1,5 +1,5 @@
 import { NavLink, Link } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
 	ArrowRightIcon,
 	Bars3BottomRightIcon,
@@ -16,79 +16,11 @@ const LINKS = [
 
 const MOBILE_LINKS = [{ name: "Inicio", to: "/" }, ...LINKS];
 
-function MobileMenuList({
-	isOpen,
-	isLoggedIn,
-}: {
-	isOpen: boolean;
-	isLoggedIn: boolean;
-}) {
-	const [scrollTop, setScrollTop] = useState(0);
-
-	useEffect(() => {
-		if (isOpen) {
-			// Get document current position
-			setScrollTop(document.documentElement.scrollTop);
-
-			// Don't use overflow-hidden, as that toggles the scrollbar and causes layout shift
-			document.body.classList.add("fixed");
-			document.body.classList.add("inset-0");
-			document.body.classList.add("overflow-y-scroll");
-
-			// Alternatively, get bounding box of the menu, and set body height to that.
-			document.body.style.height = "100vh";
-		} else {
-			document.body.classList.remove("fixed");
-			document.body.classList.remove("inset-0");
-			document.body.classList.remove("overflow-y-scroll");
-			document.body.style.removeProperty("height");
-
-			// Restore document position
-			document.documentElement.scrollTop = scrollTop;
-		}
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isOpen]);
-
-	return (
-		<ul
-			id="mobile-navigation"
-			data-visible={isOpen}
-			className="fixed inset-0 translate-x-full divide-y bg-gray-50 py-16 px-8 transition-transform data-[visible=true]:translate-x-0"
-		>
-			{MOBILE_LINKS.map((link) => (
-				<li key={link.to}>
-					<Link
-						className="block px-2 py-4 font-medium text-slate-500"
-						to={link.to}
-					>
-						{link.name}
-					</Link>
-				</li>
-			))}
-
-			{isLoggedIn ? (
-				<li>
-					<Link
-						className="block px-2 py-4 font-medium text-slate-500"
-						to="/management"
-					>
-						Volver al sistema
-					</Link>
-				</li>
-			) : (
-				<li>
-					<Link
-						className="block px-2 py-4 font-medium text-slate-500"
-						to="/login"
-					>
-						Iniciar sesión
-					</Link>
-				</li>
-			)}
-		</ul>
-	);
-}
+const variantsLookup = {
+	mobile: "block px-2 py-4 font-medium text-slate-500",
+	desktop:
+		"block px-5 py-2 font-medium text-slate-500 transition-colors hover:bg-gray-100 aria-[current=page]:bg-gray-100 rounded-full",
+};
 
 function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -110,14 +42,43 @@ function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
 				<span className="sr-only">Menu</span>
 			</button>
 
-			<MobileMenuList isLoggedIn={isLoggedIn} isOpen={isOpen} />
+			<ul
+				className="fixed inset-0 translate-x-full divide-y bg-gray-50 py-16 px-8 transition-transform data-[visible=true]:translate-x-0"
+				data-visible={isOpen}
+				id="mobile-navigation"
+			>
+				{MOBILE_LINKS.map((link) => (
+					<li key={link.to}>
+						<Link className={variantsLookup.mobile} to={link.to}>
+							{link.name}
+						</Link>
+					</li>
+				))}
+
+				{isLoggedIn ? (
+					<li>
+						<Link
+							className={variantsLookup.mobile}
+							to="/management"
+						>
+							Volver al sistema
+						</Link>
+					</li>
+				) : (
+					<li>
+						<Link className={variantsLookup.mobile} to="/login">
+							Iniciar sesión
+						</Link>
+					</li>
+				)}
+			</ul>
 		</>
 	);
 }
 
 export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 	return (
-		<div className="sticky top-0 z-10 bg-white px-[5vw] py-6">
+		<header className="sticky top-0 z-10 bg-white px-[5vw] py-6">
 			<nav className="flex items-center justify-between lg:grid lg:grid-cols-3">
 				<Link className="flex gap-x-2" to="/">
 					<img src={bookIconUrl} alt="Libro" className="w-8" />
@@ -129,12 +90,9 @@ export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 
 				<ul className="hidden lg:flex lg:justify-evenly">
 					{LINKS.map((link) => (
-						<li
-							key={link.to}
-							className="whitespace-nowrap font-medium  transition-colors"
-						>
+						<li key={link.to} className="whitespace-nowrap">
 							<NavLink
-								className="block px-5 py-2 text-slate-500 hover:text-slate-600 aria-[current=page]:text-slate-600"
+								className={variantsLookup.desktop}
 								to={link.to}
 							>
 								{link.name}
@@ -158,15 +116,12 @@ export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 							Volver al sistema
 						</ButtonLink>
 					) : (
-						<NavLink
-							to="/login"
-							className="block px-5 py-2 font-medium text-slate-500 transition-colors hover:text-slate-600 aria-[current=page]:text-slate-600"
-						>
+						<NavLink to="/login" className={variantsLookup.desktop}>
 							Iniciar Sesión
 						</NavLink>
 					)}
 				</div>
 			</nav>
-		</div>
+		</header>
 	);
 }

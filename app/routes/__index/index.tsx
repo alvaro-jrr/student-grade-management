@@ -31,7 +31,7 @@ export default function IndexRoute() {
 
 	return (
 		<>
-			<header className="flex flex-col gap-y-6 py-28 md:gap-y-8">
+			<section className="flex flex-col gap-y-6 py-28 md:gap-y-8">
 				<div className="flex flex-col gap-y-4 lg:text-center">
 					<H2>Educación de calidad para todos</H2>
 
@@ -48,7 +48,7 @@ export default function IndexRoute() {
 						Explorar asignaturas
 					</ButtonLink>
 				</div>
-			</header>
+			</section>
 
 			<section className="grid grid-cols-[repeat(auto-fit,_minmax(18.75rem,_1fr))] gap-4">
 				{data.stats.map((stat) => (
