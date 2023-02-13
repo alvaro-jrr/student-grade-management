@@ -3,7 +3,7 @@ import { forwardRef } from "react";
 import { AnchorOrLink } from "~/utils/misc";
 
 const baseClasses =
-	"inline-flex relative rounded-full font-medium px-6 focus:outline-none disabled:hover:cursor-not-allowed";
+	"inline-flex relative rounded-full font-medium focus:outline-none disabled:hover:cursor-not-allowed";
 
 const variantsLookup = {
 	primary:
@@ -14,9 +14,9 @@ const variantsLookup = {
 };
 
 const sizesLookup = {
-	small: "py-2 text-sm",
-	medium: "py-3",
-	large: "py-4 text-lg",
+	small: "px-4 h-9 text-xs",
+	medium: "px-6 h-11 text-sm",
+	large: "px-8 h-[3.25rem]",
 };
 
 const widthLookup = {

@@ -1,23 +1,15 @@
 import type { ActionArgs } from "@remix-run/node";
+import { z } from "zod";
+import { createUserSession, login } from "~/utils/session.server";
+import { performMutation } from "remix-forms";
+import { useSearchParams, Link } from "@remix-run/react";
+import { badRequest } from "~/utils/request.server";
+import { makeDomainFunction } from "domain-functions";
+import { Form } from "~/components/form";
 import Card from "~/components/card";
 import { Button } from "~/components/button";
 import { TextField } from "~/components/form-elements";
-import { Form, useSearchParams, useActionData, Link } from "@remix-run/react";
-import { badRequest } from "~/utils/request.server";
-import { createUserSession, login } from "~/utils/session.server";
 import { H2, Paragraph } from "~/components/typography";
-
-function validateUsername(username: unknown) {
-	if (typeof username !== "string" || username.length < 3) {
-		return "Nombres de usuario deben tener al menos 3 caracteres";
-	}
-}
-
-function validatePassword(password: unknown) {
-	if (typeof password !== "string" || password.length < 6) {
-		return "Contraseñas deben tener al menos 6 caracteres";
-	}
-}
 
 function validateUrl(url: string) {
 	const urls = ["/management"];
@@ -25,63 +17,46 @@ function validateUrl(url: string) {
 	return urls.includes(url) ? url : "/management";
 }
 
+const schema = z.object({
+	username: z.string().min(1, "Debe ingresar su nombre de usuario"),
+	password: z.string().min(1, "Debe ingresar su contraseña"),
+	redirectTo: z.optional(z.string()),
+});
+
+const mutation = makeDomainFunction(schema)(
+	async ({ username, password, redirectTo }) => {
+		const user = await login({ username, password });
+
+		if (!user) throw "Nombre de usuario o contraseña son incorrectos";
+
+		return {
+			user,
+			redirectTo: validateUrl(redirectTo || ""),
+		};
+	}
+);
+
 export const action = async ({ request }: ActionArgs) => {
-	const form = await request.formData();
+	// Mutate form
+	const result = await performMutation({
+		request,
+		schema,
+		mutation,
+	});
 
-	// Get each value
-	const username = form.get("username");
-	const password = form.get("password");
-	const redirectTo = form.get("redirectTo");
+	if (!result.success) return badRequest(result);
 
-	// Verify type
-	if (
-		typeof username !== "string" ||
-		typeof password !== "string" ||
-		typeof redirectTo !== "string"
-	) {
-		return badRequest({
-			fieldErrors: null,
-			fields: null,
-			formError: "Formulario no enviado correctamente",
-		});
-	}
+	// Get result
+	const { user, redirectTo } = result.data;
 
-	const fields = { username, password, redirectTo };
-
-	// Find if there's an error
-	const fieldErrors = {
-		username: validateUsername(username),
-		password: validatePassword(password),
-	};
-
-	if (Object.values(fieldErrors).some(Boolean)) {
-		return badRequest({
-			fieldErrors,
-			fields,
-			formError: null,
-		});
-	}
-
-	// Try to log in the user
-	const user = await login({ username, password });
-
-	if (!user) {
-		return badRequest({
-			fieldErrors: null,
-			fields,
-			formError: "Email o contraseña son incorrectos",
-		});
-	}
-
-	return createUserSession(user.id, validateUrl(redirectTo));
+	return createUserSession(user.id, redirectTo);
 };
 
 export default function LoginRoute() {
-	const actionData = useActionData<typeof action>();
 	const [searchParams] = useSearchParams();
 
 	return (
-		<div className="flex flex-col items-center justify-center h-full gap-y-8 py-28">
+		<section className="flex h-full flex-col justify-center gap-y-8 py-28 sm:items-center">
 			<div className="space-y-2 sm:text-center">
 				<H2>Iniciar Sesión</H2>
 
@@ -98,38 +73,45 @@ export default function LoginRoute() {
 			</div>
 
 			<Card variant="elevated">
-				<Form method="post" className="space-y-6">
-					<div className="space-y-4">
-						<TextField
-							error={actionData?.fieldErrors?.username}
-							defaultValue={actionData?.fields?.username}
-							type="text"
-							label="Nombre de Usuario"
-							name="username"
-							placeholder="ej: johndoe"
-						/>
+				<Form schema={schema} method="post">
+					{({ register, formState: { errors }, Errors }) => (
+						<>
+							<div className="space-y-4">
+								<TextField
+									type="text"
+									error={errors.username?.message}
+									label="Nombre de Usuario"
+									placeholder="ej: johndoe"
+									{...register("username")}
+								/>
 
-						<TextField
-							error={actionData?.fieldErrors?.password}
-							defaultValue={actionData?.fields?.password}
-							type="password"
-							label="Contraseña"
-							name="password"
-							placeholder="ej: 123456"
-						/>
+								<TextField
+									type="password"
+									label="Contraseña"
+									error={errors.password?.message}
+									placeholder="ej: 123456"
+									{...register("password")}
+								/>
 
-						<input
-							type="hidden"
-							name="redirectTo"
-							value={searchParams.get("redirectTo") ?? undefined}
-						/>
-					</div>
+								<input
+									type="hidden"
+									value={
+										searchParams.get("redirectTo") ??
+										undefined
+									}
+									{...register("redirectTo")}
+								/>
+							</div>
 
-					<Button type="submit" width="full">
-						Acceder
-					</Button>
+							<Errors />
+
+							<Button type="submit" width="full">
+								Acceder
+							</Button>
+						</>
+					)}
 				</Form>
 			</Card>
-		</div>
+		</section>
 	);
 }

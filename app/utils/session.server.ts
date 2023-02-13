@@ -17,6 +17,7 @@ type RegisterForm = {
 export async function login({ username, password }: LoginForm) {
 	const user = await db.user.findUnique({
 		where: { username },
+		select: { id: true, password: true },
 	});
 
 	if (!user) return null;
@@ -25,7 +26,7 @@ export async function login({ username, password }: LoginForm) {
 
 	if (!isCorrectPassword) return null;
 
-	return user;
+	return { id: user.id, username };
 }
 
 export async function register({

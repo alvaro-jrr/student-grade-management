@@ -17,9 +17,9 @@ export default function Index() {
 		<div className="grid min-h-screen grid-rows-[auto_1fr]">
 			<NavBar isLoggedIn={data.isUserLoggedIn} />
 
-			<div className="mx-[10vw]">
+			<main className="mx-[10vw]">
 				<Outlet />
-			</div>
+			</main>
 		</div>
 	);
 }

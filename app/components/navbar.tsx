@@ -39,9 +39,9 @@ function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
 				onClick={() => setIsOpen((isOpen) => !isOpen)}
 			>
 				{isOpen ? (
-					<XMarkIcon className="w-6 h-6" />
+					<XMarkIcon className="h-6 w-6" />
 				) : (
-					<Bars3BottomRightIcon className="w-6 h-6" />
+					<Bars3BottomRightIcon className="h-6 w-6" />
 				)}
 
 				<span className="sr-only">Menu</span>
@@ -93,12 +93,12 @@ export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 				<Link className="flex gap-x-2" to="/">
 					<img src={bookIconUrl} alt="Libro" className="w-8" />
 
-					<h1 className="text-2xl font-medium uppercase font-heading text-slate-700">
+					<h1 className="font-heading text-2xl font-medium uppercase text-slate-700">
 						Santa Marta
 					</h1>
 				</Link>
 
-				<ul className="hidden lg:flex lg:justify-evenly">
+				<ul className="hidden gap-x-2 lg:flex lg:justify-center">
 					{LINKS.map((link) => (
 						<li key={link.to} className="whitespace-nowrap">
 							<NavLink
@@ -119,7 +119,6 @@ export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 					{isLoggedIn ? (
 						<ButtonLink
 							variant="text"
-							size="small"
 							to="/management"
 							Icon={ArrowRightIcon}
 						>

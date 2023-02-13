@@ -22,9 +22,13 @@
 		"@remix-run/serve": "^1.12.0",
 		"@tanstack/react-table": "^8.7.9",
 		"bcryptjs": "^2.4.3",
+		"domain-functions": "^1.5.1",
 		"isbot": "^3.6.5",
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react-dom": "^18.2.0",
+		"react-hook-form": "^7.43.1",
+		"remix-forms": "^1.5.1",
+		"zod": "^3.20.6"
 	},
 	"devDependencies": {
 		"@remix-run/dev": "^1.12.0",
