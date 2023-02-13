@@ -59,43 +59,62 @@ model OperationByRole {
     roleId      Int
 }
 
-// Usuario
-model User {
-    id            Int                       @id @default(autoincrement())
-    createdAt     DateTime                  @default(now())
-    updatedAt     DateTime                  @updatedAt
-    email         String                    @unique
-    identityCard  String                    @unique
-    password      String
-    firstname     String                    @db.VarChar(25)
-    lastname      String                    @db.VarChar(25)
-    role          Role                      @relation(fields: [roleId], references: [id])
-    roleId        Int
-    academicLoads AcademicLoad[]
-    students      RepresentativeByStudent[]
-    phones        Phone[]
-    coordinator   Coordinator?
-}
-
-// Telefono
-model Phone {
-    id          Int      @id @default(autoincrement())
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    user        User     @relation(fields: [userId], references: [id])
-    userId      Int
-    phoneNumber String
+// Representative
+model Representative {
+    identityCard String                    @id
+    createdAt    DateTime                  @default(now())
+    updatedAt    DateTime                  @updatedAt
+    email        String                    @unique
+    firstname    String                    @db.VarChar(25)
+    lastname     String                    @db.VarChar(25)
+    phones       Phone[]
+    students     RepresentativeByStudent[]
 }
 
 // Coordinador
 model Coordinator {
-    id             Int       @id
-    user           User      @relation(fields: [id], references: [id])
+    identityCard   String    @id
     createdAt      DateTime  @default(now())
     updatedAt      DateTime  @updatedAt
+    email          String    @unique
+    firstname      String    @db.VarChar(25)
+    lastname       String    @db.VarChar(25)
     entryDate      DateTime  @default(dbgenerated("(CURDATE())")) @db.Date
     retirementDate DateTime? @db.Date
     isActive       Boolean   @default(true)
+}
+
+// Docente
+model Teacher {
+    identityCard  String         @id
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    email         String         @unique
+    firstname     String         @db.VarChar(25)
+    lastname      String         @db.VarChar(25)
+    academicLoads AcademicLoad[]
+}
+
+// Usuario
+model User {
+    id           Int      @id @default(autoincrement())
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    identityCard String   @unique
+    username     String   @unique
+    password     String
+    role         Role     @relation(fields: [roleId], references: [id])
+    roleId       Int
+}
+
+// Telefono
+model Phone {
+    id                         Int            @id @default(autoincrement())
+    createdAt                  DateTime       @default(now())
+    updatedAt                  DateTime       @updatedAt
+    representative             Representative @relation(fields: [representativeIdentityCard], references: [identityCard])
+    representativeIdentityCard String
+    phoneNumber                String
 }
 
 // Estudiante
@@ -115,12 +134,12 @@ model Student {
 
 // Representante
 model RepresentativeByStudent {
-    id               Int      @id @default(autoincrement())
-    createdAt        DateTime @default(now())
-    representative   User     @relation(fields: [representativeId], references: [id], onDelete: Cascade)
-    representativeId Int
-    student          Student  @relation(fields: [studentId], references: [id])
-    studentId        Int
+    id                         Int            @id @default(autoincrement())
+    createdAt                  DateTime       @default(now())
+    representative             Representative @relation(fields: [representativeIdentityCard], references: [identityCard], onDelete: Cascade)
+    representativeIdentityCard String
+    student                    Student        @relation(fields: [studentId], references: [id])
+    studentId                  Int
 }
 
 // Periodo Academico
@@ -178,18 +197,18 @@ model Lapse {
 
 // Carga Academica
 model AcademicLoad {
-    id               Int            @id @default(autoincrement())
-    createdAt        DateTime       @default(now())
-    updatedAt        DateTime       @updatedAt
-    academicPeriod   AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
-    academicPeriodId Int
-    teacher          User           @relation(fields: [teacherId], references: [id])
-    teacherId        Int
-    course           Course         @relation(fields: [courseId], references: [id])
-    courseId         Int
-    assignments      Assignment[]
+    id                 Int            @id @default(autoincrement())
+    createdAt          DateTime       @default(now())
+    updatedAt          DateTime       @updatedAt
+    academicPeriod     AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+    academicPeriodId   Int
+    teacher            Teacher        @relation(fields: [teacherIdentiyCard], references: [identityCard])
+    teacherIdentiyCard String
+    course             Course         @relation(fields: [courseId], references: [id])
+    courseId           Int
+    assignments        Assignment[]
 
-    @@unique([academicPeriodId, teacherId, courseId])
+    @@unique([academicPeriodId, teacherIdentiyCard, courseId])
 }
 
 // Evaluacion

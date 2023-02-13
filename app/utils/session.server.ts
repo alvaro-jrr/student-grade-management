@@ -1,15 +1,22 @@
+import type { RoleName } from "@prisma/client";
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import bcrypt from "bcryptjs";
 import { db } from "./db.server";
 
 type LoginForm = {
-	email: string;
+	username: string;
 	password: string;
 };
 
-export async function login({ email, password }: LoginForm) {
+type RegisterForm = {
+	username: string;
+	identityCard: string;
+	password: string;
+};
+
+export async function login({ username, password }: LoginForm) {
 	const user = await db.user.findUnique({
-		where: { email },
+		where: { username },
 	});
 
 	if (!user) return null;
@@ -19,6 +26,89 @@ export async function login({ email, password }: LoginForm) {
 	if (!isCorrectPassword) return null;
 
 	return user;
+}
+
+export async function register({
+	username,
+	identityCard,
+	password,
+}: RegisterForm) {
+	// Get role name
+	const roleName = await getRoleName(identityCard);
+
+	// Person isn't stored yet
+	if (!roleName) return null;
+
+	// Get role id
+	const role = await db.role.findUnique({
+		where: { name: roleName },
+		select: { id: true },
+	});
+
+	// Role isn't stored
+	if (role === null) return null;
+
+	const passwordHash = await bcrypt.hash(password, 10);
+
+	// Create user
+	const user = await db.user.create({
+		data: {
+			username,
+			password: passwordHash,
+			identityCard,
+			roleId: role.id,
+		},
+	});
+
+	return { id: user.id, username };
+}
+
+async function getRoleName(identityCard: string): Promise<RoleName | null> {
+	// Find identity card
+	const users = {
+		coordinator: await db.coordinator.findUnique({
+			where: { identityCard },
+			select: { identityCard: true },
+		}),
+		teacher: await db.teacher.findUnique({
+			where: { identityCard },
+			select: { identityCard: true },
+		}),
+		representative: await db.teacher.findUnique({
+			where: { identityCard },
+			select: { identityCard: true },
+		}),
+	};
+
+	// In case person isn't found
+	if (Object.values(users).every((user) => user === null)) return null;
+
+	if (users.coordinator) return "COORDINATOR";
+
+	if (users.teacher) return "TEACHER";
+
+	return "REPRESENTATIVE";
+}
+
+export async function isIdentityCardStored(identityCard: string) {
+	const identityCardMatches = await Promise.all([
+		db.coordinator.findUnique({
+			where: { identityCard },
+			select: { identityCard: true },
+		}),
+		db.teacher.findUnique({
+			where: { identityCard },
+			select: { identityCard: true },
+		}),
+		db.teacher.findUnique({
+			where: { identityCard },
+			select: { identityCard: true },
+		}),
+	]);
+
+	return identityCardMatches.some(
+		(identityCard) => typeof identityCard === "string"
+	);
 }
 
 const sessionSecret = process.env.SESSION_SECRET;
@@ -73,7 +163,7 @@ export async function getUser(request: Request) {
 	try {
 		const user = await db.user.findUnique({
 			where: { id: userId },
-			select: { id: true, firstname: true, lastname: true, email: true },
+			select: { id: true, username: true },
 		});
 
 		return user;

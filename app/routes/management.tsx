@@ -1,4 +1,3 @@
-import { ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
@@ -24,7 +23,7 @@ export default function ManagementIndex() {
 				{data.user ? <User user={data.user} /> : null}
 			</SideBar>
 
-			<div className="min-h-screen flex-1 p-6">
+			<div className="flex-1 min-h-screen p-6">
 				<Outlet context={[isMenuOpen, setIsMenuOpen]} />
 			</div>
 		</div>

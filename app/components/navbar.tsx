@@ -14,6 +14,11 @@ const LINKS = [
 	{ name: "Contacto", to: "/contact" },
 ];
 
+const AUTH_LINKS = [
+	{ name: "Iniciar Sesión", to: "/login" },
+	{ name: "Registro", to: "/register" },
+];
+
 const MOBILE_LINKS = [{ name: "Inicio", to: "/" }, ...LINKS];
 
 const variantsLookup = {
@@ -34,9 +39,9 @@ function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
 				onClick={() => setIsOpen((isOpen) => !isOpen)}
 			>
 				{isOpen ? (
-					<XMarkIcon className="h-6 w-6" />
+					<XMarkIcon className="w-6 h-6" />
 				) : (
-					<Bars3BottomRightIcon className="h-6 w-6" />
+					<Bars3BottomRightIcon className="w-6 h-6" />
 				)}
 
 				<span className="sr-only">Menu</span>
@@ -65,11 +70,16 @@ function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
 						</Link>
 					</li>
 				) : (
-					<li>
-						<Link className={variantsLookup.mobile} to="/login">
-							Iniciar sesión
-						</Link>
-					</li>
+					AUTH_LINKS.map((link) => (
+						<li key={link.to}>
+							<Link
+								to={link.to}
+								className={variantsLookup.mobile}
+							>
+								{link.name}
+							</Link>
+						</li>
+					))
 				)}
 			</ul>
 		</>
@@ -83,7 +93,7 @@ export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 				<Link className="flex gap-x-2" to="/">
 					<img src={bookIconUrl} alt="Libro" className="w-8" />
 
-					<h1 className="font-heading text-2xl font-medium uppercase text-slate-700">
+					<h1 className="text-2xl font-medium uppercase font-heading text-slate-700">
 						Santa Marta
 					</h1>
 				</Link>
@@ -116,9 +126,20 @@ export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 							Volver al sistema
 						</ButtonLink>
 					) : (
-						<NavLink to="/login" className={variantsLookup.desktop}>
-							Iniciar Sesión
-						</NavLink>
+						<ul className="flex gap-x-2">
+							{AUTH_LINKS.map((link) => {
+								return (
+									<li key={link.to}>
+										<NavLink
+											className={variantsLookup.desktop}
+											to={link.to}
+										>
+											{link.name}
+										</NavLink>
+									</li>
+								);
+							})}
+						</ul>
 					)}
 				</div>
 			</nav>
