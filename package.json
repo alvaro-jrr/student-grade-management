@@ -2,8 +2,7 @@
 	"private": true,
 	"sideEffects": false,
 	"prisma": {
-		"setup": "npx prisma db push --force-reset && npx prisma db seed",
-		"seed": "node --require esbuild-register prisma/seed.ts"
+		"setup": "npx prisma db push --force-reset && npx prisma db seed"
 	},
 	"scripts": {
 		"build": "npm run build:css && remix build",
@@ -11,7 +10,8 @@
 		"dev": "concurrently \"npm run dev:css\" \"remix dev\"",
 		"dev:css": "tailwindcss -w -i ./styles/app.css -o app/styles/app.css",
 		"start": "remix-serve build",
-		"typecheck": "tsc"
+		"typecheck": "tsc",
+		"setup": "node --require esbuild-register prisma/seed.ts"
 	},
 	"dependencies": {
 		"@fontsource/syne": "^4.5.13",
