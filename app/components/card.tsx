@@ -8,7 +8,7 @@ interface CardHeadingProps {
 }
 
 const baseClasses =
-	"flex flex-col gap-4 border rounded-xl p-6 w-full sm:max-w-sm";
+	"flex flex-col gap-6 border rounded-xl p-6 w-full sm:max-w-lg";
 
 const variantsLookup = {
 	elevated: "shadow-lg",

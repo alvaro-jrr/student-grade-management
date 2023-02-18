@@ -147,8 +147,8 @@ model AcademicPeriod {
     id            Int                         @id @default(autoincrement())
     createdAt     DateTime                    @default(now())
     updatedAt     DateTime                    @updatedAt
-    startDate     DateTime                    @db.Date
-    endDate       DateTime                    @db.Date
+    startDate     DateTime
+    endDate       DateTime
     academicLoads AcademicLoad[]
     studyYears    StudyYearByAcademicPeriod[]
 }

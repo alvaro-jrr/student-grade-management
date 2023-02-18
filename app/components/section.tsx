@@ -20,7 +20,7 @@ export default function Section({
 		useOutletContext<[boolean, Dispatch<SetStateAction<boolean>>]>();
 
 	return (
-		<div className="flex flex-col gap-y-6">
+		<div className="grid h-full grid-rows-[auto_1fr] gap-y-6">
 			<header className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 				<div className="flex justify-between gap-x-2">
 					<div className="space-y-2">

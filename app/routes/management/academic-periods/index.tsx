@@ -2,11 +2,10 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Button } from "~/components/button";
-import Section from "~/components/section";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserId } from "~/utils/session.server";
+import { format } from "date-fns";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserId(request);
@@ -21,8 +20,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => {
 			return {
 				id,
-				startDate: startDate.toISOString(),
-				endDate: startDate.toISOString(),
+				startDate: format(startDate, "dd/MM/yyyy"),
+				endDate: format(endDate, "dd/MM/yyyy"),
 			};
 		}),
 	});

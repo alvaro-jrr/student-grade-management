@@ -17,7 +17,7 @@ const RemixForm = createForm({
 function Errors(props: JSX.IntrinsicElements["div"]) {
 	return (
 		<div
-			className="flex flex-col space-y-2 rounded-md bg-red-50 p-2 text-red-500"
+			className="flex flex-col p-2 space-y-2 text-red-500 rounded-md bg-red-50"
 			{...props}
 		/>
 	);
