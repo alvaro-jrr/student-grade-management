@@ -75,7 +75,7 @@ export default function Table<T>({
 						rows.map((row) => (
 							<tr
 								key={row.id}
-								className="border-b last:border-0 hover:bg-slate-100"
+								className="border-b last:border-0 hover:bg-slate-50"
 							>
 								{row.getVisibleCells().map((cell) => {
 									return (

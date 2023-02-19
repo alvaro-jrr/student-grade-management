@@ -6,6 +6,7 @@ import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserId } from "~/utils/session.server";
 import { format } from "date-fns";
+import { ButtonLink } from "~/components/button";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserId(request);
@@ -42,6 +43,18 @@ const columns = [
 	columnHelper.accessor("endDate", {
 		header: "Fecha de Fin",
 		cell: (info) => info.getValue().toString(),
+	}),
+	columnHelper.accessor("id", {
+		header: "",
+		cell: (info) => {
+			const id = info.getValue();
+
+			return (
+				<ButtonLink to={`edit/${id}`} variant="secondary">
+					Editar
+				</ButtonLink>
+			);
+		},
 	}),
 ];
 

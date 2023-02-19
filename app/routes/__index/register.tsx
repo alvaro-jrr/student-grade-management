@@ -130,7 +130,7 @@ export default function Register() {
 							<Errors />
 
 							<Button type="submit" width="full">
-								Acceder
+								Registrarse
 							</Button>
 						</>
 					)}

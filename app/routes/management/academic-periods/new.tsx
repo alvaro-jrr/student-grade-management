@@ -6,8 +6,8 @@ import { Button } from "~/components/button";
 import Card from "~/components/card";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
-import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
+import { createAcademicPeriod } from "~/utils/form-validation.server";
 
 const parseDate = (value: unknown) => new Date(String(value));
 
@@ -17,40 +17,7 @@ const schema = z.object({
 });
 
 const mutation = makeDomainFunction(schema)(async ({ startDate, endDate }) => {
-	// In case endDate is before startDate
-	if (Number(endDate) - Number(startDate) <= 0) {
-		throw "La fecha de fin del periodo debe ser después de la fecha de inicio";
-	}
-
-	const startYear = startDate.getFullYear();
-	const endYear = endDate.getFullYear();
-
-	// In case there's more than 1 year of difference
-	if (endYear - startYear !== 1) {
-		throw "La fecha de fin debe ocurrir en el año siguiente a la fecha de inicio";
-	}
-
-	const academicPerids = await db.academicPeriod.findMany({
-		select: { endDate: true },
-	});
-
-	// In case there's an active period
-	const isActive = academicPerids.some((academicPeriod) => {
-		const currentDate = new Date();
-
-		return Number(academicPeriod.endDate) - Number(currentDate);
-	});
-
-	if (isActive) throw "Actualmente hay un periodo académico activo";
-
-	const academicPeriod = await db.academicPeriod.create({
-		data: {
-			startDate,
-			endDate,
-		},
-	});
-
-	return academicPeriod;
+	return await createAcademicPeriod({ startDate, endDate });
 });
 
 export const action = async ({ request }: ActionArgs) => {
@@ -66,7 +33,7 @@ export default function NewAcademicPeriodRoute() {
 	const navigate = useNavigate();
 
 	return (
-		<div className="flex items-center justify-center h-full">
+		<div className="flex h-full items-center justify-center">
 			<Card
 				title="Crear periodo académico"
 				supportingText="Da inicio a un nuevo periodo académico para ingresar nuevas cargas e inscribir estudiantes"
@@ -98,7 +65,7 @@ export default function NewAcademicPeriodRoute() {
 									variant="secondary"
 									onClick={() => navigate(-1)}
 								>
-									Cancelar
+									Volver
 								</Button>
 
 								<Button type="submit">Crear</Button>
