@@ -17,7 +17,7 @@ const RemixForm = createForm({
 function Errors(props: JSX.IntrinsicElements["div"]) {
 	return (
 		<div
-			className="flex flex-col p-2 space-y-2 text-red-500 rounded-md bg-red-50"
+			className="flex flex-col space-y-2 rounded-md bg-red-50 p-2 text-red-500"
 			{...props}
 		/>
 	);
@@ -25,6 +25,7 @@ function Errors(props: JSX.IntrinsicElements["div"]) {
 function Form<Schema extends FormSchema>(props: FormProps<Schema>) {
 	return (
 		<RemixForm<Schema>
+			spellCheck="false"
 			className="space-y-6"
 			globalErrorsComponent={Errors}
 			{...props}

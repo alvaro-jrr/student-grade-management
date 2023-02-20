@@ -41,7 +41,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 
 	const academicPeriod = await db.academicPeriod.findUnique({
 		where: { id: academicPeriodId },
-		select: { startDate: true, endDate: true },
+		select: { startDate: true, endDate: true, id: true },
 	});
 
 	return json({
@@ -49,6 +49,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 			? {
 					startDate: format(academicPeriod.startDate, "yyyy-MM-dd"),
 					endDate: format(academicPeriod.endDate, "yyyy-MM-dd"),
+					id: academicPeriod.id,
 			  }
 			: null,
 	});
@@ -87,7 +88,7 @@ export default function EditAcademicPeriodRoute() {
 				title="Editar periodo académico"
 				supportingText="Realiza cambios de fecha en el periodo académico requerido"
 			>
-				<Form schema={schema} method="post">
+				<Form schema={schema} method="post" values={academicPeriod}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
@@ -95,7 +96,6 @@ export default function EditAcademicPeriodRoute() {
 									error={errors.startDate?.message}
 									label="Fecha de Inicio"
 									type="date"
-									defaultValue={academicPeriod.startDate}
 									{...register("startDate")}
 								/>
 
@@ -103,15 +103,10 @@ export default function EditAcademicPeriodRoute() {
 									error={errors.endDate?.message}
 									type="date"
 									label="Fecha de Fin"
-									defaultValue={academicPeriod.endDate}
 									{...register("endDate")}
 								/>
 
-								<input
-									{...register("id")}
-									type="hidden"
-									value={academicPeriodId}
-								/>
+								<input {...register("id")} type="hidden" />
 							</div>
 
 							<Errors />
