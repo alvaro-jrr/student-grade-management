@@ -38,11 +38,11 @@ const columnHelper = createColumnHelper<{
 const columns = [
 	columnHelper.accessor("startDate", {
 		header: "Fecha de Inicio",
-		cell: (info) => info.getValue().toString(),
+		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("endDate", {
 		header: "Fecha de Fin",
-		cell: (info) => info.getValue().toString(),
+		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("id", {
 		header: "",
@@ -50,7 +50,7 @@ const columns = [
 			const id = info.getValue();
 
 			return (
-				<ButtonLink to={`edit/${id}`} variant="secondary">
+				<ButtonLink to={`edit/${id}`} variant="text">
 					Editar
 				</ButtonLink>
 			);

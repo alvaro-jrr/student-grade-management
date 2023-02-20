@@ -38,7 +38,7 @@ export default function Section({
 						type="button"
 						onClick={() => setIsMenuOpen(true)}
 					>
-						<Bars3BottomRightIcon className="w-6 h-6" />
+						<Bars3BottomRightIcon className="h-6 w-6" />
 
 						<span className="sr-only">Abrir menú</span>
 					</button>
@@ -51,7 +51,9 @@ export default function Section({
 				) : null}
 			</header>
 
-			<main>{children ? children : <Outlet />}</main>
+			<main className="overflow-auto">
+				{children ? children : <Outlet />}
+			</main>
 		</div>
 	);
 }

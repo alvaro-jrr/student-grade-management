@@ -6,6 +6,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 const LINKS = [
 	{ name: "Inicio", to: "/management" },
 	{ name: "Periodos Académicos", to: "academic-periods" },
+	{ name: "Coordinadores", to: "coordinators" },
 ];
 
 interface SideBarProps {

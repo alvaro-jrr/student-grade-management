@@ -101,15 +101,13 @@ export async function isIdentityCardStored(identityCard: string) {
 			where: { identityCard },
 			select: { identityCard: true },
 		}),
-		db.teacher.findUnique({
+		db.representative.findUnique({
 			where: { identityCard },
 			select: { identityCard: true },
 		}),
 	]);
 
-	return identityCardMatches.some(
-		(identityCard) => typeof identityCard === "string"
-	);
+	return identityCardMatches.some(Boolean);
 }
 
 const sessionSecret = process.env.SESSION_SECRET;
