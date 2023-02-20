@@ -12,6 +12,7 @@ export const action = async ({ params }: ActionArgs) => {
 		where: { identityCard },
 		data: {
 			retirementDate: new Date(),
+			isActive: false,
 		},
 	});
 

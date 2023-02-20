@@ -20,6 +20,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 			entryDate: true,
 			retirementDate: true,
 			identityCard: true,
+			isActive: true,
 		},
 	});
 
@@ -35,8 +36,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 				return {
 					fullname: `${firstname} ${lastname}`,
 					entryDate: format(entryDate, "dd/MM/yyyy"),
-					retirementDate:
-						retirementDate && format(retirementDate, "dd/MM/yyyy"),
+					retirementDate: retirementDate
+						? format(retirementDate, "dd/MM/yyyy")
+						: "",
 					...restOfCoordinator,
 				};
 			}
@@ -49,7 +51,8 @@ const columnHelper = createColumnHelper<{
 	email: string;
 	identityCard: string;
 	entryDate: string;
-	retirementDate: string | null;
+	retirementDate: string;
+	isActive: boolean;
 }>();
 
 // Table columns
@@ -79,8 +82,7 @@ const columns = [
 		header: "",
 		cell: (info) => {
 			const identityCard = info.getValue();
-			const isActive =
-				typeof info.cell.row.original.retirementDate !== "string";
+			const isActive = info.cell.row.original.isActive;
 
 			return (
 				<div className="flex justify-end gap-x-4">
