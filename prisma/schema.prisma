@@ -79,8 +79,8 @@ model Coordinator {
     email          String    @unique
     firstname      String    @db.VarChar(25)
     lastname       String    @db.VarChar(25)
-    entryDate      DateTime  @default(dbgenerated("(CURDATE())")) @db.Date
-    retirementDate DateTime? @db.Date
+    entryDate      DateTime  @default(now())
+    retirementDate DateTime?
     isActive       Boolean   @default(true)
 }
 

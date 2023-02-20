@@ -11,6 +11,7 @@ const variantsLookup = {
 	secondary:
 		"text-blue-500 border border-blue-300 hover:bg-blue-50 focus:border-blue-400 disabled:border-slate-300 disabled:text-slate-500 disabled:hover:bg-slate-100 focus:ring-2 focus:ring-blue-200",
 	text: "text-blue-500 hover:bg-blue-50 disabled:text-slate-500 disabled:hover:bg-slate-100",
+	danger: "text-red-500 border border-red-300 hover:bg-red-50 focus:border-red-400 disabled:border-slate-300 disabled:text-slate-500 disabled:hover:bg-slate-100 focus:ring-2 focus:ring-red-200",
 };
 
 const sizesLookup = {

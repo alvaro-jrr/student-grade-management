@@ -1,11 +1,12 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserId } from "~/utils/session.server";
 import { format } from "date-fns";
+import { Button, ButtonLink } from "~/components/button";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserId(request);
@@ -32,11 +33,10 @@ export const loader = async ({ request }: LoaderArgs) => {
 				...restOfCoordinator
 			}) => {
 				return {
-					entryDate: format(entryDate, "dd/MM/yyyy"),
-					retirementDate: retirementDate
-						? format(retirementDate, "dd/MM/yyyy")
-						: "",
 					fullname: `${firstname} ${lastname}`,
+					entryDate: format(entryDate, "dd/MM/yyyy"),
+					retirementDate:
+						retirementDate && format(retirementDate, "dd/MM/yyyy"),
 					...restOfCoordinator,
 				};
 			}
@@ -49,7 +49,7 @@ const columnHelper = createColumnHelper<{
 	email: string;
 	identityCard: string;
 	entryDate: string;
-	retirementDate: string;
+	retirementDate: string | null;
 }>();
 
 // Table columns
@@ -68,11 +68,36 @@ const columns = [
 	}),
 	columnHelper.accessor("retirementDate", {
 		header: "Fecha de Retiro",
-		cell: (info) => info.getValue(),
+		cell: (info) => info.getValue() || "",
 	}),
 	columnHelper.accessor("email", {
 		header: "Email",
 		cell: (info) => info.getValue(),
+	}),
+	columnHelper.accessor("identityCard", {
+		id: "actions",
+		header: "",
+		cell: (info) => {
+			const identityCard = info.getValue();
+			const isActive =
+				typeof info.cell.row.original.retirementDate !== "string";
+
+			return (
+				<div className="flex justify-end gap-x-4">
+					<ButtonLink variant="text" to={`edit/${identityCard}`}>
+						Editar
+					</ButtonLink>
+
+					{isActive ? (
+						<Form action={`retire/${identityCard}`} method="post">
+							<Button variant="danger" type="submit">
+								Retirar
+							</Button>
+						</Form>
+					) : null}
+				</div>
+			);
+		},
 	}),
 ];
 
