@@ -110,6 +110,25 @@ export async function isIdentityCardStored(identityCard: string) {
 	return identityCardMatches.some(Boolean);
 }
 
+export async function isEmailUnique(email: string) {
+	const emailMatches = await Promise.all([
+		db.coordinator.findUnique({
+			where: { email },
+			select: { email: true },
+		}),
+		db.teacher.findUnique({
+			where: { email },
+			select: { email: true },
+		}),
+		db.representative.findUnique({
+			where: { email },
+			select: { email: true },
+		}),
+	]);
+
+	return emailMatches.some(Boolean);
+}
+
 const sessionSecret = process.env.SESSION_SECRET;
 
 if (!sessionSecret) throw new Error("SESSION_SECRET debe ser establecido");
