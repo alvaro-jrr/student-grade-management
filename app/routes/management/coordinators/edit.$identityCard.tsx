@@ -1,6 +1,8 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
+import { makeDomainFunction } from "domain-functions";
+import { z } from "zod";
 import { Button } from "~/components/button";
 import Card from "~/components/card";
 import DataNotFound from "~/components/data-not-found";
@@ -8,6 +10,58 @@ import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
 import { personSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
+import { formAction } from "~/utils/form-action.server";
+import { isIdentityCardStored } from "~/utils/session.server";
+
+const editCoordinatorSchema = personSchema.extend({
+	currentIdentityCard: z.string(),
+});
+
+const mutation = makeDomainFunction(editCoordinatorSchema)(
+	async ({ firstname, identityCard, lastname, currentIdentityCard }) => {
+		let identityCardTaken = true;
+
+		// Check if there's change between IDs
+		if (identityCard !== currentIdentityCard) {
+			identityCardTaken = await isIdentityCardStored(identityCard);
+		}
+
+		if (identityCardTaken)
+			throw "La nueva cédula de identidad ya ha sido tomada";
+
+		const user = await db.user.findUnique({
+			where: { identityCard: currentIdentityCard },
+		});
+
+		// Update identity card in user, in case coordinator has user
+		if (user) {
+			await db.user.update({
+				where: { identityCard: currentIdentityCard },
+				data: {
+					identityCard,
+				},
+			});
+		}
+
+		return await db.person.update({
+			where: { identityCard: currentIdentityCard },
+			data: {
+				firstname,
+				lastname,
+				identityCard,
+			},
+		});
+	}
+);
+
+export const action = async ({ request }: ActionArgs) => {
+	return formAction({
+		request,
+		schema: editCoordinatorSchema,
+		mutation,
+		successPath: "/management/coordinators",
+	});
+};
 
 export const loader = async ({ params }: LoaderArgs) => {
 	const identityCard = String(params.identityCard);
@@ -30,6 +84,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 					identityCard,
 					firstname: coordinator.person.firstname,
 					lastname: coordinator.person.lastname,
+					currentIdentityCard: identityCard,
 			  }
 			: null,
 	});
@@ -58,7 +113,11 @@ export default function EditCoordinatorRoute() {
 				title="Editar coordinador"
 				supportingText="Actualiza los datos de un coordinador requerido"
 			>
-				<Form schema={personSchema} method="post" values={coordinator}>
+				<Form
+					schema={editCoordinatorSchema}
+					method="post"
+					values={coordinator}
+				>
 					{({ register }) => (
 						<>
 							<div className="space-y-4">
@@ -81,6 +140,11 @@ export default function EditCoordinatorRoute() {
 									label="Cédula de Identidad"
 									placeholder="ej: 25605"
 									{...register("identityCard")}
+								/>
+
+								<input
+									type="hidden"
+									{...register("currentIdentityCard")}
 								/>
 							</div>
 
