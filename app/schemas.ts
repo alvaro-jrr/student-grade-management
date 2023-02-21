@@ -35,6 +35,10 @@ export const personSchema = z.object({
 		.regex(/^\d+$/, "Debe contener solo números"),
 });
 
+export const teacherSchema = personSchema.extend({
+	specialty: z.string().min(1, "Debe ingresar su especialidad"),
+});
+
 const parseDate = (value: unknown) => new Date(String(value));
 
 export const academicPeriodSchema = z.object({

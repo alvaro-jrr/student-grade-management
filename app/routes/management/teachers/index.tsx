@@ -18,16 +18,17 @@ export const loader = async ({ request }: LoaderArgs) => {
 					lastname: true,
 				},
 			},
+			specialty: true,
 			identityCard: true,
 		},
 	});
 
 	return json({
 		teachers: teachers.map(
-			({ person: { firstname, lastname }, identityCard }) => {
+			({ person: { firstname, lastname }, ...restOfTeacher }) => {
 				return {
 					fullname: `${firstname} ${lastname}`,
-					identityCard,
+					...restOfTeacher,
 				};
 			}
 		),
@@ -37,6 +38,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 const columnHelper = createColumnHelper<{
 	fullname: string;
 	identityCard: string;
+	specialty: string;
 }>();
 
 // Table columns
@@ -49,6 +51,10 @@ const columns = [
 		header: "Cédula",
 		cell: (info) => info.getValue(),
 	}),
+	columnHelper.accessor("specialty", {
+		header: "Especialidad",
+		cell: (info) => info.getValue(),
+	}),
 	columnHelper.accessor("identityCard", {
 		id: "actions",
 		header: "",
@@ -56,9 +62,11 @@ const columns = [
 			const identityCard = info.getValue();
 
 			return (
-				<ButtonLink variant="text" to={`edit/${identityCard}`}>
-					Editar
-				</ButtonLink>
+				<div className="flex justify-end">
+					<ButtonLink variant="text" to={`edit/${identityCard}`}>
+						Editar
+					</ButtonLink>
+				</div>
 			);
 		},
 	}),

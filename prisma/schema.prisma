@@ -96,6 +96,7 @@ model Coordinator {
 model Teacher {
     identityCard  String         @id
     person        Person         @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade)
+    specialty     String
     academicLoads AcademicLoad[]
 }
 
