@@ -140,6 +140,7 @@ function getRoles(): Omit<Role, "id">[] {
 		"REPRESENTATIVE",
 		"TEACHER",
 		"ADMIN",
+		"STUDENT",
 	];
 
 	return roleNames.map((roleName) => ({ name: roleName }));

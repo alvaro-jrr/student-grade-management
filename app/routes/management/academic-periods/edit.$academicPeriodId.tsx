@@ -9,19 +9,16 @@ import Card from "~/components/card";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
 import { Paragraph } from "~/components/typography";
+import { academicPeriodSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { updateAcademicPeriod } from "~/utils/form-validation.server";
 
-const parseDate = (value: unknown) => new Date(String(value));
-
-const schema = z.object({
+const editAcademicPeriodSchema = academicPeriodSchema.extend({
 	id: z.preprocess((value: unknown) => Number(value), z.number()),
-	startDate: z.preprocess(parseDate, z.date()),
-	endDate: z.preprocess(parseDate, z.date()),
 });
 
-const mutation = makeDomainFunction(schema)(
+const mutation = makeDomainFunction(editAcademicPeriodSchema)(
 	async ({ startDate, endDate, id }) => {
 		return await updateAcademicPeriod({ startDate, endDate, id });
 	}
@@ -30,7 +27,7 @@ const mutation = makeDomainFunction(schema)(
 export const action = async ({ request }: ActionArgs) => {
 	return formAction({
 		request,
-		schema,
+		schema: editAcademicPeriodSchema,
 		mutation,
 		successPath: "/management/academic-periods",
 	});
@@ -88,7 +85,11 @@ export default function EditAcademicPeriodRoute() {
 				title="Editar periodo académico"
 				supportingText="Realiza cambios de fecha en el periodo académico requerido"
 			>
-				<Form schema={schema} method="post" values={academicPeriod}>
+				<Form
+					schema={editAcademicPeriodSchema}
+					method="post"
+					values={academicPeriod}
+				>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

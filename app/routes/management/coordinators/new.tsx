@@ -1,36 +1,17 @@
 import type { ActionArgs } from "@remix-run/node";
 import { useNavigate } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
-import { z } from "zod";
 import { Button } from "~/components/button";
 import Card from "~/components/card";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
+import { personSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
-import { isEmailUnique, isIdentityCardStored } from "~/utils/session.server";
+import { isIdentityCardStored } from "~/utils/session.server";
 
-const schema = z.object({
-	firstname: z
-		.string()
-		.min(1, "Debe ingresar su nombre")
-		.max(25, "Debe ser menor o igual a 25 caracteres"),
-	lastname: z
-		.string()
-		.min(1, "Debe ingresar su apellido")
-		.max(25, "Debe ser menor o igual a 25 caracteres"),
-	identityCard: z
-		.string()
-		.min(1, "Debe ingresar su cédula de identidad")
-		.regex(/^\d+$/, "Debe contener solo números"),
-	email: z
-		.string()
-		.min(1, "Debe ingresar su email")
-		.email("Debe ingresar un email valido"),
-});
-
-const mutation = makeDomainFunction(schema)(
-	async ({ firstname, lastname, identityCard, email }) => {
+const mutation = makeDomainFunction(personSchema)(
+	async ({ firstname, lastname, identityCard }) => {
 		const identityCardExists = await isIdentityCardStored(identityCard);
 
 		// In case identity card is already taken
@@ -38,17 +19,15 @@ const mutation = makeDomainFunction(schema)(
 			throw "Cédula de identidad ya ha sido registrada anteriormente";
 		}
 
-		const emailExists = await isEmailUnique(email);
-
-		// In case email is already taken
-		if (emailExists) throw "Email ya ha sido tomado";
-
-		return await db.coordinator.create({
+		return await db.person.create({
 			data: {
 				firstname,
-				lastname,
 				identityCard,
-				email,
+				lastname,
+				role: "COORDINATOR",
+				coordinator: {
+					create: {},
+				},
 			},
 		});
 	}
@@ -57,7 +36,7 @@ const mutation = makeDomainFunction(schema)(
 export const action = async ({ request }: ActionArgs) => {
 	return formAction({
 		request,
-		schema,
+		schema: personSchema,
 		mutation,
 		successPath: "/management/coordinators",
 	});
@@ -72,7 +51,7 @@ export default function NewCoordinatorRoute() {
 				title="Crear coordinador"
 				supportingText="Un coordinador puede crear nuevos periodos académicos, aperturar secciones y asignar cargas"
 			>
-				<Form schema={schema}>
+				<Form schema={personSchema}>
 					{({ register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
@@ -97,14 +76,6 @@ export default function NewCoordinatorRoute() {
 									label="Cédula de Identidad"
 									placeholder="ej: 25605"
 									{...register("identityCard")}
-								/>
-
-								<TextField
-									error={errors.email?.message}
-									label="Email"
-									placeholder="ej: badbunny@gmail.com"
-									type="email"
-									{...register("email")}
 								/>
 							</div>
 

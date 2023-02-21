@@ -40,6 +40,7 @@ enum RoleName {
     COORDINATOR
     TEACHER
     REPRESENTATIVE
+    STUDENT
 }
 
 // Rol
@@ -59,14 +60,25 @@ model OperationByRole {
     roleId      Int
 }
 
+// Persona
+model Person {
+    identityCard   String          @id
+    createdAt      DateTime        @default(now())
+    updatedAt      DateTime        @updatedAt
+    firstname      String          @db.VarChar(25)
+    lastname       String          @db.VarChar(25)
+    representative Representative?
+    coordinator    Coordinator?
+    teacher        Teacher?
+    student        Student?
+    role           RoleName
+}
+
 // Representative
 model Representative {
     identityCard String                    @id
-    createdAt    DateTime                  @default(now())
-    updatedAt    DateTime                  @updatedAt
     email        String                    @unique
-    firstname    String                    @db.VarChar(25)
-    lastname     String                    @db.VarChar(25)
+    person       Person                    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade)
     phones       Phone[]
     students     RepresentativeByStudent[]
 }
@@ -74,11 +86,7 @@ model Representative {
 // Coordinador
 model Coordinator {
     identityCard   String    @id
-    createdAt      DateTime  @default(now())
-    updatedAt      DateTime  @updatedAt
-    email          String    @unique
-    firstname      String    @db.VarChar(25)
-    lastname       String    @db.VarChar(25)
+    person         Person    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade)
     entryDate      DateTime  @default(now())
     retirementDate DateTime?
     isActive       Boolean   @default(true)
@@ -87,12 +95,19 @@ model Coordinator {
 // Docente
 model Teacher {
     identityCard  String         @id
-    createdAt     DateTime       @default(now())
-    updatedAt     DateTime       @updatedAt
-    email         String         @unique
-    firstname     String         @db.VarChar(25)
-    lastname      String         @db.VarChar(25)
+    person        Person         @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade)
     academicLoads AcademicLoad[]
+}
+
+// Estudiante
+model Student {
+    identityCard    String                    @id
+    person          Person                    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade)
+    birthDate       DateTime
+    grades          Grade[]
+    representatives RepresentativeByStudent[]
+    enrollments     Enrollment[]
+    sections        StudentBySection[]
 }
 
 // Usuario
@@ -117,29 +132,14 @@ model Phone {
     phoneNumber                String
 }
 
-// Estudiante
-model Student {
-    id              Int                       @id @default(autoincrement())
-    createdAt       DateTime                  @default(now())
-    updatedAt       DateTime                  @updatedAt
-    identityCard    String                    @unique
-    firstname       String                    @db.VarChar(25)
-    lastname        String                    @db.VarChar(25)
-    birthDate       DateTime                  @db.Date
-    grades          Grade[]
-    representatives RepresentativeByStudent[]
-    enrollments     Enrollment[]
-    sections        StudentBySection[]
-}
-
 // Representante
 model RepresentativeByStudent {
     id                         Int            @id @default(autoincrement())
     createdAt                  DateTime       @default(now())
     representative             Representative @relation(fields: [representativeIdentityCard], references: [identityCard], onDelete: Cascade)
     representativeIdentityCard String
-    student                    Student        @relation(fields: [studentId], references: [id])
-    studentId                  Int
+    student                    Student        @relation(fields: [studentIdentityCard], references: [identityCard])
+    studentIdentityCard        String
 }
 
 // Periodo Academico
@@ -225,31 +225,31 @@ model Assignment {
 
 // Calificacion
 model Grade {
-    id           Int        @id @default(autoincrement())
-    createdAt    DateTime   @default(now())
-    updatedAt    DateTime   @updatedAt
-    lapse        Lapse      @relation(fields: [lapseId], references: [id])
-    lapseId      Int
-    student      Student    @relation(fields: [studentId], references: [id])
-    studentId    Int
-    assignment   Assignment @relation(fields: [assignmentId], references: [id])
-    assignmentId Int
-    score        Float
-    note         String
+    id                  Int        @id @default(autoincrement())
+    createdAt           DateTime   @default(now())
+    updatedAt           DateTime   @updatedAt
+    lapse               Lapse      @relation(fields: [lapseId], references: [id])
+    lapseId             Int
+    student             Student    @relation(fields: [studentIdentityCard], references: [identityCard])
+    studentIdentityCard String
+    assignment          Assignment @relation(fields: [assignmentId], references: [id])
+    assignmentId        Int
+    score               Float
+    note                String
 
-    @@unique([lapseId, studentId, assignmentId])
+    @@unique([lapseId, studentIdentityCard, assignmentId])
 }
 
 // Inscripcion
 model Enrollment {
     id                          Int                       @id @default(autoincrement())
     createdAt                   DateTime                  @default(now())
-    student                     Student                   @relation(fields: [studentId], references: [id])
-    studentId                   Int
+    student                     Student                   @relation(fields: [studentIdentityCard], references: [identityCard])
+    studentIdentityCard         String
     studyYearByAcademicPeriod   StudyYearByAcademicPeriod @relation(fields: [studyYearByAcademicPeriodId], references: [id])
     studyYearByAcademicPeriodId Int
 
-    @@unique([studentId, studyYearByAcademicPeriodId])
+    @@unique([studentIdentityCard, studyYearByAcademicPeriodId])
 }
 
 // Seccion
@@ -265,12 +265,12 @@ model Section {
 
 // Estudiante por Seccion
 model StudentBySection {
-    id        Int      @id @default(autoincrement())
-    createdAt DateTime @default(now())
-    section   Section  @relation(fields: [sectionId], references: [id])
-    sectionId Int
-    student   Student  @relation(fields: [studentId], references: [id])
-    studentId Int
+    id                  Int      @id @default(autoincrement())
+    createdAt           DateTime @default(now())
+    section             Section  @relation(fields: [sectionId], references: [id])
+    sectionId           Int
+    student             Student  @relation(fields: [studentIdentityCard], references: [identityCard])
+    studentIdentityCard String
 
-    @@unique([studentId, sectionId])
+    @@unique([studentIdentityCard, sectionId])
 }

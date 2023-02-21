@@ -10,6 +10,7 @@ import Card from "~/components/card";
 import { Button } from "~/components/button";
 import { TextField } from "~/components/form-elements";
 import { H2, Paragraph } from "~/components/typography";
+import { userSchema } from "~/schemas";
 
 function validateUrl(url: string) {
 	const urls = ["/management"];
@@ -17,13 +18,11 @@ function validateUrl(url: string) {
 	return urls.includes(url) ? url : "/management";
 }
 
-const schema = z.object({
-	username: z.string().min(1, "Debe ingresar su nombre de usuario"),
-	password: z.string().min(1, "Debe ingresar su contraseña"),
+const loginSchema = userSchema.extend({
 	redirectTo: z.optional(z.string()),
 });
 
-const mutation = makeDomainFunction(schema)(
+const mutation = makeDomainFunction(loginSchema)(
 	async ({ username, password, redirectTo }) => {
 		const user = await login({ username, password });
 
@@ -40,7 +39,7 @@ export const action = async ({ request }: ActionArgs) => {
 	// Mutate form
 	const result = await performMutation({
 		request,
-		schema,
+		schema: loginSchema,
 		mutation,
 	});
 
@@ -73,7 +72,7 @@ export default function LoginRoute() {
 			</div>
 
 			<Card variant="elevated">
-				<Form schema={schema} method="post">
+				<Form schema={loginSchema} method="post">
 					{({ register, formState: { errors }, Errors }) => (
 						<>
 							<div className="space-y-4">

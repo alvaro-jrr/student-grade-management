@@ -12,14 +12,16 @@ export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserId(request);
 
 	const coordinators = await db.coordinator.findMany({
-		orderBy: { firstname: "asc" },
 		select: {
-			firstname: true,
-			lastname: true,
-			email: true,
 			entryDate: true,
-			retirementDate: true,
+			person: {
+				select: {
+					firstname: true,
+					lastname: true,
+				},
+			},
 			identityCard: true,
+			retirementDate: true,
 			isActive: true,
 		},
 	});
@@ -27,10 +29,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 	return json({
 		coordinators: coordinators.map(
 			({
+				person: { firstname, lastname },
 				entryDate,
 				retirementDate,
-				firstname,
-				lastname,
 				...restOfCoordinator
 			}) => {
 				return {
@@ -48,7 +49,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 const columnHelper = createColumnHelper<{
 	fullname: string;
-	email: string;
 	identityCard: string;
 	entryDate: string;
 	retirementDate: string;
@@ -72,10 +72,6 @@ const columns = [
 	columnHelper.accessor("retirementDate", {
 		header: "Fecha de Retiro",
 		cell: (info) => info.getValue() || "",
-	}),
-	columnHelper.accessor("email", {
-		header: "Email",
-		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("identityCard", {
 		id: "actions",

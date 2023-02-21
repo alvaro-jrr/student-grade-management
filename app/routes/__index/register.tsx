@@ -3,7 +3,6 @@ import { Link } from "@remix-run/react";
 import { Form } from "~/components/form";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
-import { z } from "zod";
 import { Button } from "~/components/button";
 import Card from "~/components/card";
 import { TextField } from "~/components/form-elements";
@@ -15,20 +14,9 @@ import {
 	createUserSession,
 } from "~/utils/session.server";
 import { badRequest } from "~/utils/request.server";
+import { registerSchema } from "~/schemas";
 
-const schema = z.object({
-	identityCard: z.string().min(1, "Debe ingresar su cédula de identidad"),
-	username: z
-		.string()
-		.min(1, "Debe ingresar un nombre de usuario")
-		.min(5, "El nombre de usuario debe tener como mínimo 5 caracteres"),
-	password: z
-		.string()
-		.min(1, "Debe establecer una contraseña")
-		.min(5, "La contraseña debe tener como mínimo 5 caracteres"),
-});
-
-const mutation = makeDomainFunction(schema)(
+const mutation = makeDomainFunction(registerSchema)(
 	async ({ identityCard, username, password }) => {
 		// Check if identity card exists
 		const identityCardExists = await isIdentityCardStored(identityCard);
@@ -65,7 +53,7 @@ export const action = async ({ request }: ActionArgs) => {
 	// Mutate form
 	const result = await performMutation({
 		request,
-		schema,
+		schema: registerSchema,
 		mutation,
 	});
 
@@ -95,7 +83,7 @@ export default function Register() {
 			</div>
 
 			<Card variant="elevated">
-				<Form schema={schema} method="post">
+				<Form schema={registerSchema} method="post">
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

@@ -1,45 +1,36 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
-import { z } from "zod";
 import { Button } from "~/components/button";
 import Card from "~/components/card";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
+import { personSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
-
-const schema = z.object({
-	firstname: z
-		.string()
-		.min(1, "Debe ingresar su nombre")
-		.max(25, "Debe ser menor o igual a 25 caracteres"),
-	lastname: z
-		.string()
-		.min(1, "Debe ingresar su apellido")
-		.max(25, "Debe ser menor o igual a 25 caracteres"),
-	identityCard: z
-		.string()
-		.min(1, "Debe ingresar su cédula de identidad")
-		.regex(/^\d+$/, "Debe contener solo números"),
-	email: z
-		.string()
-		.min(1, "Debe ingresar su email")
-		.email("Debe ingresar un email valido"),
-});
 
 export const loader = async ({ params }: LoaderArgs) => {
 	const identityCard = String(params.identityCard);
 
-	return json({
-		coordinator: await db.coordinator.findUnique({
-			where: { identityCard },
-			select: {
-				firstname: true,
-				lastname: true,
-				identityCard: true,
-				email: true,
+	const coordinator = await db.coordinator.findUnique({
+		where: { identityCard },
+		select: {
+			person: {
+				select: {
+					firstname: true,
+					lastname: true,
+				},
 			},
-		}),
+		},
+	});
+
+	return json({
+		coordinator: coordinator
+			? {
+					identityCard,
+					firstname: coordinator.person.firstname,
+					lastname: coordinator.person.lastname,
+			  }
+			: null,
 	});
 };
 
@@ -57,7 +48,7 @@ export default function EditCoordinatorRoute() {
 				title="Editar coordinador"
 				supportingText="Actualiza los datos de un coordinador requerido"
 			>
-				<Form schema={schema} method="post" values={coordinator}>
+				<Form schema={personSchema} method="post" values={coordinator}>
 					{({ register }) => (
 						<>
 							<div className="space-y-4">
@@ -80,13 +71,6 @@ export default function EditCoordinatorRoute() {
 									label="Cédula de Identidad"
 									placeholder="ej: 25605"
 									{...register("identityCard")}
-								/>
-
-								<TextField
-									label="Email"
-									placeholder="ej: badbunny@gmail.com"
-									type="email"
-									{...register("email")}
 								/>
 							</div>
 
