@@ -25,15 +25,13 @@ const mutation = makeDomainFunction(editTeacherSchema)(
 		firstname,
 		lastname,
 	}) => {
-		let identityCardTaken = true;
-
 		// Check if there's change between IDs
-		if (identityCard !== currentIdentityCard) {
-			identityCardTaken = await isIdentityCardStored(identityCard);
-		}
-
-		if (identityCardTaken)
+		if (
+			identityCard !== currentIdentityCard &&
+			(await isIdentityCardStored(identityCard))
+		) {
 			throw "La nueva cédula de identidad ya ha sido tomada";
+		}
 
 		const user = await db.user.findUnique({
 			where: { identityCard: currentIdentityCard },
