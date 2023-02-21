@@ -1,6 +1,8 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
+import { makeDomainFunction } from "domain-functions";
+import { z } from "zod";
 import { Button } from "~/components/button";
 import Card from "~/components/card";
 import DataNotFound from "~/components/data-not-found";
@@ -8,6 +10,69 @@ import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
 import { teacherSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
+import { formAction } from "~/utils/form-action.server";
+import { isIdentityCardStored } from "~/utils/session.server";
+
+const editTeacherSchema = teacherSchema.extend({
+	currentIdentityCard: z.string(),
+});
+
+const mutation = makeDomainFunction(editTeacherSchema)(
+	async ({
+		identityCard,
+		specialty,
+		currentIdentityCard,
+		firstname,
+		lastname,
+	}) => {
+		let identityCardTaken = true;
+
+		// Check if there's change between IDs
+		if (identityCard !== currentIdentityCard) {
+			identityCardTaken = await isIdentityCardStored(identityCard);
+		}
+
+		if (identityCardTaken)
+			throw "La nueva cédula de identidad ya ha sido tomada";
+
+		const user = await db.user.findUnique({
+			where: { identityCard: currentIdentityCard },
+		});
+
+		// Update identity card in user, in case coordinator has user
+		if (user) {
+			await db.user.update({
+				where: { identityCard: currentIdentityCard },
+				data: {
+					identityCard,
+				},
+			});
+		}
+
+		return await db.teacher.update({
+			where: { identityCard: currentIdentityCard },
+			data: {
+				specialty,
+				person: {
+					update: {
+						firstname,
+						lastname,
+						identityCard,
+					},
+				},
+			},
+		});
+	}
+);
+
+export const action = async ({ request }: ActionArgs) => {
+	return formAction({
+		request,
+		schema: editTeacherSchema,
+		mutation,
+		successPath: "/management/teachers",
+	});
+};
 
 export const loader = async ({ params }: LoaderArgs) => {
 	const identityCard = String(params.identityCard);
@@ -60,7 +125,14 @@ export default function EditTeacherRoute() {
 				title="Editar docente"
 				supportingText="Actualiza los datos de un docente requerido"
 			>
-				<Form schema={teacherSchema} method="post" values={teacher}>
+				<Form
+					schema={editTeacherSchema}
+					method="post"
+					values={{
+						...teacher,
+						currentIdentityCard: teacher.identityCard,
+					}}
+				>
 					{({ register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
@@ -92,6 +164,11 @@ export default function EditTeacherRoute() {
 									label="Especialidad"
 									placeholder="ej: Deporte"
 									{...register("specialty")}
+								/>
+
+								<input
+									type="hidden"
+									{...register("currentIdentityCard")}
 								/>
 							</div>
 

@@ -84,7 +84,6 @@ export const loader = async ({ params }: LoaderArgs) => {
 					identityCard,
 					firstname: coordinator.person.firstname,
 					lastname: coordinator.person.lastname,
-					currentIdentityCard: identityCard,
 			  }
 			: null,
 	});
@@ -116,7 +115,10 @@ export default function EditCoordinatorRoute() {
 				<Form
 					schema={editCoordinatorSchema}
 					method="post"
-					values={coordinator}
+					values={{
+						...coordinator,
+						currentIdentityCard: coordinator.identityCard,
+					}}
 				>
 					{({ register }) => (
 						<>
