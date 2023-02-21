@@ -9,9 +9,9 @@ import { TextField } from "~/components/form-elements";
 import { H2, Paragraph } from "~/components/typography";
 import { db } from "~/utils/db.server";
 import {
-	isIdentityCardStored,
 	register,
 	createUserSession,
+	isIdentityCardStored,
 } from "~/utils/session.server";
 import { badRequest } from "~/utils/request.server";
 import { registerSchema } from "~/schemas";
