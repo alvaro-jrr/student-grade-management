@@ -6,6 +6,7 @@ import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
+import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
 import { Paragraph } from "~/components/typography";
@@ -60,21 +61,11 @@ export default function EditAcademicPeriodRoute() {
 	if (!academicPeriod) {
 		return (
 			<div className="flex h-full items-center justify-center">
-				<Card title="Periodo académico no encontrado">
-					<Paragraph>
-						Periodo académico con ID #{academicPeriodId} no ha sido
-						encontrado
-					</Paragraph>
-
-					<div className="flex justify-end">
-						<ButtonLink
-							to="/management/academic-periods"
-							variant="secondary"
-						>
-							Volver
-						</ButtonLink>
-					</div>
-				</Card>
+				<DataNotFound
+					description={`Periodo académico con ID #${academicPeriodId} no ha sido
+						encontrado`}
+					to="/management/academic-periods"
+				/>
 			</div>
 		);
 	}

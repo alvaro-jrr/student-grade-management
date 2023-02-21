@@ -6,13 +6,13 @@ import Card from "~/components/card";
 import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
-import { personSchema } from "~/schemas";
+import { teacherSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 
 export const loader = async ({ params }: LoaderArgs) => {
 	const identityCard = String(params.identityCard);
 
-	const coordinator = await db.coordinator.findUnique({
+	const teacher = await db.teacher.findUnique({
 		where: { identityCard },
 		select: {
 			person: {
@@ -21,31 +21,33 @@ export const loader = async ({ params }: LoaderArgs) => {
 					lastname: true,
 				},
 			},
+			specialty: true,
 		},
 	});
 
 	return json({
-		coordinator: coordinator
+		teacher: teacher
 			? {
 					identityCard,
-					firstname: coordinator.person.firstname,
-					lastname: coordinator.person.lastname,
+					firstname: teacher.person.firstname,
+					lastname: teacher.person.lastname,
+					specialty: teacher.specialty,
 			  }
 			: null,
 	});
 };
 
-export default function EditCoordinatorRoute() {
+export default function EditTeacherRoute() {
 	const identityCard = useParams().identityCard;
-	const { coordinator } = useLoaderData<typeof loader>();
+	const { teacher } = useLoaderData<typeof loader>();
 	const navigate = useNavigate();
 
-	if (!coordinator) {
+	if (!teacher) {
 		return (
 			<div className="flex h-full items-center justify-center">
 				<DataNotFound
-					to="/management/coordinators"
-					description={`Coordinador con cédula de identidad ${identityCard} no ha sido
+					to="/management/teachers"
+					description={`Docente con cédula de identidad ${identityCard} no ha sido
 						encontrado`}
 				/>
 			</div>
@@ -55,32 +57,41 @@ export default function EditCoordinatorRoute() {
 	return (
 		<div className="flex h-full items-center justify-center">
 			<Card
-				title="Editar coordinador"
-				supportingText="Actualiza los datos de un coordinador requerido"
+				title="Editar docente"
+				supportingText="Actualiza los datos de un docente requerido"
 			>
-				<Form schema={personSchema} method="post" values={coordinator}>
-					{({ register }) => (
+				<Form schema={teacherSchema} method="post" values={teacher}>
+					{({ register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
 								<div className="flex flex-col gap-4 sm:flex-row">
 									<TextField
-										type="text"
+										error={errors.firstname?.message}
 										label="Nombre"
-										placeholder="ej: Benito"
+										placeholder="ej: Cristiano"
 										{...register("firstname")}
 									/>
 
 									<TextField
-										placeholder="ej: Martinez"
+										error={errors.lastname?.message}
+										placeholder="ej: Ronaldo"
 										label="Apellido"
 										{...register("lastname")}
 									/>
 								</div>
 
 								<TextField
+									error={errors.identityCard?.message}
 									label="Cédula de Identidad"
-									placeholder="ej: 25605"
+									placeholder="ej: 25600"
 									{...register("identityCard")}
+								/>
+
+								<TextField
+									error={errors.specialty?.message}
+									label="Especialidad"
+									placeholder="ej: Deporte"
+									{...register("specialty")}
 								/>
 							</div>
 

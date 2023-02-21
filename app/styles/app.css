@@ -569,6 +569,11 @@ video {
   margin-right: 10vw;
 }
 
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .block {
   display: block;
 }
@@ -613,6 +618,10 @@ video {
   height: 1.5rem;
 }
 
+.max-h-\[50\%\] {
+  max-height: 50%;
+}
+
 .min-h-\[40px\] {
   min-height: 40px;
 }
@@ -646,8 +655,20 @@ video {
   max-width: 100%;
 }
 
+.max-w-sm {
+  max-width: 24rem;
+}
+
+.max-w-\[15rem\] {
+  max-width: 15rem;
+}
+
 .flex-1 {
   flex: 1 1 0%;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
 }
 
 .translate-x-full {
