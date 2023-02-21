@@ -78,7 +78,7 @@ model Person {
 model Representative {
     identityCard String                    @id
     email        String                    @unique
-    person       Person                    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade)
+    person       Person                    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade, onUpdate: Cascade)
     phones       Phone[]
     students     RepresentativeByStudent[]
 }
@@ -86,7 +86,7 @@ model Representative {
 // Coordinador
 model Coordinator {
     identityCard   String    @id
-    person         Person    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade)
+    person         Person    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade, onUpdate: Cascade)
     entryDate      DateTime  @default(now())
     retirementDate DateTime?
     isActive       Boolean   @default(true)
@@ -95,7 +95,7 @@ model Coordinator {
 // Docente
 model Teacher {
     identityCard  String         @id
-    person        Person         @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade)
+    person        Person         @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade, onUpdate: Cascade)
     specialty     String
     academicLoads AcademicLoad[]
 }
@@ -103,7 +103,7 @@ model Teacher {
 // Estudiante
 model Student {
     identityCard    String                    @id
-    person          Person                    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade)
+    person          Person                    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade, onUpdate: Cascade)
     birthDate       DateTime
     grades          Grade[]
     representatives RepresentativeByStudent[]
