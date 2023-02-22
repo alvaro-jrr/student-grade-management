@@ -5,15 +5,21 @@ export const userSchema = z.object({
 	password: z.string().min(1, "Debe ingresar su contraseña"),
 });
 
+const identityCard = z
+	.string()
+	.min(1, "Debe ingresar su cédula de identidad")
+	.regex(/^\d+$/, "Debe contener solo números");
+
 export const registerSchema = z.object({
-	identityCard: z
-		.string()
-		.min(1, "Debe ingresar su cédula de identidad")
-		.regex(/^\d+$/, "Debe contener solo números"),
+	identityCard,
 	username: z
 		.string()
 		.min(1, "Debe ingresar un nombre de usuario")
-		.min(5, "El nombre de usuario debe tener como mínimo 5 caracteres"),
+		.min(5, "El nombre de usuario debe tener como mínimo 5 caracteres")
+		.regex(
+			/^[A-Za-z][A-Za-z0-9_]/,
+			"Debe comenzar con un caracter alfabético y solo puede contener caracteres alfanúmericos y guiones bajos (_)"
+		),
 	password: z
 		.string()
 		.min(1, "Debe establecer una contraseña")
@@ -29,10 +35,7 @@ export const personSchema = z.object({
 		.string()
 		.min(1, "Debe ingresar su apellido")
 		.max(25, "Debe ser menor o igual a 25 caracteres"),
-	identityCard: z
-		.string()
-		.min(1, "Debe ingresar su cédula de identidad")
-		.regex(/^\d+$/, "Debe contener solo números"),
+	identityCard,
 });
 
 export const teacherSchema = personSchema.extend({
@@ -40,6 +43,10 @@ export const teacherSchema = personSchema.extend({
 });
 
 const parseDate = (value: unknown) => new Date(String(value));
+
+export const studentSchema = personSchema.extend({
+	birthDate: z.preprocess(parseDate, z.date()),
+});
 
 export const academicPeriodSchema = z.object({
 	startDate: z.preprocess(parseDate, z.date()),

@@ -5,13 +5,13 @@ import { Button } from "~/components/button";
 import Card from "~/components/card";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
-import { teacherSchema } from "~/schemas";
+import { studentSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { isIdentityCardStored } from "~/utils/session.server";
 
-const mutation = makeDomainFunction(teacherSchema)(
-	async ({ firstname, lastname, identityCard, specialty }) => {
+const mutation = makeDomainFunction(studentSchema)(
+	async ({ firstname, lastname, identityCard, birthDate }) => {
 		const identityCardExists = await isIdentityCardStored(identityCard);
 
 		// In case identity card is already taken
@@ -24,10 +24,10 @@ const mutation = makeDomainFunction(teacherSchema)(
 				firstname,
 				identityCard,
 				lastname,
-				role: "TEACHER",
-				teacher: {
+				role: "STUDENT",
+				student: {
 					create: {
-						specialty,
+						birthDate,
 					},
 				},
 			},
@@ -38,22 +38,22 @@ const mutation = makeDomainFunction(teacherSchema)(
 export const action = async ({ request }: ActionArgs) => {
 	return formAction({
 		request,
-		schema: teacherSchema,
+		schema: studentSchema,
 		mutation,
-		successPath: "/management/teachers",
+		successPath: "/management/students",
 	});
 };
 
-export default function NewTeacherRoute() {
+export default function NewStudentRoute() {
 	const navigate = useNavigate();
 
 	return (
 		<div className="flex h-full items-center justify-center">
 			<Card
-				title="Crear docente"
-				supportingText="Un docente imparte asignaturas y asigna evaluaciones"
+				title="Crear estudiante"
+				supportingText="Un estudiante puede inscribirse y realizar evaluaciones"
 			>
-				<Form schema={teacherSchema}>
+				<Form schema={studentSchema}>
 					{({ register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
@@ -61,13 +61,13 @@ export default function NewTeacherRoute() {
 									<TextField
 										error={errors.firstname?.message}
 										label="Nombre"
-										placeholder="ej: Cristiano"
+										placeholder="ej: Carolina"
 										{...register("firstname")}
 									/>
 
 									<TextField
 										error={errors.lastname?.message}
-										placeholder="ej: Ronaldo"
+										placeholder="ej: Giraldo"
 										label="Apellido"
 										{...register("lastname")}
 									/>
@@ -76,15 +76,15 @@ export default function NewTeacherRoute() {
 								<TextField
 									error={errors.identityCard?.message}
 									label="Cédula de Identidad"
-									placeholder="ej: 25600"
+									placeholder="ej: 0516"
 									{...register("identityCard")}
 								/>
 
 								<TextField
-									error={errors.specialty?.message}
-									label="Especialidad"
-									placeholder="ej: Deporte"
-									{...register("specialty")}
+									error={errors.birthDate?.message}
+									type="date"
+									label="Fecha de Nacimiento"
+									{...register("birthDate")}
 								/>
 							</div>
 

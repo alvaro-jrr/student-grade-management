@@ -8,6 +8,7 @@ const LINKS = [
 	{ name: "Periodos Académicos", to: "academic-periods" },
 	{ name: "Coordinadores", to: "coordinators" },
 	{ name: "Docentes", to: "teachers" },
+	{ name: "Estudiantes", to: "students" },
 ];
 
 interface SideBarProps {
