@@ -4,7 +4,6 @@ import { db } from "~/utils/db.server";
 
 export const action = async ({ params }: ActionArgs) => {
 	const identityCard = params.identityCard;
-	console.log(identityCard);
 
 	if (!identityCard) return null;
 

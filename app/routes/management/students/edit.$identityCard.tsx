@@ -25,8 +25,6 @@ const mutation = makeDomainFunction(editStudentSchema)(
 		birthDate,
 		currentIdentityCard,
 	}) => {
-		console.log(identityCard, currentIdentityCard);
-
 		// Check if there's change between IDs
 		if (
 			identityCard !== currentIdentityCard &&
