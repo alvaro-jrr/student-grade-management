@@ -56,8 +56,6 @@ export const academicPeriodSchema = z.object({
 export const courseSchema = z.object({
 	title: z.string().min(1, "Debe ingresar el titulo"),
 	year: z.preprocess((value: unknown) => {
-		console.log(value, Number(value), typeof value);
-
 		return value ? Number(value) : undefined;
 	}, z.number({ required_error: "Debe seleccionar un año" })),
 });

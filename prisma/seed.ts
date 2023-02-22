@@ -30,6 +30,11 @@ async function seed() {
 		await prisma.operationByRole.create({ data: operationByRole });
 	}
 
+	// Create study years (1 to 5)
+	for (let year = 1; year <= 5; year++) {
+		await prisma.studyYear.create({ data: { year } });
+	}
+
 	await prisma.user.create({
 		data: {
 			username: "alvarojrr",
