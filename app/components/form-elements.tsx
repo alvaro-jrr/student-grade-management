@@ -11,7 +11,7 @@ export interface FormFieldProps {
 }
 
 const fieldClasses =
-	"min-h-[40px] w-full px-4 border border-gray-300 rounded-md text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500  focus:outline-none aria-[invalid=true]:focus:border-red-500 aria-[invalid=true]:focus:ring-red-500";
+	"min-h-[40px] w-full bg-white px-4 border border-gray-300 rounded-md text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500  focus:outline-none aria-[invalid=true]:focus:border-red-500 aria-[invalid=true]:focus:ring-red-500";
 
 function FormField({
 	children,
@@ -88,4 +88,54 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
 
 TextField.displayName = "TextField";
 
-export { TextField };
+type SelectProps = ComponentPropsWithoutRef<"select"> &
+	Omit<FormFieldProps, "children"> & {
+		options: { name: string | number; value: string | number }[];
+	};
+
+const Select = forwardRef<HTMLSelectElement, SelectProps>(
+	(
+		{
+			label,
+			name,
+			error,
+			optional,
+			supportingText,
+			options,
+			placeholder,
+			...rest
+		},
+		ref
+	) => {
+		return (
+			<FormField
+				label={label}
+				name={name}
+				error={error}
+				optional={optional}
+				supportingText={supportingText}
+			>
+				<select
+					name={name}
+					className={fieldClasses}
+					ref={ref}
+					{...rest}
+				>
+					<option value="">
+						{placeholder ? placeholder : "Seleccione una opción"}
+					</option>
+
+					{options.map((option) => (
+						<option value={option.value} key={option.value}>
+							{option.name}
+						</option>
+					))}
+				</select>
+			</FormField>
+		);
+	}
+);
+
+Select.displayName = "Select";
+
+export { TextField, Select };

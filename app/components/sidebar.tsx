@@ -9,6 +9,7 @@ const LINKS = [
 	{ name: "Coordinadores", to: "coordinators" },
 	{ name: "Docentes", to: "teachers" },
 	{ name: "Estudiantes", to: "students" },
+	{ name: "Asignaturas", to: "courses" },
 ];
 
 interface SideBarProps {
