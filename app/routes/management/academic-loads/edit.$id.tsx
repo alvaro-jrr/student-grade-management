@@ -1,55 +1,51 @@
-import type { ActionArgs } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
 import { getYear } from "date-fns";
 import { makeDomainFunction } from "domain-functions";
+import { z } from "zod";
 import { Button } from "~/components/button";
 import Card from "~/components/card";
+import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { Select } from "~/components/form-elements";
 import { academicLoadSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 
-const mutation = makeDomainFunction(academicLoadSchema)(
-	async ({ academicPeriodId, courseId, teacherIdentityCard }) => {
-		const academicLoad = await db.academicLoad.findFirst({
-			where: {
-				academicPeriodId,
-				courseId,
-			},
-			select: { id: true, teacherIdentityCard: true },
-		});
+const editAcademicLoadSchema = academicLoadSchema.extend({
+	id: z.number(),
+});
 
-		const data = {
-			academicPeriodId,
-			courseId,
-			teacherIdentityCard,
-		};
-
-		// Create
-		if (!academicLoad) return await db.academicLoad.create({ data });
-
+const mutation = makeDomainFunction(editAcademicLoadSchema)(
+	async ({ academicPeriodId, courseId, teacherIdentityCard, id }) => {
 		// Update
 		return await db.academicLoad.update({
-			where: {
-				id: academicLoad.id,
+			where: { id },
+			data: {
+				academicPeriodId,
+				courseId,
+				teacherIdentityCard,
 			},
-			data,
 		});
 	}
 );
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request, params }: ActionArgs) => {
+	const id = Number(params.id);
+
 	return formAction({
 		request,
 		schema: academicLoadSchema,
 		mutation,
+		transformValues: (values) => ({ ...values, id }),
 		successPath: "/management/academic-loads",
 	});
 };
 
-export const loader = async () => {
+export const loader = async ({ params }: LoaderArgs) => {
+	const id = Number(params.id);
+
 	const academicPeriods = await db.academicPeriod.findMany({
 		select: { id: true, startDate: true, endDate: true },
 	});
@@ -70,6 +66,15 @@ export const loader = async () => {
 		select: { id: true, title: true },
 	});
 
+	const academicLoad = await db.academicLoad.findUnique({
+		where: { id },
+		select: {
+			academicPeriodId: true,
+			courseId: true,
+			teacherIdentityCard: true,
+		},
+	});
+
 	return json({
 		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
 			id,
@@ -82,20 +87,38 @@ export const loader = async () => {
 			})
 		),
 		courses,
+		academicLoad,
 	});
 };
 
-export default function NewAcademicLoadRoute() {
+export default function EditAcademicLoadRoute() {
+	const id = useParams().id;
 	const data = useLoaderData<typeof loader>();
 	const navigate = useNavigate();
+
+	if (!data.academicLoad) {
+		return (
+			<div className="flex h-full items-center justify-center">
+				<DataNotFound
+					description={`Carga Académica con ID #${id} no ha sido
+						encontrado`}
+					to="/management/academic-periods"
+				/>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex h-full items-center justify-center">
 			<Card
-				title="Asignar carga académica"
-				supportingText="Asigna a un docente una asignatura en un periodo académico"
+				title="Editar carga académica"
+				supportingText="Editar la carga académica de un docente en un periodo académico"
 			>
-				<Form method="post" schema={academicLoadSchema}>
+				<Form
+					method="post"
+					schema={academicLoadSchema}
+					values={data.academicLoad}
+				>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

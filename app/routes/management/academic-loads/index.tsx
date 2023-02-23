@@ -4,7 +4,7 @@ import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { getYear } from "date-fns";
-import { Button } from "~/components/button";
+import { Button, ButtonLink } from "~/components/button";
 import { Select, TextField } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
@@ -104,6 +104,20 @@ const columns = [
 	columnHelper.accessor("title", {
 		header: "Asignatura",
 		cell: (info) => info.getValue(),
+	}),
+	columnHelper.accessor("id", {
+		header: "",
+		cell: (info) => {
+			const id = info.getValue();
+
+			return (
+				<div className="flex justify-end">
+					<ButtonLink variant="text" to={`edit/${id}`}>
+						Editar
+					</ButtonLink>
+				</div>
+			);
+		},
 	}),
 ];
 
