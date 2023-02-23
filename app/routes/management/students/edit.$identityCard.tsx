@@ -93,11 +93,11 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 
 export default function EditCoordinatorRoute() {
+	const data = useLoaderData<typeof loader>();
 	const identityCard = useParams().identityCard;
-	const { student } = useLoaderData<typeof loader>();
 	const navigate = useNavigate();
 
-	if (!student) {
+	if (!data.student) {
 		return (
 			<div className="flex h-full items-center justify-center">
 				<DataNotFound
@@ -115,7 +115,7 @@ export default function EditCoordinatorRoute() {
 				title="Editar estudiante"
 				supportingText="Actualiza los datos de un estudiante requerido"
 			>
-				<Form schema={studentSchema} values={student}>
+				<Form schema={studentSchema} values={data.student}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

@@ -53,11 +53,11 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 
 export default function EditAcademicPeriodRoute() {
-	const { academicPeriod } = useLoaderData<typeof loader>();
+	const data = useLoaderData<typeof loader>();
 	const academicPeriodId = Number(useParams().academicPeriodId);
 	const navigate = useNavigate();
 
-	if (!academicPeriod) {
+	if (!data.academicPeriod) {
 		return (
 			<div className="flex h-full items-center justify-center">
 				<DataNotFound
@@ -78,7 +78,7 @@ export default function EditAcademicPeriodRoute() {
 				<Form
 					schema={editAcademicPeriodSchema}
 					method="post"
-					values={academicPeriod}
+					values={data.academicPeriod}
 				>
 					{({ Errors, register, formState: { errors } }) => (
 						<>

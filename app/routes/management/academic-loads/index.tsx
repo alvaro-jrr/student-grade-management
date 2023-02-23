@@ -4,7 +4,7 @@ import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { getYear } from "date-fns";
-import { Button, ButtonLink } from "~/components/button";
+import { ButtonLink } from "~/components/button";
 import { Select, TextField } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
@@ -25,13 +25,12 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 	// Get academic loads
 	const academicLoads = await db.academicLoad.findMany({
-		where:
-			teacherId && academicPeriodId
-				? {
-						academicPeriodId: Number(academicPeriodId),
-						teacherIdentityCard: teacherId,
-				  }
+		where: {
+			academicPeriodId: academicPeriodId
+				? Number(academicPeriodId)
 				: undefined,
+			teacherIdentityCard: teacherId || undefined,
+		},
 		select: {
 			id: true,
 			academicPeriod: {

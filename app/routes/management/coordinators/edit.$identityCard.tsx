@@ -94,11 +94,11 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 
 export default function EditCoordinatorRoute() {
+	const data = useLoaderData<typeof loader>();
 	const identityCard = useParams().identityCard;
-	const { coordinator } = useLoaderData<typeof loader>();
 	const navigate = useNavigate();
 
-	if (!coordinator) {
+	if (!data.coordinator) {
 		return (
 			<div className="flex h-full items-center justify-center">
 				<DataNotFound
@@ -116,7 +116,11 @@ export default function EditCoordinatorRoute() {
 				title="Editar coordinador"
 				supportingText="Actualiza los datos de un coordinador requerido"
 			>
-				<Form schema={personSchema} method="post" values={coordinator}>
+				<Form
+					schema={personSchema}
+					method="post"
+					values={data.coordinator}
+				>
 					{({ register }) => (
 						<>
 							<div className="space-y-4">

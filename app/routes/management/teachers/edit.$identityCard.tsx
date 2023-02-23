@@ -107,11 +107,11 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 
 export default function EditTeacherRoute() {
+	const data = useLoaderData<typeof loader>();
 	const identityCard = useParams().identityCard;
-	const { teacher } = useLoaderData<typeof loader>();
 	const navigate = useNavigate();
 
-	if (!teacher) {
+	if (!data.teacher) {
 		return (
 			<div className="flex h-full items-center justify-center">
 				<DataNotFound
@@ -129,7 +129,11 @@ export default function EditTeacherRoute() {
 				title="Editar docente"
 				supportingText="Actualiza los datos de un docente requerido"
 			>
-				<Form schema={teacherSchema} method="post" values={teacher}>
+				<Form
+					schema={teacherSchema}
+					method="post"
+					values={data.teacher}
+				>
 					{({ register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
