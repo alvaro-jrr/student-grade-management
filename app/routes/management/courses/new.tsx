@@ -12,14 +12,10 @@ import { formAction } from "~/utils/form-action.server";
 import { requireUserId } from "~/utils/session.server";
 
 const mutation = makeDomainFunction(courseSchema)(async ({ title, year }) => {
-	return await db.studyYear.update({
-		where: { id: year },
+	return await db.course.create({
 		data: {
-			courses: {
-				create: {
-					title,
-				},
-			},
+			title,
+			studyYearId: year,
 		},
 	});
 });

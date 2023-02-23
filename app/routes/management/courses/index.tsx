@@ -16,7 +16,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 			studyYear: { select: { year: true } },
 			title: true,
 		},
-		orderBy: { studyYear: { year: "desc" } },
+		orderBy: { studyYear: { year: "asc" } },
 	});
 
 	return json({
