@@ -84,6 +84,10 @@ const columns = [
 
 			return (
 				<div className="flex justify-end gap-x-4">
+					<ButtonLink to={identityCard} variant="text">
+						Ver Ficha
+					</ButtonLink>
+
 					<ButtonLink variant="text" to={`edit/${identityCard}`}>
 						Editar
 					</ButtonLink>

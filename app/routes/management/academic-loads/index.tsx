@@ -23,15 +23,19 @@ export const loader = async ({ request }: LoaderArgs) => {
 		select: { id: true, startDate: true, endDate: true },
 	});
 
+	console.log(teacherId, academicPeriodId);
+
 	// Get academic loads
 	const academicLoads = await db.academicLoad.findMany({
 		where: {
 			academicPeriodId: academicPeriodId
 				? Number(academicPeriodId)
 				: undefined,
-			teacherIdentityCard: {
-				startsWith: teacherId || undefined,
-			},
+			teacherIdentityCard: teacherId
+				? {
+						startsWith: teacherId,
+				  }
+				: undefined,
 		},
 		select: {
 			id: true,
