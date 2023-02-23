@@ -9,13 +9,7 @@ export const loader = async () => {
 	// Get counters
 	const studentsCount = await db.student.count();
 	const coursesCount = await db.course.count();
-	const teachersCount = await db.user.count({
-		where: {
-			role: {
-				name: "TEACHER",
-			},
-		},
-	});
+	const teachersCount = await db.teacher.count();
 
 	return json({
 		stats: [
