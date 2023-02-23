@@ -1,3 +1,5 @@
+import { useNavigate } from "@remix-run/react";
+import { Button } from "./button";
 import Card from "./card";
 import { Paragraph } from "./typography";
 
@@ -47,6 +49,8 @@ const studentData: StudentDataType[] = [
 ];
 
 export default function StudentCard({ student }: StudentCardProps) {
+	const navigate = useNavigate();
+
 	return (
 		<Card title={`${student.firstname} ${student.lastname}`}>
 			<div className="flex flex-col divide-y-2">
@@ -57,6 +61,16 @@ export default function StudentCard({ student }: StudentCardProps) {
 						value={student[key]}
 					/>
 				))}
+			</div>
+
+			<div className="flex justify-end">
+				<Button
+					variant="secondary"
+					onClick={() => navigate(-1)}
+					type="button"
+				>
+					Volver
+				</Button>
 			</div>
 		</Card>
 	);

@@ -2,9 +2,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { format } from "date-fns";
-import Card from "~/components/card";
 import StudentCard from "~/components/student-card";
-import { Paragraph } from "~/components/typography";
 import { db } from "~/utils/db.server";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
