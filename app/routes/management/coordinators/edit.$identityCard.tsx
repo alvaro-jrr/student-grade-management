@@ -52,12 +52,18 @@ const mutation = makeDomainFunction(editCoordinatorSchema)(
 	}
 );
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request, params }: ActionArgs) => {
+	const identityCard = String(params.identityCard);
+
 	return formAction({
 		request,
-		schema: editCoordinatorSchema,
+		schema: personSchema,
 		mutation,
 		successPath: "/management/coordinators",
+		transformValues: (values) => ({
+			...values,
+			currentIdentityCard: identityCard,
+		}),
 	});
 };
 
@@ -110,14 +116,7 @@ export default function EditCoordinatorRoute() {
 				title="Editar coordinador"
 				supportingText="Actualiza los datos de un coordinador requerido"
 			>
-				<Form
-					schema={editCoordinatorSchema}
-					method="post"
-					values={{
-						...coordinator,
-						currentIdentityCard: coordinator.identityCard,
-					}}
-				>
+				<Form schema={personSchema} method="post" values={coordinator}>
 					{({ register }) => (
 						<>
 							<div className="space-y-4">
@@ -140,11 +139,6 @@ export default function EditCoordinatorRoute() {
 									label="Cédula de Identidad"
 									placeholder="ej: 25605"
 									{...register("identityCard")}
-								/>
-
-								<input
-									type="hidden"
-									{...register("currentIdentityCard")}
 								/>
 							</div>
 

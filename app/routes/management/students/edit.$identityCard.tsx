@@ -49,11 +49,17 @@ const mutation = makeDomainFunction(editStudentSchema)(
 	}
 );
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request, params }: ActionArgs) => {
+	const identityCard = String(params.identityCard);
+
 	return formAction({
 		request,
-		schema: editStudentSchema,
+		schema: studentSchema,
 		mutation,
+		transformValues: (values) => ({
+			...values,
+			currentIdentityCard: identityCard,
+		}),
 		successPath: "/management/students",
 	});
 };
@@ -109,13 +115,7 @@ export default function EditCoordinatorRoute() {
 				title="Editar estudiante"
 				supportingText="Actualiza los datos de un estudiante requerido"
 			>
-				<Form
-					schema={editStudentSchema}
-					values={{
-						...student,
-						currentIdentityCard: student.identityCard,
-					}}
-				>
+				<Form schema={studentSchema} values={student}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
@@ -147,11 +147,6 @@ export default function EditCoordinatorRoute() {
 									type="date"
 									label="Fecha de Nacimiento"
 									{...register("birthDate")}
-								/>
-
-								<input
-									type="hidden"
-									{...register("currentIdentityCard")}
 								/>
 							</div>
 

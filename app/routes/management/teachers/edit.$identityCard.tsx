@@ -63,11 +63,17 @@ const mutation = makeDomainFunction(editTeacherSchema)(
 	}
 );
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request, params }: ActionArgs) => {
+	const identityCard = String(params.identityCard);
+
 	return formAction({
 		request,
-		schema: editTeacherSchema,
+		schema: teacherSchema,
 		mutation,
+		transformValues: (values) => ({
+			...values,
+			currentIdentityCard: identityCard,
+		}),
 		successPath: "/management/teachers",
 	});
 };
@@ -123,14 +129,7 @@ export default function EditTeacherRoute() {
 				title="Editar docente"
 				supportingText="Actualiza los datos de un docente requerido"
 			>
-				<Form
-					schema={editTeacherSchema}
-					method="post"
-					values={{
-						...teacher,
-						currentIdentityCard: teacher.identityCard,
-					}}
-				>
+				<Form schema={teacherSchema} method="post" values={teacher}>
 					{({ register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
@@ -162,11 +161,6 @@ export default function EditTeacherRoute() {
 									label="Especialidad"
 									placeholder="ej: Deporte"
 									{...register("specialty")}
-								/>
-
-								<input
-									type="hidden"
-									{...register("currentIdentityCard")}
 								/>
 							</div>
 
