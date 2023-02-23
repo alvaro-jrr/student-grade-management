@@ -198,18 +198,18 @@ model Lapse {
 
 // Carga Academica
 model AcademicLoad {
-    id                 Int            @id @default(autoincrement())
-    createdAt          DateTime       @default(now())
-    updatedAt          DateTime       @updatedAt
-    academicPeriod     AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
-    academicPeriodId   Int
-    teacher            Teacher        @relation(fields: [teacherIdentiyCard], references: [identityCard])
-    teacherIdentiyCard String
-    course             Course         @relation(fields: [courseId], references: [id])
-    courseId           Int
-    assignments        Assignment[]
+    id                  Int            @id @default(autoincrement())
+    createdAt           DateTime       @default(now())
+    updatedAt           DateTime       @updatedAt
+    academicPeriod      AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+    academicPeriodId    Int
+    teacher             Teacher        @relation(fields: [teacherIdentityCard], references: [identityCard])
+    teacherIdentityCard String
+    course              Course         @relation(fields: [courseId], references: [id])
+    courseId            Int
+    assignments         Assignment[]
 
-    @@unique([academicPeriodId, teacherIdentiyCard, courseId])
+    @@unique([academicPeriodId, teacherIdentityCard, courseId])
 }
 
 // Evaluacion

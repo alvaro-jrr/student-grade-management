@@ -53,9 +53,24 @@ export const academicPeriodSchema = z.object({
 	endDate: z.preprocess(parseDate, z.date()),
 });
 
+const parseNumber = (value: unknown) => (value ? Number(value) : undefined);
+
 export const courseSchema = z.object({
 	title: z.string().min(1, "Debe ingresar el titulo"),
-	year: z.preprocess((value: unknown) => {
-		return value ? Number(value) : undefined;
-	}, z.number({ required_error: "Debe seleccionar un año" })),
+	year: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar un año" })
+	),
+});
+
+export const academicLoadSchema = z.object({
+	academicPeriodId: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar un periodo" })
+	),
+	courseId: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar una asignatura" })
+	),
+	teacherIdentityCard: z.string().min(1, "Debe seleccionar un docente"),
 });

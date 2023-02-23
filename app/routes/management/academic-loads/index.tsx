@@ -1,9 +1,10 @@
 import { FunnelIcon } from "@heroicons/react/24/outline";
-import type { LoaderArgs, ActionArgs } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { getYear } from "date-fns";
+import { Button } from "~/components/button";
 import { Select, TextField } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
@@ -28,7 +29,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 			teacherId && academicPeriodId
 				? {
 						academicPeriodId: Number(academicPeriodId),
-						teacherIdentiyCard: teacherId,
+						teacherIdentityCard: teacherId,
 				  }
 				: undefined,
 		select: {
@@ -50,11 +51,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 			course: {
 				select: {
 					title: true,
-					studyYear: {
-						select: {
-							year: true,
-						},
-					},
 				},
 			},
 		},
@@ -75,7 +71,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 						academicPeriod.endDate
 					)}`,
 					title: course.title,
-					year: course.studyYear.year,
 					fullname: `${teacher.person.firstname} ${teacher.person.lastname}`,
 					identityCard: teacher.person.identityCard,
 				};
@@ -88,7 +83,6 @@ const columnHelper = createColumnHelper<{
 	id: number;
 	range: string;
 	title: string;
-	year: number;
 	fullname: string;
 	identityCard: string;
 }>();
@@ -99,12 +93,8 @@ const columns = [
 		header: "Periodo Académico",
 		cell: (info) => info.getValue(),
 	}),
-	columnHelper.accessor("year", {
-		header: "Año de Estudio",
-		cell: (info) => info.getValue(),
-	}),
 	columnHelper.accessor("fullname", {
-		header: "Nombre Completo",
+		header: "Docente",
 		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("identityCard", {
@@ -112,7 +102,7 @@ const columns = [
 		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("title", {
-		header: "Titulo",
+		header: "Asignatura",
 		cell: (info) => info.getValue(),
 	}),
 ];

@@ -23,7 +23,7 @@ export default function ManagementIndex() {
 				{data.user ? <User user={data.user} /> : null}
 			</SideBar>
 
-			<div className="flex-1 min-h-screen p-6">
+			<div className="min-h-screen flex-1 p-6">
 				<Outlet context={[isMenuOpen, setIsMenuOpen]} />
 			</div>
 		</div>

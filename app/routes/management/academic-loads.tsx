@@ -6,7 +6,7 @@ export default function AcademicLoadsRoute() {
 	return (
 		<Section
 			ActionComponent={() => (
-				<ButtonLink to="new">Crear carga académica</ButtonLink>
+				<ButtonLink to="new">Asignar carga</ButtonLink>
 			)}
 			description="Visualiza, agrega o edita las cargas académicas de la institución"
 			title="Cargas Académicas"
