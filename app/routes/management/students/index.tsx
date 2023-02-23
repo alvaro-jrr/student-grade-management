@@ -38,8 +38,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 		},
 	});
 
-	console.log(studentId);
-
 	return json({
 		identityCard: studentId,
 		students: students.map(
@@ -113,6 +111,7 @@ export default function StudentsIndexRoute() {
 					}
 				>
 					<TextField
+						type="search"
 						name="student-id"
 						placeholder="ej: 28385587"
 						label="Cédula de Identidad"

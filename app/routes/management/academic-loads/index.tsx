@@ -148,6 +148,7 @@ export default function AcademicLoadsIndexRoute() {
 						name="teacher-id"
 						placeholder="ej: 28385587"
 						label="Cédula de Identidad"
+						type="search"
 						defaultValue={data.teacherId || ""}
 					/>
 
