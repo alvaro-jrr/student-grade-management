@@ -1,5 +1,5 @@
-import { FunnelIcon } from "@heroicons/react/24/outline";
 import type { LoaderArgs } from "@remix-run/node";
+import { FunnelIcon } from "@heroicons/react/24/outline";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -29,7 +29,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 			academicPeriodId: academicPeriodId
 				? Number(academicPeriodId)
 				: undefined,
-			teacherIdentityCard: teacherId || undefined,
+			teacherIdentityCard: {
+				startsWith: teacherId || undefined,
+			},
 		},
 		select: {
 			id: true,

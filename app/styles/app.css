@@ -537,6 +537,10 @@ video {
   position: fixed;
 }
 
+.absolute {
+  position: absolute;
+}
+
 .relative {
   position: relative;
 }
@@ -590,6 +594,10 @@ video {
   display: table;
 }
 
+.flow-root {
+  display: flow-root;
+}
+
 .grid {
   display: grid;
 }
@@ -641,6 +649,11 @@ video {
 
 .w-8 {
   width: 2rem;
+}
+
+.min-w-max {
+  min-width: -moz-max-content;
+  min-width: max-content;
 }
 
 .max-w-\[15rem\] {
@@ -791,6 +804,14 @@ video {
 
 .overflow-auto {
   overflow: auto;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
 }
 
 .whitespace-nowrap {

@@ -1,17 +1,31 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserId } from "~/utils/session.server";
 import { format } from "date-fns";
 import { ButtonLink } from "~/components/button";
+import { FunnelIcon } from "@heroicons/react/24/outline";
+import { TextField } from "~/components/form-elements";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserId(request);
 
+	const url = new URL(request.url);
+
+	// Get search param
+	const studentId = url.searchParams.get("student-id");
+
 	const students = await db.student.findMany({
+		where: {
+			identityCard: studentId
+				? {
+						startsWith: studentId,
+				  }
+				: undefined,
+		},
 		select: {
 			person: {
 				select: {
@@ -24,7 +38,10 @@ export const loader = async ({ request }: LoaderArgs) => {
 		},
 	});
 
+	console.log(studentId);
+
 	return json({
+		identityCard: studentId,
 		students: students.map(
 			({
 				person: { firstname, lastname },
@@ -80,6 +97,31 @@ const columns = [
 
 export default function StudentsIndexRoute() {
 	const data = useLoaderData<typeof loader>();
+	const submit = useSubmit();
 
-	return <Table columns={columns} data={data.students} />;
+	return (
+		<div className="space-y-6">
+			<div className="flex flex-col justify-center gap-4 md:flex-row md:items-center md:justify-start">
+				<FunnelIcon className="h-6 w-6 text-slate-500" />
+
+				<Form
+					method="get"
+					onChange={(event) =>
+						submit(event.currentTarget, {
+							replace: data.identityCard === null,
+						})
+					}
+				>
+					<TextField
+						name="student-id"
+						placeholder="ej: 28385587"
+						label="Cédula de Identidad"
+						defaultValue={data.identityCard || ""}
+					/>
+				</Form>
+			</div>
+
+			<Table columns={columns} data={data.students} />
+		</div>
+	);
 }
