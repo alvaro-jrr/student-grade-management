@@ -12,6 +12,15 @@ import { formAction } from "~/utils/form-action.server";
 
 const mutation = makeDomainFunction(representationSchema)(
 	async ({ representativeIdentityCard, studentIdentityCard }) => {
+		const representativesCount = await db.representativeByStudent.count({
+			where: { studentIdentityCard },
+		});
+
+		// In case there are 3, don't add representative
+		if (representativesCount === 3) {
+			throw "Estudiante ya tiene 3 representantes, no se puede agregar otro más";
+		}
+
 		return await db.representativeByStudent.create({
 			data: {
 				representativeIdentityCard,
