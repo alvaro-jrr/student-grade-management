@@ -21,6 +21,18 @@ const mutation = makeDomainFunction(representationSchema)(
 			throw "Estudiante ya tiene 3 representantes, no se puede agregar otro más";
 		}
 
+		const isStudentRepresentative =
+			(await db.representativeByStudent.findFirst({
+				where: {
+					representativeIdentityCard,
+					studentIdentityCard,
+				},
+			})) !== null;
+
+		if (isStudentRepresentative) {
+			throw "Estudiante ya es representado por el representante seleccionado";
+		}
+
 		return await db.representativeByStudent.create({
 			data: {
 				representativeIdentityCard,
