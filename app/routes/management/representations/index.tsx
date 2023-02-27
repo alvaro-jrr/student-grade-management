@@ -1,7 +1,8 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
+import { Button } from "~/components/button";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserId } from "~/utils/session.server";
@@ -93,6 +94,22 @@ const columns = [
 				cell: (info) => info.getValue(),
 			}),
 		],
+	}),
+	columnHelper.accessor("id", {
+		header: "",
+		cell: (info) => {
+			const id = info.getValue();
+
+			return (
+				<div className="flex justify-end">
+					<Form action={`delete/${id}`} method="post">
+						<Button variant="danger" type="submit">
+							Eliminar
+						</Button>
+					</Form>
+				</div>
+			);
+		},
 	}),
 ];
 
