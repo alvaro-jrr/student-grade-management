@@ -1,5 +1,8 @@
 import type { ComponentPropsWithoutRef } from "react";
+import type { Value } from "react-phone-number-input";
 import { forwardRef } from "react";
+import PhoneInput from "react-phone-number-input";
+import { PhoneIcon } from "@heroicons/react/24/outline";
 
 export interface FormFieldProps {
 	children: JSX.Element;
@@ -87,6 +90,54 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
 );
 
 TextField.displayName = "TextField";
+
+type PhoneFieldProps = Omit<
+	TextFieldProps,
+	"onChange" | "value" | "type" | "defaultValue"
+> & {
+	onChange: (value?: Value) => void;
+	value?: Value;
+	defaultValue?: Value;
+};
+
+export default function PhoneField({
+	autoComplete = "off",
+	label,
+	name,
+	error,
+	optional,
+	supportingText,
+	value,
+	onChange,
+	...rest
+}: PhoneFieldProps) {
+	return (
+		<FormField error={error} label={label} name={name}>
+			<PhoneInput
+				autoComplete={autoComplete}
+				aria-invalid={Boolean(error)}
+				className="flex gap-x-2"
+				international
+				defaultCountry="VE"
+				countryCallingCodeEditable={false}
+				internationalIcon={() => (
+					<PhoneIcon className="h-4 w-4 text-gray-700" />
+				)}
+				numberInputProps={{
+					className: fieldClasses,
+				}}
+				countrySelectProps={{
+					unicodeFlags: true,
+				}}
+				value={value}
+				onChange={onChange}
+				id={name}
+				name={name}
+				{...rest}
+			/>
+		</FormField>
+	);
+}
 
 type SelectProps = ComponentPropsWithoutRef<"select"> &
 	Omit<FormFieldProps, "children"> & {

@@ -9,6 +9,7 @@ import {
 } from "@remix-run/react";
 import syne from "@fontsource/syne/variable.css";
 import styles from "./styles/app.css";
+import phoneInputStyles from "react-phone-number-input/style.css";
 
 export const meta: MetaFunction = () => ({
 	charset: "utf-8",
@@ -24,6 +25,10 @@ export const links: LinksFunction = () => [
 	{
 		rel: "stylesheet",
 		href: syne,
+	},
+	{
+		rel: "stylesheet",
+		href: phoneInputStyles,
 	},
 ];
 
