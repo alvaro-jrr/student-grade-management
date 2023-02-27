@@ -169,7 +169,7 @@ export default function EditAcademicLoadRoute() {
 									Volver
 								</Button>
 
-								<Button type="submit">Asignar</Button>
+								<Button type="submit">Actualizar</Button>
 							</div>
 						</>
 					)}

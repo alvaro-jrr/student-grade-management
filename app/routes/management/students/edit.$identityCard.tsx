@@ -161,7 +161,7 @@ export default function EditCoordinatorRoute() {
 									Volver
 								</Button>
 
-								<Button type="submit">Crear</Button>
+								<Button type="submit">Actualizar</Button>
 							</div>
 						</>
 					)}
