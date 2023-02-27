@@ -20,33 +20,16 @@ export const loader = async ({ request }: LoaderArgs) => {
 			},
 			identityCard: true,
 			email: true,
-			phones: {
-				select: {
-					phoneNumber: true,
-				},
-			},
+			phoneNumber: true,
 		},
 	});
 
 	return json({
 		representatives: representatives.map(
-			({
-				person: { firstname, lastname },
-				phones,
-				...restOfRepresentative
-			}) => {
-				const phonesNumbers = phones.map((phone) => phone.phoneNumber);
-
-				return {
-					fullname: `${firstname} ${lastname}`,
-					// @ts-ignore
-					phones: new Intl.ListFormat("es", {
-						style: "long",
-						type: "conjunction",
-					}).format(phonesNumbers) as string,
-					...restOfRepresentative,
-				};
-			}
+			({ person: { firstname, lastname }, ...restOfRepresentative }) => ({
+				fullname: `${firstname} ${lastname}`,
+				...restOfRepresentative,
+			})
 		),
 	});
 };
@@ -55,7 +38,7 @@ const columnHelper = createColumnHelper<{
 	identityCard: string;
 	email: string;
 	fullname: string;
-	phones: string;
+	phoneNumber: string;
 }>();
 
 // Table columns
@@ -72,8 +55,8 @@ const columns = [
 		header: "Email",
 		cell: (info) => info.getValue(),
 	}),
-	columnHelper.accessor("phones", {
-		header: "Telefonos",
+	columnHelper.accessor("phoneNumber", {
+		header: "Telefono",
 		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("identityCard", {

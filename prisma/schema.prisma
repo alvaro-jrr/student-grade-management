@@ -79,7 +79,7 @@ model Representative {
     identityCard String                    @id
     email        String                    @unique
     person       Person                    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade, onUpdate: Cascade)
-    phones       Phone[]
+    phoneNumber  String
     students     RepresentativeByStudent[]
 }
 
@@ -121,16 +121,6 @@ model User {
     password     String
     role         Role     @relation(fields: [roleId], references: [id])
     roleId       Int
-}
-
-// Telefono
-model Phone {
-    id                         Int            @id @default(autoincrement())
-    createdAt                  DateTime       @default(now())
-    updatedAt                  DateTime       @updatedAt
-    representative             Representative @relation(fields: [representativeIdentityCard], references: [identityCard])
-    representativeIdentityCard String
-    phoneNumber                String
 }
 
 // Representante

@@ -80,5 +80,5 @@ export const representativeSchema = personSchema.extend({
 		.string()
 		.min(1, "Debe ingresar su email")
 		.email({ message: "Debe ingresar un email valido" }),
-	phone: z.string().min(1, "Debe ingresar su telefono"),
+	phoneNumber: z.string().min(1, "Debe ingresar su telefono"),
 });
