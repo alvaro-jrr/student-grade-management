@@ -51,6 +51,7 @@ export default function Table<T>({
 									<th
 										className="whitespace-nowrap p-4 font-medium text-slate-700"
 										key={header.id}
+										colSpan={header.colSpan}
 									>
 										{header.isPlaceholder ? null : (
 											<span

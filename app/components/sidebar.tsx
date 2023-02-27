@@ -12,6 +12,7 @@ const LINKS = [
 	{ name: "Asignaturas", to: "courses" },
 	{ name: "Estudiantes", to: "students" },
 	{ name: "Representantes", to: "representatives" },
+	{ name: "Representaciones", to: "representations" },
 ];
 
 interface SideBarProps {

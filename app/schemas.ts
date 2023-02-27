@@ -82,3 +82,8 @@ export const representativeSchema = personSchema.extend({
 		.email({ message: "Debe ingresar un email valido" }),
 	phoneNumber: z.string().min(1, "Debe ingresar su telefono"),
 });
+
+export const representationSchema = z.object({
+	representativeIdentityCard: identityCard,
+	studentIdentityCard: identityCard,
+});

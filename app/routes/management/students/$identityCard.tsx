@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import StudentCard from "~/components/student-card";
 import { db } from "~/utils/db.server";
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ params }: LoaderArgs) => {
 	const identityCard = params.identityCard;
 
 	const student = await db.student.findUnique({
@@ -29,12 +29,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 									lastname: true,
 								},
 							},
-							phones: {
-								select: {
-									id: true,
-									phoneNumber: true,
-								},
-							},
+							phoneNumber: true,
 						},
 					},
 				},
@@ -47,7 +42,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 			? student.representatives.map(({ representative }) => ({
 					firstname: representative.person.firstname,
 					lastname: representative.person.lastname,
-					phones: representative.phones,
+					phoneNumber: representative.phoneNumber,
 			  }))
 			: null,
 		student: student

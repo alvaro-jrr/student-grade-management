@@ -54,7 +54,7 @@ export default function NewStudentRoute() {
 				supportingText="Un estudiante puede inscribirse y realizar evaluaciones"
 			>
 				<Form schema={studentSchema}>
-					{({ register, formState: { errors } }) => (
+					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
 								<div className="flex flex-col gap-4 sm:flex-row">
@@ -87,6 +87,8 @@ export default function NewStudentRoute() {
 									{...register("birthDate")}
 								/>
 							</div>
+
+							<Errors />
 
 							<div className="flex justify-end gap-4">
 								<Button

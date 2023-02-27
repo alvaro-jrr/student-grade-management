@@ -55,7 +55,7 @@ export const action = async ({ request }: ActionArgs) => {
 	});
 };
 
-export default function NewStudentRoute() {
+export default function NewRepresentativeRoute() {
 	const navigate = useNavigate();
 
 	return (

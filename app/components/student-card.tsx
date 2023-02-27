@@ -13,10 +13,7 @@ interface StudentCardProps {
 	representatives: {
 		firstname: string;
 		lastname: string;
-		phones: {
-			id: number;
-			phoneNumber: string;
-		}[];
+		phoneNumber: string;
 	}[];
 }
 
