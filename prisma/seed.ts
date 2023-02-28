@@ -8,6 +8,11 @@ async function seed() {
 		await prisma.studyYear.create({ data: { year } });
 	}
 
+	// Create lapses
+	for (let lapse = 1; lapse <= 3; lapse++) {
+		await prisma.lapse.create({ data: { description: lapse } });
+	}
+
 	await prisma.user.create({
 		data: {
 			username: "alvarojrr",

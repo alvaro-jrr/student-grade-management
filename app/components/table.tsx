@@ -10,14 +10,9 @@ import {
 interface TableProps<T> {
 	columns: ColumnDef<T, any>[];
 	data: T[];
-	numericColumns?: Array<keyof T>;
 }
 
-export default function Table<T>({
-	columns,
-	data,
-	numericColumns = [],
-}: TableProps<T>) {
+export default function Table<T>({ columns, data }: TableProps<T>) {
 	const table = useReactTable({
 		data,
 		columns,
@@ -39,14 +34,6 @@ export default function Table<T>({
 					{headerGroups.map((headerGroup) => (
 						<tr key={headerGroup.id} className="border-b">
 							{headerGroup.headers.map((header) => {
-								const isNumeric = numericColumns.includes(
-									header.id as keyof T
-								);
-
-								const textAlign = isNumeric
-									? "text-right"
-									: "text-left";
-
 								return (
 									<th
 										className="whitespace-nowrap p-4 font-medium text-slate-700"
@@ -54,9 +41,7 @@ export default function Table<T>({
 										colSpan={header.colSpan}
 									>
 										{header.isPlaceholder ? null : (
-											<span
-												className={`block ${textAlign}`}
-											>
+											<span className="block text-left">
 												{flexRender(
 													header.column.columnDef
 														.header,
@@ -81,11 +66,7 @@ export default function Table<T>({
 								{row.getVisibleCells().map((cell) => {
 									return (
 										<td
-											data-numeric={
-												typeof cell.getValue() ===
-												"number"
-											}
-											className="data-[numeric=true]:font-mono1 p-4 text-gray-500 data-[numeric=true]:text-right"
+											className="p-4 text-gray-500"
 											key={cell.id}
 										>
 											{flexRender(

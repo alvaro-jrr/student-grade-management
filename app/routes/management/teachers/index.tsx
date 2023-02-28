@@ -8,7 +8,7 @@ import { requireUserWithRole } from "~/utils/session.server";
 import { ButtonLink } from "~/components/button";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
+	await requireUserWithRole(request, ["COORDINATOR"]);
 
 	const teachers = await db.teacher.findMany({
 		select: {

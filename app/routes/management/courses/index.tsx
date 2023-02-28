@@ -8,7 +8,7 @@ import { requireUserWithRole } from "~/utils/session.server";
 import { ButtonLink } from "~/components/button";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
+	await requireUserWithRole(request, ["COORDINATOR"]);
 
 	const courses = await db.course.findMany({
 		select: {
@@ -60,11 +60,5 @@ const columns = [
 export default function CoursesIndexRoute() {
 	const data = useLoaderData<typeof loader>();
 
-	return (
-		<Table
-			numericColumns={["year"]}
-			columns={columns}
-			data={data.courses}
-		/>
-	);
+	return <Table columns={columns} data={data.courses} />;
 }

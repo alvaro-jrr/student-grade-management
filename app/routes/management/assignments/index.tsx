@@ -2,14 +2,23 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
+import { getYear } from "date-fns";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserWithRole(request, ["ADMIN", "COORDINATOR", "TEACHER"]);
+	const user = await requireUserWithRole(request, ["COORDINATOR", "TEACHER"]);
 
 	const evaluations = await db.assignment.findMany({
+		where:
+			user.role === "TEACHER"
+				? {
+						academicLoad: {
+							teacherIdentityCard: user.identityCard,
+						},
+				  }
+				: undefined,
 		select: {
 			id: true,
 			description: true,
@@ -21,6 +30,12 @@ export const loader = async ({ request }: LoaderArgs) => {
 			},
 			academicLoad: {
 				select: {
+					academicPeriod: {
+						select: {
+							startDate: true,
+							endDate: true,
+						},
+					},
 					course: {
 						select: {
 							title: true,
@@ -34,10 +49,34 @@ export const loader = async ({ request }: LoaderArgs) => {
 				},
 			},
 		},
+		orderBy: {
+			academicLoad: {
+				academicPeriod: {
+					startDate: "desc",
+				},
+			},
+		},
 	});
 
 	return json({
-		evaluations,
+		evaluations: evaluations.map(
+			({
+				academicLoad: { academicPeriod, course },
+				...restOfEvaluation
+			}) => {
+				// Format dates
+				const periodStartDate = getYear(academicPeriod.startDate);
+				const periodEndDate = getYear(academicPeriod.endDate);
+
+				return {
+					academicLoad: {
+						academicPeriod: `${periodStartDate}-${periodEndDate}`,
+						course,
+					},
+					...restOfEvaluation,
+				};
+			}
+		),
 	});
 };
 
@@ -55,11 +94,16 @@ const columnHelper = createColumnHelper<{
 				year: number;
 			};
 		};
+		academicPeriod: string;
 	};
 }>();
 
 // Table columns
 const columns = [
+	columnHelper.accessor("academicLoad.academicPeriod", {
+		header: "Periodo",
+		cell: (info) => info.getValue(),
+	}),
 	columnHelper.accessor("description", {
 		header: "Evaluación",
 		cell: (info) => info.getValue(),

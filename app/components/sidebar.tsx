@@ -24,42 +24,42 @@ const LINKS: Link[] = [
 	{
 		name: "Periodos Académicos",
 		to: "academic-periods",
-		roles: ["ADMIN", "COORDINATOR"],
+		roles: ["COORDINATOR"],
 	},
 	{
 		name: "Docentes",
 		to: "teachers",
-		roles: ["ADMIN", "COORDINATOR"],
+		roles: ["COORDINATOR"],
 	},
 	{
 		name: "Asignaturas",
 		to: "courses",
-		roles: ["ADMIN", "COORDINATOR"],
+		roles: ["COORDINATOR"],
 	},
 	{
 		name: "Cargas Académicas",
 		to: "academic-loads",
-		roles: ["ADMIN", "COORDINATOR"],
+		roles: ["COORDINATOR"],
 	},
 	{
 		name: "Estudiantes",
 		to: "students",
-		roles: ["ADMIN", "COORDINATOR"],
+		roles: ["COORDINATOR"],
 	},
 	{
 		name: "Representantes",
 		to: "representatives",
-		roles: ["ADMIN", "COORDINATOR"],
+		roles: ["COORDINATOR"],
 	},
 	{
 		name: "Representaciones",
 		to: "representations",
-		roles: ["ADMIN", "COORDINATOR"],
+		roles: ["COORDINATOR"],
 	},
 	{
 		name: "Evaluaciones",
 		to: "assignments",
-		roles: ["ADMIN", "COORDINATOR", "TEACHER"],
+		roles: ["COORDINATOR", "TEACHER"],
 	},
 ];
 

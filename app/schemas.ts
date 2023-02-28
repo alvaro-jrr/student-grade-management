@@ -63,15 +63,19 @@ export const courseSchema = z.object({
 	),
 });
 
+const academicPeriodId = z.preprocess(
+	parseNumber,
+	z.number({ required_error: "Debe seleccionar un periodo" })
+);
+
+const courseId = z.preprocess(
+	parseNumber,
+	z.number({ required_error: "Debe seleccionar una asignatura" })
+);
+
 export const academicLoadSchema = z.object({
-	academicPeriodId: z.preprocess(
-		parseNumber,
-		z.number({ required_error: "Debe seleccionar un periodo" })
-	),
-	courseId: z.preprocess(
-		parseNumber,
-		z.number({ required_error: "Debe seleccionar una asignatura" })
-	),
+	academicPeriodId,
+	courseId,
 	teacherIdentityCard: z.string().min(1, "Debe seleccionar un docente"),
 });
 
@@ -86,4 +90,22 @@ export const representativeSchema = personSchema.extend({
 export const representationSchema = z.object({
 	representativeIdentityCard: identityCard,
 	studentIdentityCard: identityCard,
+});
+
+export const assignmentSchema = z.object({
+	academicPeriodId,
+	courseId,
+	lapseId: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar un lapso" })
+	),
+	description: z.string().min(1, "Debe ingresar una descripción"),
+	weight: z.preprocess(
+		parseNumber,
+		z
+			.number({ required_error: "Debe ingresar un peso" })
+			.int("Debe ser un número entero")
+			.min(1, "Debe ser mayor o igual a 0")
+			.max(100, "Debe ser menor o igual a 100")
+	),
 });

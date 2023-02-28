@@ -8,7 +8,7 @@ import Table from "~/components/table";
 import { useLoaderData } from "@remix-run/react";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
+	await requireUserWithRole(request, ["COORDINATOR"]);
 
 	const representatives = await db.representative.findMany({
 		select: {

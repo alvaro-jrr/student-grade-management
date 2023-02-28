@@ -11,7 +11,7 @@ import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
+	await requireUserWithRole(request, ["COORDINATOR"]);
 
 	const url = new URL(request.url);
 

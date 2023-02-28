@@ -1,11 +1,11 @@
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import type { Value } from "react-phone-number-input";
 import { forwardRef } from "react";
 import PhoneInput from "react-phone-number-input";
 import { PhoneIcon } from "@heroicons/react/24/outline";
 
 export interface FormFieldProps {
-	children: JSX.Element;
+	children: ReactNode;
 	error?: string;
 	label: string;
 	name: string;
@@ -139,9 +139,11 @@ export default function PhoneField({
 	);
 }
 
+type Option = { name: string | number; value: string | number };
+
 type SelectProps = ComponentPropsWithoutRef<"select"> &
 	Omit<FormFieldProps, "children"> & {
-		options: { name: string | number; value: string | number }[];
+		options: Option[];
 	};
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
@@ -189,4 +191,51 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
 
 Select.displayName = "Select";
 
-export { TextField, Select };
+type RadioGroupProps = Omit<ComponentPropsWithoutRef<"input">, "type"> &
+	Omit<FormFieldProps, "children"> & { options: Option[] };
+
+const RadioGroup = forwardRef<HTMLInputElement, RadioGroupProps>(
+	(
+		{
+			label,
+			name,
+			error,
+			optional,
+			supportingText,
+			options,
+			placeholder,
+			checked,
+			...rest
+		},
+		ref
+	) => {
+		return (
+			<FormField label={label} error={error} name={name}>
+				<div className="flex gap-x-4">
+					{options.map((option) => (
+						<div key={option.value}>
+							<label className="space-x-1">
+								<input
+									checked={checked}
+									type="radio"
+									value={option.value}
+									name={name}
+									ref={ref}
+									{...rest}
+								/>
+
+								<span className="text-sm text-gray-500">
+									{option.name}
+								</span>
+							</label>
+						</div>
+					))}
+				</div>
+			</FormField>
+		);
+	}
+);
+
+RadioGroup.displayName = "RadioGroup";
+
+export { TextField, Select, RadioGroup };

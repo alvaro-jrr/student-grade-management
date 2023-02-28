@@ -52,7 +52,7 @@ export default function NewCoordinatorRoute() {
 				supportingText="Un coordinador puede crear nuevos periodos académicos, aperturar secciones y asignar cargas"
 			>
 				<Form schema={personSchema}>
-					{({ register, formState: { errors } }) => (
+					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
 								<div className="flex flex-col gap-4 sm:flex-row">
@@ -78,6 +78,8 @@ export default function NewCoordinatorRoute() {
 									{...register("identityCard")}
 								/>
 							</div>
+
+							<Errors />
 
 							<div className="flex justify-end gap-4">
 								<Button

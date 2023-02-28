@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { ButtonLink } from "~/components/button";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
+	await requireUserWithRole(request, ["COORDINATOR"]);
 
 	// Get academic periods
 	const academicPeriods = await db.academicPeriod.findMany({

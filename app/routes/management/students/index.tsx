@@ -11,7 +11,7 @@ import { FunnelIcon } from "@heroicons/react/24/outline";
 import { TextField } from "~/components/form-elements";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
+	await requireUserWithRole(request, ["COORDINATOR"]);
 
 	const url = new URL(request.url);
 
