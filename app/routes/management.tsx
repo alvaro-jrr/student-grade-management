@@ -4,11 +4,10 @@ import { Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import SideBar from "~/components/sidebar";
 import User from "~/components/user";
-import { getUser, requireUserId } from "~/utils/session.server";
+import { requireUser } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserId(request);
-	const user = await getUser(request);
+	const user = await requireUser(request);
 
 	return json({ user });
 };
@@ -19,8 +18,12 @@ export default function ManagementIndex() {
 
 	return (
 		<div className="flex flex-row">
-			<SideBar isOpen={isMenuOpen} setIsOpen={setIsMenuOpen}>
-				{data.user ? <User user={data.user} /> : null}
+			<SideBar
+				userRole={data.user.role}
+				isOpen={isMenuOpen}
+				setIsOpen={setIsMenuOpen}
+			>
+				<User user={data.user} />
 			</SideBar>
 
 			<div className="min-h-screen flex-1 p-6">

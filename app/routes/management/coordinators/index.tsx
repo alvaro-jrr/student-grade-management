@@ -4,12 +4,12 @@ import { Form, useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
-import { requireUserId } from "~/utils/session.server";
+import { requireUserWithRole } from "~/utils/session.server";
 import { format } from "date-fns";
 import { Button, ButtonLink } from "~/components/button";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserId(request);
+	await requireUserWithRole(request, ["ADMIN"]);
 
 	const coordinators = await db.coordinator.findMany({
 		select: {

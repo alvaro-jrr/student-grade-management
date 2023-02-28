@@ -24,12 +24,12 @@ const loginSchema = userSchema.extend({
 
 const mutation = makeDomainFunction(loginSchema)(
 	async ({ username, password, redirectTo }) => {
-		const user = await login({ username, password });
+		const userId = await login({ username, password });
 
-		if (!user) throw "Nombre de usuario o contraseña son incorrectos";
+		if (!userId) throw "Nombre de usuario o contraseña son incorrectos";
 
 		return {
-			user,
+			userId,
 			redirectTo: validateUrl(redirectTo || ""),
 		};
 	}
@@ -46,9 +46,9 @@ export const action = async ({ request }: ActionArgs) => {
 	if (!result.success) return badRequest(result);
 
 	// Get result
-	const { user, redirectTo } = result.data;
+	const { userId, redirectTo } = result.data;
 
-	return createUserSession(user.id, redirectTo);
+	return createUserSession(userId, redirectTo);
 };
 
 export default function LoginRoute() {

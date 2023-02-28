@@ -1,17 +1,16 @@
+import type { RoleName, User } from "@prisma/client";
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import bcrypt from "bcryptjs";
 import { db } from "./db.server";
 
-type LoginForm = {
+interface LoginForm {
 	username: string;
 	password: string;
-};
+}
 
-type RegisterForm = {
-	username: string;
+interface RegisterForm extends LoginForm {
 	identityCard: string;
-	password: string;
-};
+}
 
 export async function login({ username, password }: LoginForm) {
 	const user = await db.user.findUnique({
@@ -25,7 +24,7 @@ export async function login({ username, password }: LoginForm) {
 
 	if (!isCorrectPassword) return null;
 
-	return { id: user.id, username };
+	return user.id;
 }
 
 export async function register({
@@ -44,15 +43,6 @@ export async function register({
 	// In case an student tries to register
 	if (person.role === "STUDENT") return null;
 
-	// Get role id
-	const role = await db.role.findUnique({
-		where: { name: person.role },
-		select: { id: true },
-	});
-
-	// Role isn't stored
-	if (role === null) return null;
-
 	const passwordHash = await bcrypt.hash(password, 10);
 
 	// Create user
@@ -61,7 +51,7 @@ export async function register({
 			username,
 			password: passwordHash,
 			identityCard,
-			roleId: role.id,
+			role: person.role,
 		},
 	});
 
@@ -76,7 +66,7 @@ const sessionSecret = process.env.SESSION_SECRET;
 
 if (!sessionSecret) throw new Error("SESSION_SECRET debe ser establecido");
 
-const storage = createCookieSessionStorage({
+const sessionStorage = createCookieSessionStorage({
 	cookie: {
 		name: "SGM_session",
 		secure: process.env.NODE_ENV === "production",
@@ -88,30 +78,28 @@ const storage = createCookieSessionStorage({
 	},
 });
 
-function getUserSession(request: Request) {
-	return storage.getSession(request.headers.get("Cookie"));
+const USER_SESSION_KEY = "userId";
+
+export async function createUserSession(userId: number, redirectTo: string) {
+	const session = await sessionStorage.getSession();
+	session.set(USER_SESSION_KEY, userId);
+
+	return redirect(redirectTo, {
+		headers: {
+			"Set-Cookie": await sessionStorage.commitSession(session),
+		},
+	});
 }
 
-export async function getUserId(request: Request) {
-	const session = await getUserSession(request);
-	const userId = session.get("userId");
-
-	if (!userId || typeof userId !== "number") return null;
-
-	return userId;
+function getSession(request: Request) {
+	return sessionStorage.getSession(request.headers.get("Cookie"));
 }
 
-export async function requireUserId(
-	request: Request,
-	redirectTo: string = new URL(request.url).pathname
-) {
-	const session = await getUserSession(request);
-	const userId = session.get("userId");
-
-	if (!userId || typeof userId !== "number") {
-		const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-		throw redirect(`/login?${searchParams}`);
-	}
+export async function getUserId(
+	request: Request
+): Promise<User["id"] | undefined> {
+	const session = await getSession(request);
+	const userId = session.get(USER_SESSION_KEY);
 
 	return userId;
 }
@@ -119,37 +107,57 @@ export async function requireUserId(
 export async function getUser(request: Request) {
 	const userId = await getUserId(request);
 
-	if (typeof userId !== "number") return null;
+	if (userId === undefined) return null;
 
-	try {
-		const user = await db.user.findUnique({
-			where: { id: userId },
-			select: { id: true, username: true },
-		});
+	const user = await db.user.findUnique({
+		where: { id: userId },
+	});
 
-		return user;
-	} catch {
-		throw logout(request);
+	if (user) return user;
+
+	throw await logout(request);
+}
+
+export async function requireUserId(
+	request: Request,
+	redirectTo: string = new URL(request.url).pathname
+) {
+	const userId = await getUserId(request);
+
+	if (!userId) {
+		const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+		throw redirect(`/login?${searchParams}`);
 	}
+
+	return userId;
+}
+
+export async function requireUser(request: Request, redirectTo?: string) {
+	const userId = await requireUserId(request, redirectTo);
+
+	const user = await db.user.findUnique({
+		where: { id: userId },
+	});
+
+	if (user) return user;
+
+	throw await logout(request);
+}
+
+export async function requireUserWithRole(request: Request, roles: RoleName[]) {
+	const user = await requireUser(request, "/management");
+
+	if (roles.includes(user.role)) return user;
+
+	throw await logout(request);
 }
 
 export async function logout(request: Request) {
-	const session = await getUserSession(request);
+	const session = await getSession(request);
 
 	return redirect("/login", {
 		headers: {
-			"Set-Cookie": await storage.destroySession(session),
-		},
-	});
-}
-
-export async function createUserSession(userId: number, redirectTo: string) {
-	const session = await storage.getSession();
-	session.set("userId", userId);
-
-	return redirect(redirectTo, {
-		headers: {
-			"Set-Cookie": await storage.commitSession(session),
+			"Set-Cookie": await sessionStorage.destroySession(session),
 		},
 	});
 }

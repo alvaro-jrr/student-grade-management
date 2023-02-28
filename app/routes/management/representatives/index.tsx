@@ -1,14 +1,14 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { db } from "~/utils/db.server";
-import { requireUserId } from "~/utils/session.server";
+import { requireUserWithRole } from "~/utils/session.server";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ButtonLink } from "~/components/button";
 import Table from "~/components/table";
 import { useLoaderData } from "@remix-run/react";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserId(request);
+	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
 
 	const representatives = await db.representative.findMany({
 		select: {

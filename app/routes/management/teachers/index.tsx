@@ -4,11 +4,11 @@ import { useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
-import { requireUserId } from "~/utils/session.server";
+import { requireUserWithRole } from "~/utils/session.server";
 import { ButtonLink } from "~/components/button";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserId(request);
+	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
 
 	const teachers = await db.teacher.findMany({
 		select: {

@@ -10,10 +10,11 @@ import {
 import syne from "@fontsource/syne/variable.css";
 import styles from "./styles/app.css";
 import phoneInputStyles from "react-phone-number-input/style.css";
+import bookIconUrl from "~/assets/book-icon.svg";
 
 export const meta: MetaFunction = () => ({
 	charset: "utf-8",
-	title: "New Remix App",
+	title: "Liceo Santa Marta",
 	viewport: "width=device-width,initial-scale=1",
 });
 
@@ -29,6 +30,10 @@ export const links: LinksFunction = () => [
 	{
 		rel: "stylesheet",
 		href: phoneInputStyles,
+	},
+	{
+		rel: "icon",
+		href: bookIconUrl,
 	},
 ];
 

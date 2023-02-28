@@ -8,10 +8,10 @@ import { ButtonLink } from "~/components/button";
 import { Select, TextField } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
-import { requireUserId } from "~/utils/session.server";
+import { requireUserWithRole } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserId(request);
+	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
 
 	const url = new URL(request.url);
 
@@ -22,8 +22,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 	const academicPeriods = await db.academicPeriod.findMany({
 		select: { id: true, startDate: true, endDate: true },
 	});
-
-	console.log(teacherId, academicPeriodId);
 
 	// Get academic loads
 	const academicLoads = await db.academicLoad.findMany({

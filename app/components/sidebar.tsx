@@ -1,27 +1,80 @@
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { NavLink } from "@remix-run/react";
+import type { RoleName } from "@prisma/client";
 import bookIconUrl from "~/assets/book-icon.svg";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-const LINKS = [
-	{ name: "Inicio", to: "/management" },
-	{ name: "Coordinadores", to: "coordinators" },
-	{ name: "Periodos Académicos", to: "academic-periods" },
-	{ name: "Docentes", to: "teachers" },
-	{ name: "Asignaturas", to: "courses" },
-	{ name: "Cargas Académicas", to: "academic-loads" },
-	{ name: "Estudiantes", to: "students" },
-	{ name: "Representantes", to: "representatives" },
-	{ name: "Representaciones", to: "representations" },
+interface Link {
+	name: string;
+	to: string;
+	roles: RoleName[];
+}
+
+const LINKS: Link[] = [
+	{
+		name: "Inicio",
+		to: "/management",
+		roles: ["ADMIN", "COORDINATOR", "REPRESENTATIVE", "TEACHER"],
+	},
+	{
+		name: "Coordinadores",
+		to: "coordinators",
+		roles: ["ADMIN"],
+	},
+	{
+		name: "Periodos Académicos",
+		to: "academic-periods",
+		roles: ["ADMIN", "COORDINATOR"],
+	},
+	{
+		name: "Docentes",
+		to: "teachers",
+		roles: ["ADMIN", "COORDINATOR"],
+	},
+	{
+		name: "Asignaturas",
+		to: "courses",
+		roles: ["ADMIN", "COORDINATOR"],
+	},
+	{
+		name: "Cargas Académicas",
+		to: "academic-loads",
+		roles: ["ADMIN", "COORDINATOR"],
+	},
+	{
+		name: "Estudiantes",
+		to: "students",
+		roles: ["ADMIN", "COORDINATOR"],
+	},
+	{
+		name: "Representantes",
+		to: "representatives",
+		roles: ["ADMIN", "COORDINATOR"],
+	},
+	{
+		name: "Representaciones",
+		to: "representations",
+		roles: ["ADMIN", "COORDINATOR"],
+	},
 ];
 
 interface SideBarProps {
 	children?: ReactNode;
 	isOpen: boolean;
+	userRole: RoleName;
 	setIsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function SideBar({ children, isOpen, setIsOpen }: SideBarProps) {
+export default function SideBar({
+	children,
+	isOpen,
+	setIsOpen,
+	userRole,
+}: SideBarProps) {
+	const accessableLinks = LINKS.filter((link) =>
+		link.roles.includes(userRole)
+	);
+
 	return (
 		<>
 			<div
@@ -55,7 +108,7 @@ export default function SideBar({ children, isOpen, setIsOpen }: SideBarProps) {
 
 					<nav>
 						<ul className="flex flex-col gap-y-2">
-							{LINKS.map((link) => (
+							{accessableLinks.map((link) => (
 								<li key={link.to}>
 									<NavLink
 										className="block rounded-md px-6 py-2 font-medium text-slate-700 transition-colors hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"

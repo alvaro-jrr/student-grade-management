@@ -5,10 +5,10 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { Button } from "~/components/button";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
-import { requireUserId } from "~/utils/session.server";
+import { requireUserWithRole } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	await requireUserId(request);
+	await requireUserWithRole(request, ["ADMIN", "COORDINATOR"]);
 
 	const representations = await db.representativeByStudent.findMany({
 		select: {

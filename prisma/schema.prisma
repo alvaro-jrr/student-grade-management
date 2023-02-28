@@ -10,30 +10,6 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-// Modulo
-model Module {
-    id         Int         @id @default(autoincrement())
-    name       String      @db.VarChar(25)
-    operations Operation[]
-}
-
-// Nombre de Operacion
-enum OperationName {
-    CREATE
-    READ
-    UPDATE
-    DELETE
-}
-
-// Operacion
-model Operation {
-    id       Int               @id @default(autoincrement())
-    name     OperationName
-    module   Module            @relation(fields: [moduleId], references: [id])
-    moduleId Int
-    roles    OperationByRole[]
-}
-
 // Nombre de Rol
 enum RoleName {
     ADMIN
@@ -41,23 +17,6 @@ enum RoleName {
     TEACHER
     REPRESENTATIVE
     STUDENT
-}
-
-// Rol
-model Role {
-    id         Int               @id @default(autoincrement())
-    name       RoleName          @unique
-    users      User[]
-    operations OperationByRole[]
-}
-
-// Operacion por Rol
-model OperationByRole {
-    id          Int       @id @default(autoincrement())
-    operation   Operation @relation(fields: [operationId], references: [id])
-    operationId Int
-    role        Role      @relation(fields: [roleId], references: [id])
-    roleId      Int
 }
 
 // Persona
@@ -119,8 +78,7 @@ model User {
     identityCard String   @unique
     username     String   @unique
     password     String
-    role         Role     @relation(fields: [roleId], references: [id])
-    roleId       Int
+    role         RoleName
 }
 
 // Representante
