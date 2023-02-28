@@ -139,9 +139,9 @@ model Course {
 
 // Lapso
 model Lapse {
-    id          Int     @id @default(autoincrement())
-    description Int     @db.UnsignedInt
-    grades      Grade[]
+    id          Int          @id @default(autoincrement())
+    description Int          @db.UnsignedInt
+    assignments Assignment[]
 }
 
 // Carga Academica
@@ -167,6 +167,8 @@ model Assignment {
     updatedAt      DateTime     @updatedAt
     academicLoad   AcademicLoad @relation(fields: [academicLoadId], references: [id])
     academicLoadId Int
+    lapse          Lapse        @relation(fields: [lapseId], references: [id])
+    lapseId        Int
     description    String
     weight         Int          @db.UnsignedInt
     grades         Grade[]
@@ -177,8 +179,6 @@ model Grade {
     id                  Int        @id @default(autoincrement())
     createdAt           DateTime   @default(now())
     updatedAt           DateTime   @updatedAt
-    lapse               Lapse      @relation(fields: [lapseId], references: [id])
-    lapseId             Int
     student             Student    @relation(fields: [studentIdentityCard], references: [identityCard])
     studentIdentityCard String
     assignment          Assignment @relation(fields: [assignmentId], references: [id])
@@ -186,7 +186,7 @@ model Grade {
     score               Float
     note                String
 
-    @@unique([lapseId, studentIdentityCard, assignmentId])
+    @@unique([studentIdentityCard, assignmentId])
 }
 
 // Inscripcion
