@@ -1,4 +1,4 @@
-import { isBefore, isAfter } from "date-fns";
+import { isBefore, isAfter, areIntervalsOverlapping } from "date-fns";
 import { db } from "./db.server";
 
 type AcademicPeriodForm = {
@@ -31,10 +31,21 @@ async function validateAcademicPeriod({
 
 	// Verify if period is available
 	const isAvailable = academicPeriods.every((academicPeriod) => {
-		return (
-			isAfter(startDate, academicPeriod.endDate) &&
-			isBefore(endDate, academicPeriod.startDate)
+		console.log(startDate, academicPeriod.endDate);
+		console.log(endDate, academicPeriod.startDate);
+
+		const isOverlapping = areIntervalsOverlapping(
+			{
+				start: startDate,
+				end: endDate,
+			},
+			{
+				start: academicPeriod.startDate,
+				end: academicPeriod.endDate,
+			}
 		);
+
+		return isOverlapping === false;
 	});
 
 	if (!isAvailable) {

@@ -1,24 +1,47 @@
+import { FunnelIcon } from "@heroicons/react/24/outline";
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { getYear } from "date-fns";
+import { ButtonLink } from "~/components/button";
+import { Select } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	const user = await requireUserWithRole(request, ["COORDINATOR", "TEACHER"]);
+	const url = new URL(request.url);
 
-	const evaluations = await db.assignment.findMany({
-		where:
-			user.role === "TEACHER"
-				? {
-						academicLoad: {
-							teacherIdentityCard: user.identityCard,
-						},
-				  }
-				: undefined,
+	// Get search params
+	const academicPeriodId = url.searchParams.get("academic-period");
+	const lapseId = url.searchParams.get("lapse");
+	const courseId = url.searchParams.get("course");
+
+	// Get lapses, periods and courses
+	const lapses = await db.lapse.findMany();
+	const academicPeriods = await db.academicPeriod.findMany();
+	const courses = await db.course.findMany({
+		select: {
+			id: true,
+			title: true,
+		},
+	});
+
+	// Get assignments
+	const assignments = await db.assignment.findMany({
+		where: {
+			academicLoad: {
+				academicPeriodId: academicPeriodId
+					? Number(academicPeriodId)
+					: undefined,
+				teacherIdentityCard:
+					user.role === "TEACHER" ? user.identityCard : undefined,
+				courseId: courseId ? Number(courseId) : undefined,
+			},
+			lapseId: lapseId ? Number(lapseId) : undefined,
+		},
 		select: {
 			id: true,
 			description: true,
@@ -59,7 +82,17 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	return json({
-		evaluations: evaluations.map(
+		academicPeriodId,
+		courseId,
+		lapseId,
+		courses,
+		lapses,
+		user,
+		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
+			id,
+			range: `${getYear(startDate)}-${getYear(endDate)}`,
+		})),
+		assignments: assignments.map(
 			({
 				academicLoad: { academicPeriod, course },
 				...restOfEvaluation
@@ -124,10 +157,81 @@ const columns = [
 		header: "Lapso",
 		cell: (info) => info.getValue(),
 	}),
+	columnHelper.accessor("id", {
+		header: "",
+		cell: (info) => {
+			const id = info.getValue();
+
+			return (
+				<div className="flex justify-end">
+					<ButtonLink variant="text" to={`edit/${id}`}>
+						Editar
+					</ButtonLink>
+				</div>
+			);
+		},
+	}),
 ];
 
 export default function EvaluationsIndexRoute() {
 	const data = useLoaderData<typeof loader>();
+	const submit = useSubmit();
 
-	return <Table columns={columns} data={data.evaluations} />;
+	return (
+		<div className="space-y-6">
+			<div className="flex flex-col justify-center gap-4 md:flex-row md:items-center md:justify-start">
+				<FunnelIcon className="h-6 w-6 text-slate-500" />
+
+				<Form
+					className="flex flex-col gap-4 md:flex-row"
+					method="get"
+					onChange={(event) => {
+						const isFirstSearch =
+							data.academicPeriodId === null &&
+							data.lapseId === null &&
+							data.courseId === null;
+
+						submit(event.currentTarget, {
+							replace: !isFirstSearch,
+						});
+					}}
+				>
+					<Select
+						label="Periodo Académico"
+						name="academic-period"
+						placeholder="Seleccione un periodo"
+						defaultValue={data.academicPeriodId || ""}
+						options={data.academicPeriods.map(({ id, range }) => ({
+							value: id,
+							name: range,
+						}))}
+					/>
+
+					<Select
+						label="Asignatura"
+						name="course"
+						placeholder="Seleccione una asignatura"
+						defaultValue={data.courseId || ""}
+						options={data.courses.map(({ id, title }) => ({
+							value: id,
+							name: title,
+						}))}
+					/>
+
+					<Select
+						label="Lapso"
+						name="lapse"
+						placeholder="Seleccione un lapso"
+						defaultValue={data.lapseId || ""}
+						options={data.lapses.map(({ id, description }) => ({
+							value: id,
+							name: description,
+						}))}
+					/>
+				</Form>
+			</div>
+
+			<Table columns={columns} data={data.assignments} />
+		</div>
+	);
 }
