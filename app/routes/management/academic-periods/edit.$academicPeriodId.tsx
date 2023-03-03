@@ -1,7 +1,6 @@
 import type { LoaderArgs, ActionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
-import { format } from "date-fns";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button } from "~/components/button";
@@ -13,6 +12,7 @@ import { academicPeriodSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { updateAcademicPeriod } from "~/utils/form-validation.server";
+import { dateFormat } from "~/utils/utils";
 
 const editAcademicPeriodSchema = academicPeriodSchema.extend({
 	id: z.preprocess((value: unknown) => Number(value), z.number()),
@@ -44,8 +44,8 @@ export const loader = async ({ params }: LoaderArgs) => {
 	return json({
 		academicPeriod: academicPeriod
 			? {
-					startDate: format(academicPeriod.startDate, "yyyy-MM-dd"),
-					endDate: format(academicPeriod.endDate, "yyyy-MM-dd"),
+					startDate: dateFormat(academicPeriod.startDate),
+					endDate: dateFormat(academicPeriod.endDate),
 					id: academicPeriod.id,
 			  }
 			: null,
