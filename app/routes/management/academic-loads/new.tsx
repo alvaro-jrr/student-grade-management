@@ -1,7 +1,6 @@
 import type { ActionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
-import { getYear } from "date-fns";
 import { makeDomainFunction } from "domain-functions";
 import { Button } from "~/components/button";
 import Card from "~/components/card";
@@ -10,6 +9,7 @@ import { Select } from "~/components/form-elements";
 import { academicLoadSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
+import { getAcademicPeriodRange } from "~/utils/utils";
 
 const mutation = makeDomainFunction(academicLoadSchema)(
 	async ({ academicPeriodId, courseId, teacherIdentityCard }) => {
@@ -30,13 +30,7 @@ const mutation = makeDomainFunction(academicLoadSchema)(
 		// Create
 		if (!academicLoad) return await db.academicLoad.create({ data });
 
-		// Update
-		return await db.academicLoad.update({
-			where: {
-				id: academicLoad.id,
-			},
-			data,
-		});
+		throw "La asignatura ya tiene un docente asignado en el periodo actual";
 	}
 );
 
@@ -73,11 +67,11 @@ export const loader = async () => {
 	return json({
 		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
 			id,
-			range: `${getYear(startDate)}-${getYear(endDate)}`,
+			range: getAcademicPeriodRange(startDate, endDate),
 		})),
 		teachers: teachers.map(
 			({ person: { firstname, lastname }, identityCard }) => ({
-				name: `${firstname} ${lastname} - CI: ${identityCard}`,
+				name: `${firstname} ${lastname} - C.I: ${identityCard}`,
 				identityCard,
 			})
 		),

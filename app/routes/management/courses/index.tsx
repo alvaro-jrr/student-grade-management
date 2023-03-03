@@ -49,9 +49,11 @@ const columns = [
 			const id = info.getValue();
 
 			return (
-				<ButtonLink to={`edit/${id}`} variant="text">
-					Editar
-				</ButtonLink>
+				<div className="flex justify-end">
+					<ButtonLink to={`edit/${id}`} variant="text">
+						Editar
+					</ButtonLink>
+				</div>
 			);
 		},
 	}),

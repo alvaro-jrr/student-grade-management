@@ -3,12 +3,12 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { getYear } from "date-fns";
 import { ButtonLink } from "~/components/button";
 import { Select } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
+import { getAcademicPeriodRange } from "~/utils/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	const user = await requireUserWithRole(request, ["COORDINATOR", "TEACHER"]);
@@ -18,10 +18,12 @@ export const loader = async ({ request }: LoaderArgs) => {
 	const academicPeriodId = url.searchParams.get("academic-period");
 	const lapseId = url.searchParams.get("lapse");
 	const courseId = url.searchParams.get("course");
+	const studyYearId = url.searchParams.get("study-year");
 
-	// Get lapses, periods and courses
+	// Get lapses, periods, study years and courses
 	const lapses = await db.lapse.findMany();
 	const academicPeriods = await db.academicPeriod.findMany();
+	const studyYears = await db.studyYear.findMany();
 	const courses = await db.course.findMany({
 		select: {
 			id: true,
@@ -39,6 +41,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 				teacherIdentityCard:
 					user.role === "TEACHER" ? user.identityCard : undefined,
 				courseId: courseId ? Number(courseId) : undefined,
+				course: {
+					studyYearId: studyYearId ? Number(studyYearId) : undefined,
+				},
 			},
 			lapseId: lapseId ? Number(lapseId) : undefined,
 		},
@@ -85,25 +90,26 @@ export const loader = async ({ request }: LoaderArgs) => {
 		academicPeriodId,
 		courseId,
 		lapseId,
+		studyYearId,
 		courses,
 		lapses,
+		studyYears,
 		user,
 		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
 			id,
-			range: `${getYear(startDate)}-${getYear(endDate)}`,
+			range: getAcademicPeriodRange(startDate, endDate),
 		})),
 		assignments: assignments.map(
 			({
 				academicLoad: { academicPeriod, course },
 				...restOfEvaluation
 			}) => {
-				// Format dates
-				const periodStartDate = getYear(academicPeriod.startDate);
-				const periodEndDate = getYear(academicPeriod.endDate);
-
 				return {
 					academicLoad: {
-						academicPeriod: `${periodStartDate}-${periodEndDate}`,
+						academicPeriod: getAcademicPeriodRange(
+							academicPeriod.startDate,
+							academicPeriod.endDate
+						),
 						course,
 					},
 					...restOfEvaluation,
@@ -157,20 +163,26 @@ const columns = [
 		header: "Lapso",
 		cell: (info) => info.getValue(),
 	}),
-	columnHelper.accessor("id", {
-		header: "",
-		cell: (info) => {
-			const id = info.getValue();
+];
 
-			return (
-				<div className="flex justify-end">
-					<ButtonLink variant="text" to={`edit/${id}`}>
-						Editar
-					</ButtonLink>
-				</div>
-			);
-		},
-	}),
+const columnsWithEditLink = [
+	...columns,
+	...[
+		columnHelper.accessor("id", {
+			header: "",
+			cell: (info) => {
+				const id = info.getValue();
+
+				return (
+					<div className="flex justify-end">
+						<ButtonLink variant="text" to={`edit/${id}`}>
+							Editar
+						</ButtonLink>
+					</div>
+				);
+			},
+		}),
+	],
 ];
 
 export default function EvaluationsIndexRoute() {
@@ -189,6 +201,7 @@ export default function EvaluationsIndexRoute() {
 						const isFirstSearch =
 							data.academicPeriodId === null &&
 							data.lapseId === null &&
+							data.studyYearId === null &&
 							data.courseId === null;
 
 						submit(event.currentTarget, {
@@ -219,6 +232,17 @@ export default function EvaluationsIndexRoute() {
 					/>
 
 					<Select
+						label="Año"
+						name="study-year"
+						placeholder="Seleccione una año"
+						defaultValue={data.studyYearId || ""}
+						options={data.studyYears.map(({ id, year }) => ({
+							value: id,
+							name: year,
+						}))}
+					/>
+
+					<Select
 						label="Lapso"
 						name="lapse"
 						placeholder="Seleccione un lapso"
@@ -231,7 +255,11 @@ export default function EvaluationsIndexRoute() {
 				</Form>
 			</div>
 
-			<Table columns={columns} data={data.assignments} />
+			{data.user.role === "COORDINATOR" ? (
+				<Table columns={columnsWithEditLink} data={data.assignments} />
+			) : (
+				<Table columns={columns} data={data.assignments} />
+			)}
 		</div>
 	);
 }

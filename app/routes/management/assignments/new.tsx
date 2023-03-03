@@ -1,7 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
-import { getYear } from "date-fns";
 import { makeDomainFunction } from "domain-functions";
 import { Button } from "~/components/button";
 import Card from "~/components/card";
@@ -11,50 +10,53 @@ import { assignmentSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { requireUserWithRole } from "~/utils/session.server";
+import { findActiveAcademicPeriod } from "~/utils/utils";
 
 const mutation = makeDomainFunction(assignmentSchema)(
-	async ({ academicPeriodId, courseId, lapseId, description, weight }) => {
-		// Get all assignments from that period-course-lapse
-		const assignments = await db.assignment.findMany({
-			where: {
-				academicLoad: {
-					academicPeriodId,
-					courseId,
-				},
-				lapseId,
-			},
-			select: {
-				weight: true,
-			},
-		});
+	async ({ courseId, lapseId, description, weight }) => {
+		// Find active academic period
+		const activeAcademicPeriod = await findActiveAcademicPeriod();
 
-		// Sum all weights
-		const totalWeights = assignments.reduce(
-			(previous, current) => previous + current.weight,
-			0
-		);
-
-		// In case it's complete
-		if (totalWeights === 100)
-			throw "No se puede crear evaluación, las evaluaciones de la asignatura completan el peso del lapso";
-
-		// In case weight can't be assigned
-		if (totalWeights + weight > 100) {
-			throw `Debe asignar como máximo ${
-				100 - totalWeights
-			} como peso, para crear evaluación`;
-		}
+		if (!activeAcademicPeriod)
+			throw "No se pueden asignar evaluaciones si no hay un periodo académico activo";
 
 		// Get academic load
 		const academicLoad = await db.academicLoad.findFirst({
 			where: {
-				academicPeriodId,
+				academicPeriodId: activeAcademicPeriod.id,
 				courseId,
 			},
 		});
 
 		if (academicLoad === null)
 			throw "No existe carga académica para la asignatura seleccionada";
+
+		// Get weights total of that course in that lapse and period
+		const weights = await db.assignment.aggregate({
+			_sum: {
+				weight: true,
+			},
+			where: {
+				academicLoad: {
+					academicPeriodId: activeAcademicPeriod.id,
+					courseId,
+				},
+				lapseId,
+			},
+		});
+
+		const weightsTotal = weights._sum.weight || 0;
+
+		// In case it's complete
+		if (weightsTotal === 100)
+			throw "No se puede crear evaluación, las evaluaciones de la asignatura completan el peso del lapso";
+
+		// In case weight can't be assigned
+		if (weightsTotal + weight > 100) {
+			throw `Debe asignar como máximo ${
+				100 - weightsTotal
+			} como peso, para crear evaluación`;
+		}
 
 		return db.assignment.create({
 			data: {
@@ -79,14 +81,8 @@ export const action = async ({ request }: ActionArgs) => {
 export const loader = async ({ request }: LoaderArgs) => {
 	const user = await requireUserWithRole(request, ["TEACHER"]);
 
-	// Get periods
-	const academicPeriods = await db.academicPeriod.findMany({
-		select: {
-			id: true,
-			startDate: true,
-			endDate: true,
-		},
-	});
+	// Get active academic period
+	const activeAcademicPeriod = await findActiveAcademicPeriod();
 
 	// Get lapses
 	const lapses = await db.lapse.findMany({
@@ -96,12 +92,14 @@ export const loader = async ({ request }: LoaderArgs) => {
 		},
 	});
 
-	// Get only courses given by the teacher
+	// Get only courses given by the teacher in current academic period
 	const courses = await db.course.findMany({
 		where: {
 			academicLoads: {
 				every: {
 					teacherIdentityCard: user.identityCard,
+					academicPeriodId:
+						activeAcademicPeriod && activeAcademicPeriod.id,
 				},
 			},
 		},
@@ -117,10 +115,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	return json({
-		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
-			id,
-			range: `${getYear(startDate)}-${getYear(endDate)}`,
-		})),
 		courses,
 		lapses,
 	});
@@ -134,24 +128,12 @@ export default function NewAssignmentRoute() {
 		<div className="flex h-full items-center justify-center">
 			<Card
 				title="Crear evaluación"
-				supportingText="Asigna una evaluación a los estudiantes de la asignatura"
+				supportingText="Asigna una evaluación a los estudiantes de la asignatura en el periodo activo"
 			>
 				<Form schema={assignmentSchema}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
-								<Select
-									error={errors.academicPeriodId?.message}
-									label="Periodo Académico"
-									options={data.academicPeriods.map(
-										(academicPeriod) => ({
-											name: academicPeriod.range,
-											value: academicPeriod.id,
-										})
-									)}
-									{...register("academicPeriodId")}
-								/>
-
 								<Select
 									error={errors.courseId?.message}
 									label="Asignatura"

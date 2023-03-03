@@ -3,12 +3,12 @@ import { FunnelIcon } from "@heroicons/react/24/outline";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { getYear } from "date-fns";
 import { ButtonLink } from "~/components/button";
 import { Select, TextField } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
+import { getAcademicPeriodRange } from "~/utils/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["COORDINATOR"]);
@@ -64,18 +64,23 @@ export const loader = async ({ request }: LoaderArgs) => {
 		academicPeriodId,
 		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
 			id,
-			range: `${getYear(startDate)}-${getYear(endDate)}`,
+			range: getAcademicPeriodRange(startDate, endDate),
 		})),
 		academicLoads: academicLoads.map(
-			({ id, academicPeriod, course, teacher }) => {
+			({
+				id,
+				academicPeriod: { startDate, endDate },
+				course,
+				teacher: {
+					person: { identityCard, firstname, lastname },
+				},
+			}) => {
 				return {
 					id,
-					range: `${getYear(academicPeriod.startDate)}-${getYear(
-						academicPeriod.endDate
-					)}`,
+					range: getAcademicPeriodRange(startDate, endDate),
 					title: course.title,
-					fullname: `${teacher.person.firstname} ${teacher.person.lastname}`,
-					identityCard: teacher.person.identityCard,
+					fullname: `${firstname} ${lastname}`,
+					identityCard: identityCard,
 				};
 			}
 		),

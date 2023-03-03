@@ -1,5 +1,11 @@
-import { isBefore, isAfter, areIntervalsOverlapping } from "date-fns";
+import {
+	isBefore,
+	areIntervalsOverlapping,
+	getYear,
+	isWithinInterval,
+} from "date-fns";
 import { db } from "./db.server";
+import { findActiveAcademicPeriod } from "./utils";
 
 type AcademicPeriodForm = {
 	startDate: Date;
@@ -15,6 +21,23 @@ async function validateAcademicPeriod({
 	if (isBefore(endDate, startDate)) {
 		throw "La fecha de fin del periodo debe ser después de la fecha de inicio";
 	}
+
+	// Check if current date is within interval
+	const currentDate = new Date();
+
+	const currentDateIsWithinInterval = isWithinInterval(currentDate, {
+		start: startDate,
+		end: endDate,
+	});
+
+	// In case current date is not in interval nor current date and start date year matches
+	if (
+		!currentDateIsWithinInterval &&
+		getYear(startDate) !== getYear(currentDate)
+	) {
+		throw "La fecha actual debe estar dentro del periodo o la fecha de inicio debe estar en el mismo año";
+	}
+
 	// In case there's more than 1 year of difference
 	const startDateYear = startDate.getFullYear();
 	const endDateYear = endDate.getFullYear();
@@ -31,9 +54,6 @@ async function validateAcademicPeriod({
 
 	// Verify if period is available
 	const isAvailable = academicPeriods.every((academicPeriod) => {
-		console.log(startDate, academicPeriod.endDate);
-		console.log(endDate, academicPeriod.startDate);
-
 		const isOverlapping = areIntervalsOverlapping(
 			{
 				start: startDate,

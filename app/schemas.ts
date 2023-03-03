@@ -93,7 +93,6 @@ export const representationSchema = z.object({
 });
 
 export const assignmentSchema = z.object({
-	academicPeriodId,
 	courseId,
 	lapseId: z.preprocess(
 		parseNumber,
