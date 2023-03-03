@@ -1,4 +1,4 @@
-import { format, getYear, isSameYear, isWithinInterval } from "date-fns";
+import { format, getYear, isWithinInterval } from "date-fns";
 import { db } from "./db.server";
 
 export const findActiveAcademicPeriod = async () => {

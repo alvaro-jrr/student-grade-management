@@ -5,10 +5,10 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import { format } from "date-fns";
 import { ButtonLink } from "~/components/button";
 import { FunnelIcon } from "@heroicons/react/24/outline";
 import { TextField } from "~/components/form-elements";
+import { dateFormat } from "~/utils/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["COORDINATOR"]);
@@ -48,7 +48,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 			}) => {
 				return {
 					fullname: `${firstname} ${lastname}`,
-					birthDate: format(birthDate, "dd/MM/yyyy"),
+					birthDate: dateFormat(birthDate),
 					...restOfStudent,
 				};
 			}

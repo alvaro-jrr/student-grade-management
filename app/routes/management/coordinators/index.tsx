@@ -5,8 +5,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import { format } from "date-fns";
 import { Button, ButtonLink } from "~/components/button";
+import { dateFormat } from "~/utils/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["ADMIN"]);
@@ -36,9 +36,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 			}) => {
 				return {
 					fullname: `${firstname} ${lastname}`,
-					entryDate: format(entryDate, "dd/MM/yyyy"),
+					entryDate: dateFormat(entryDate),
 					retirementDate: retirementDate
-						? format(retirementDate, "dd/MM/yyyy")
+						? dateFormat(retirementDate)
 						: "",
 					...restOfCoordinator,
 				};
