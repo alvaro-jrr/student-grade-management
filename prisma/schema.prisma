@@ -93,35 +93,23 @@ model RepresentativeByStudent {
 
 // Periodo Academico
 model AcademicPeriod {
-    id            Int                         @id @default(autoincrement())
-    createdAt     DateTime                    @default(now())
-    updatedAt     DateTime                    @updatedAt
+    id            Int            @id @default(autoincrement())
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
     startDate     DateTime
     endDate       DateTime
     academicLoads AcademicLoad[]
-    studyYears    StudyYearByAcademicPeriod[]
+    sections      Section[]
+    enrollments   Enrollment[]
 }
 
 // Año de Estudio
 model StudyYear {
-    id              Int                         @id @default(autoincrement())
-    year            Int                         @db.UnsignedInt
-    academicPeriods StudyYearByAcademicPeriod[]
-    courses         Course[]
-}
-
-// Año de Estudio por Periodo Academico
-model StudyYearByAcademicPeriod {
-    id               Int            @id @default(autoincrement())
-    createdAt        DateTime       @default(now())
-    academicPeriod   AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
-    academicPeriodId Int
-    studyYear        StudyYear      @relation(fields: [studyYearId], references: [id])
-    studyYearId      Int
-    enrollments      Enrollment[]
-    sections         Section[]
-
-    @@unique([academicPeriodId, studyYearId])
+    id          Int          @id @default(autoincrement())
+    year        Int          @db.UnsignedInt
+    enrollments Enrollment[]
+    courses     Course[]
+    sections    Section[]
 }
 
 // Curso
@@ -191,25 +179,31 @@ model Grade {
 
 // Inscripcion
 model Enrollment {
-    id                          Int                       @id @default(autoincrement())
-    createdAt                   DateTime                  @default(now())
-    student                     Student                   @relation(fields: [studentIdentityCard], references: [identityCard])
-    studentIdentityCard         String
-    studyYearByAcademicPeriod   StudyYearByAcademicPeriod @relation(fields: [studyYearByAcademicPeriodId], references: [id])
-    studyYearByAcademicPeriodId Int
+    id                  Int            @id @default(autoincrement())
+    createdAt           DateTime       @default(now())
+    student             Student        @relation(fields: [studentIdentityCard], references: [identityCard])
+    studentIdentityCard String
+    studyYear           StudyYear      @relation(fields: [studyYearId], references: [id])
+    studyYearId         Int
+    academicPeriod      AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+    academicPeriodId    Int
 
-    @@unique([studentIdentityCard, studyYearByAcademicPeriodId])
+    @@unique([studentIdentityCard, academicPeriodId, studyYearId])
 }
 
 // Seccion
 model Section {
-    id                          Int                       @id @default(autoincrement())
-    createdAt                   DateTime                  @default(now())
-    updatedAt                   DateTime                  @updatedAt
-    studyYearByAcademicPeriod   StudyYearByAcademicPeriod @relation(fields: [studyYearByAcademicPeriodId], references: [id])
-    studyYearByAcademicPeriodId Int
-    description                 String                    @db.Char(1)
-    students                    StudentBySection[]
+    id               Int                @id @default(autoincrement())
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime           @updatedAt
+    studyYear        StudyYear          @relation(fields: [studyYearId], references: [id])
+    studyYearId      Int
+    academicPeriod   AcademicPeriod     @relation(fields: [academicPeriodId], references: [id])
+    academicPeriodId Int
+    description      String             @db.Char(1)
+    students         StudentBySection[]
+
+    @@unique([studyYearId, academicPeriodId, description])
 }
 
 // Estudiante por Seccion

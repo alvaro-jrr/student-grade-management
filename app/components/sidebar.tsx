@@ -27,6 +27,11 @@ const LINKS: Link[] = [
 		roles: ["COORDINATOR"],
 	},
 	{
+		name: "Secciones",
+		to: "sections",
+		roles: ["COORDINATOR"],
+	},
+	{
 		name: "Docentes",
 		to: "teachers",
 		roles: ["COORDINATOR"],
