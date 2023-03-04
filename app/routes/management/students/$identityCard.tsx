@@ -1,6 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useParams } from "@remix-run/react";
+import DataNotFound from "~/components/data-not-found";
 import StudentCard from "~/components/student-card";
 import { db } from "~/utils/db.server";
 import { dateFormat } from "~/utils/utils";
@@ -57,9 +58,19 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 
 export default function StudentRoute() {
+	const identityCard = useParams().identityCard;
 	const data = useLoaderData<typeof loader>();
 
-	if (!data.student || !data.representatives) return <p>Not found</p>;
+	if (!data.student || !data.representatives) {
+		return (
+			<div className="flex h-full items-center justify-center">
+				<DataNotFound
+					description={`Estudiante con la cédula ${identityCard} no ha sido encontrado`}
+					to="/management/students"
+				/>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex h-full items-center justify-center">
