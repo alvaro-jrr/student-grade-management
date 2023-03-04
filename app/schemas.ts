@@ -121,3 +121,11 @@ export const sectionSchema = z.object({
 		.min(1, "Debe ingresar una letra")
 		.max(1, "Debe ser una sola letra"),
 });
+
+export const enrollmentSchema = z.object({
+	studyYearId: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar un año" })
+	),
+	studentIdentityCard: identityCard,
+});

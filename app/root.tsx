@@ -12,7 +12,7 @@ import syne from "@fontsource/syne/variable.css";
 import styles from "./styles/app.css";
 import phoneInputStyles from "react-phone-number-input/style.css";
 import bookIconUrl from "~/assets/book-icon.svg";
-import { H1, Paragraph } from "./components/typography";
+import { Paragraph } from "./components/typography";
 import Card from "./components/card";
 import { ButtonLink } from "./components/button";
 
