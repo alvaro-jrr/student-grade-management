@@ -129,3 +129,11 @@ export const enrollmentSchema = z.object({
 	),
 	studentIdentityCard: identityCard,
 });
+
+export const studentBySectionSchema = z.object({
+	studentIdentityCard: identityCard,
+	sectionId: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar una sección" })
+	),
+});

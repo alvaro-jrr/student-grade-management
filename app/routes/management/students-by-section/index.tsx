@@ -103,7 +103,7 @@ const columns = [
 		cell: (info) => {
 			const { description, studyYear } = info.getValue();
 
-			return `${studyYear.year} ${description}`;
+			return `${studyYear.year} - ${description}`;
 		},
 	}),
 	columnHelper.accessor("student.identityCard", {
