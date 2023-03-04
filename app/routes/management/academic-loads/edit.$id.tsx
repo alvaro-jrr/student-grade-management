@@ -1,12 +1,11 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { getYear } from "date-fns";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
-import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { Select } from "~/components/form-elements";
 import { academicLoadSchema } from "~/schemas";
@@ -75,6 +74,12 @@ export const loader = async ({ params }: LoaderArgs) => {
 		},
 	});
 
+	if (!academicLoad) {
+		throw new Response("Estudiante no ha sido encontrado", {
+			status: 404,
+		});
+	}
+
 	return json({
 		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
 			id,
@@ -92,20 +97,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 
 export default function EditAcademicLoadRoute() {
-	const id = useParams().id;
 	const data = useLoaderData<typeof loader>();
-
-	if (!data.academicLoad) {
-		return (
-			<div className="flex h-full items-center justify-center">
-				<DataNotFound
-					description={`Carga Académica con ID #${id} no ha sido
-						encontrado`}
-					to="/management/academic-loads"
-				/>
-			</div>
-		);
-	}
 
 	return (
 		<div className="flex h-full items-center justify-center">

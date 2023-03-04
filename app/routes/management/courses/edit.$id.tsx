@@ -1,11 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
-import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { Select, TextField } from "~/components/form-elements";
 import { courseSchema } from "~/schemas";
@@ -51,13 +50,17 @@ export const loader = async ({ params }: LoaderArgs) => {
 		},
 	});
 
+	if (!course) {
+		throw new Response("Asignatura no ha sido encontrada", {
+			status: 404,
+		});
+	}
+
 	return json({
-		course: course
-			? {
-					title: course.title,
-					year: course.studyYearId,
-			  }
-			: null,
+		course: {
+			title: course.title,
+			year: course.studyYearId,
+		},
 		years: await db.studyYear.findMany({
 			select: { id: true, year: true },
 		}),
@@ -65,20 +68,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 
 export default function EditCourseRoute() {
-	const id = useParams().id;
 	const data = useLoaderData<typeof loader>();
-
-	if (!data.course) {
-		return (
-			<div className="flex h-full items-center justify-center">
-				<DataNotFound
-					to="/management/courses"
-					description={`Curso con ID #${id} no ha sido
-						encontrado`}
-				/>
-			</div>
-		);
-	}
 
 	return (
 		<div className="flex h-full items-center justify-center">

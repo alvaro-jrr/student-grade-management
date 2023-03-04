@@ -1,12 +1,11 @@
 import type { LoaderArgs, ActionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { format } from "date-fns";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
-import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
 import { academicPeriodSchema } from "~/schemas";
@@ -41,32 +40,23 @@ export const loader = async ({ params }: LoaderArgs) => {
 		select: { startDate: true, endDate: true, id: true },
 	});
 
+	if (!academicPeriod) {
+		throw new Response("Periodo académico no ha sido encontrado", {
+			status: 404,
+		});
+	}
+
 	return json({
-		academicPeriod: academicPeriod
-			? {
-					startDate: format(academicPeriod.startDate, "yyyy-MM-dd"),
-					endDate: format(academicPeriod.endDate, "yyyy-MM-dd"),
-					id: academicPeriod.id,
-			  }
-			: null,
+		academicPeriod: {
+			startDate: format(academicPeriod.startDate, "yyyy-MM-dd"),
+			endDate: format(academicPeriod.endDate, "yyyy-MM-dd"),
+			id: academicPeriod.id,
+		},
 	});
 };
 
 export default function EditAcademicPeriodRoute() {
 	const data = useLoaderData<typeof loader>();
-	const academicPeriodId = Number(useParams().academicPeriodId);
-
-	if (!data.academicPeriod) {
-		return (
-			<div className="flex h-full items-center justify-center">
-				<DataNotFound
-					description={`Periodo académico con ID #${academicPeriodId} no ha sido
-						encontrado`}
-					to="/management/academic-periods"
-				/>
-			</div>
-		);
-	}
 
 	return (
 		<div className="flex h-full items-center justify-center">

@@ -1,11 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
-import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
 import { personSchema } from "~/schemas";
@@ -82,32 +81,23 @@ export const loader = async ({ params }: LoaderArgs) => {
 		},
 	});
 
+	if (!coordinator) {
+		throw new Response("Coordinador no ha sido encontrado", {
+			status: 404,
+		});
+	}
+
 	return json({
-		coordinator: coordinator
-			? {
-					identityCard,
-					firstname: coordinator.person.firstname,
-					lastname: coordinator.person.lastname,
-			  }
-			: null,
+		coordinator: {
+			identityCard,
+			firstname: coordinator.person.firstname,
+			lastname: coordinator.person.lastname,
+		},
 	});
 };
 
 export default function EditCoordinatorRoute() {
 	const data = useLoaderData<typeof loader>();
-	const identityCard = useParams().identityCard;
-
-	if (!data.coordinator) {
-		return (
-			<div className="flex h-full items-center justify-center">
-				<DataNotFound
-					to="/management/coordinators"
-					description={`Coordinador con cédula de identidad ${identityCard} no ha sido
-						encontrado`}
-				/>
-			</div>
-		);
-	}
 
 	return (
 		<div className="flex h-full items-center justify-center">

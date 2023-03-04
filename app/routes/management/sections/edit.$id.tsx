@@ -1,11 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
-import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
 import { sectionSchema as newSectionSchema } from "~/schemas";
@@ -92,32 +91,26 @@ export const loader = async ({ params }: LoaderArgs) => {
 		},
 	});
 
+	if (!section) {
+		throw new Response("Sección no ha sido encontrada", {
+			status: 404,
+		});
+	}
+
 	return json({
-		section: section
-			? {
-					description: section.description,
-					academicPeriod: getAcademicPeriodRange(
-						section.academicPeriod.startDate,
-						section.academicPeriod.endDate
-					),
-					studyYear: section.studyYear.year,
-			  }
-			: null,
+		section: {
+			description: section.description,
+			academicPeriod: getAcademicPeriodRange(
+				section.academicPeriod.startDate,
+				section.academicPeriod.endDate
+			),
+			studyYear: section.studyYear.year,
+		},
 	});
 };
 
 export default function EditSectionRoute() {
 	const data = useLoaderData<typeof loader>();
-	const id = useParams().id;
-
-	if (!data.section) {
-		return (
-			<DataNotFound
-				description={`Sección con ID #${id} no ha sido encontrado`}
-				to="/management/sections"
-			/>
-		);
-	}
 
 	return (
 		<div className="flex h-full items-center justify-center">
@@ -136,14 +129,14 @@ export default function EditSectionRoute() {
 									disabled={true}
 									label="Periodo Académico"
 									name="academicPeriod"
-									value={data.section?.academicPeriod}
+									value={data.section.academicPeriod}
 								/>
 
 								<TextField
 									disabled={true}
 									label="Año"
 									name="year"
-									value={data.section?.studyYear}
+									value={data.section.studyYear}
 								/>
 
 								<TextField

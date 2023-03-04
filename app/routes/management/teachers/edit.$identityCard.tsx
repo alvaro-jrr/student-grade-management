@@ -1,11 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
-import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
 import { teacherSchema } from "~/schemas";
@@ -94,33 +93,24 @@ export const loader = async ({ params }: LoaderArgs) => {
 		},
 	});
 
+	if (!teacher) {
+		throw new Response("Docente no ha sido encontrado", {
+			status: 404,
+		});
+	}
+
 	return json({
-		teacher: teacher
-			? {
-					identityCard,
-					firstname: teacher.person.firstname,
-					lastname: teacher.person.lastname,
-					specialty: teacher.specialty,
-			  }
-			: null,
+		teacher: {
+			identityCard,
+			firstname: teacher.person.firstname,
+			lastname: teacher.person.lastname,
+			specialty: teacher.specialty,
+		},
 	});
 };
 
 export default function EditTeacherRoute() {
 	const data = useLoaderData<typeof loader>();
-	const identityCard = useParams().identityCard;
-
-	if (!data.teacher) {
-		return (
-			<div className="flex h-full items-center justify-center">
-				<DataNotFound
-					to="/management/teachers"
-					description={`Docente con cédula de identidad ${identityCard} no ha sido
-						encontrado`}
-				/>
-			</div>
-		);
-	}
 
 	return (
 		<div className="flex h-full items-center justify-center">

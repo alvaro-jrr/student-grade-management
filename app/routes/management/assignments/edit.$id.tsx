@@ -5,7 +5,6 @@ import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
-import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
 import { RadioGroup, Select, TextField } from "~/components/form-elements";
 import { assignmentSchema } from "~/schemas";
@@ -127,6 +126,12 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 		},
 	});
 
+	if (!assignment) {
+		throw new Response("Evaluación no ha sido encontrada", {
+			status: 404,
+		});
+	}
+
 	return json({
 		assignment,
 		courses,
@@ -135,20 +140,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 };
 
 export default function EditAssignmentRoute() {
-	const id = useParams().id;
 	const data = useLoaderData<typeof loader>();
-
-	if (!data.assignment) {
-		return (
-			<div className="flex h-full items-center justify-center">
-				<DataNotFound
-					to="/management/assignments"
-					description={`Evaluación con ID #${id} no ha sido
-						encontrado`}
-				/>
-			</div>
-		);
-	}
 
 	return (
 		<div className="flex h-full items-center justify-center">
