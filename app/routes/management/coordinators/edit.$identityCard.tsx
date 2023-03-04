@@ -1,9 +1,9 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
+import { useLoaderData, useParams } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
-import { Button } from "~/components/button";
+import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
 import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
@@ -96,7 +96,6 @@ export const loader = async ({ params }: LoaderArgs) => {
 export default function EditCoordinatorRoute() {
 	const data = useLoaderData<typeof loader>();
 	const identityCard = useParams().identityCard;
-	const navigate = useNavigate();
 
 	if (!data.coordinator) {
 		return (
@@ -147,13 +146,12 @@ export default function EditCoordinatorRoute() {
 							</div>
 
 							<div className="flex justify-end gap-4">
-								<Button
-									type="button"
+								<ButtonLink
 									variant="secondary"
-									onClick={() => navigate(-1)}
+									to="/management/coordinators"
 								>
-									Volver
-								</Button>
+									Cancelar
+								</ButtonLink>
 
 								<Button type="submit">Actualizar</Button>
 							</div>

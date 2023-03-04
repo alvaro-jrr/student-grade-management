@@ -1,9 +1,10 @@
 import type { LoaderArgs, ActionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
+import { useLoaderData, useParams } from "@remix-run/react";
+import { format } from "date-fns";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
-import { Button } from "~/components/button";
+import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
 import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
@@ -12,7 +13,6 @@ import { academicPeriodSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { updateAcademicPeriod } from "~/utils/form-validation.server";
-import { dateFormat } from "~/utils/utils";
 
 const editAcademicPeriodSchema = academicPeriodSchema.extend({
 	id: z.preprocess((value: unknown) => Number(value), z.number()),
@@ -44,8 +44,8 @@ export const loader = async ({ params }: LoaderArgs) => {
 	return json({
 		academicPeriod: academicPeriod
 			? {
-					startDate: dateFormat(academicPeriod.startDate),
-					endDate: dateFormat(academicPeriod.endDate),
+					startDate: format(academicPeriod.startDate, "yyyy-MM-dd"),
+					endDate: format(academicPeriod.endDate, "yyyy-MM-dd"),
 					id: academicPeriod.id,
 			  }
 			: null,
@@ -55,7 +55,6 @@ export const loader = async ({ params }: LoaderArgs) => {
 export default function EditAcademicPeriodRoute() {
 	const data = useLoaderData<typeof loader>();
 	const academicPeriodId = Number(useParams().academicPeriodId);
-	const navigate = useNavigate();
 
 	if (!data.academicPeriod) {
 		return (
@@ -103,13 +102,13 @@ export default function EditAcademicPeriodRoute() {
 							<Errors />
 
 							<div className="flex justify-end gap-x-4">
-								<Button
+								<ButtonLink
 									type="button"
 									variant="secondary"
-									onClick={() => navigate(-1)}
+									to="/management/academic-periods"
 								>
-									Volver
-								</Button>
+									Cancelar
+								</ButtonLink>
 
 								<Button type="submit">Actualizar</Button>
 							</div>

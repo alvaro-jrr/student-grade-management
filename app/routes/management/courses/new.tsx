@@ -1,8 +1,8 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
-import { Button } from "~/components/button";
+import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
 import { Form } from "~/components/form";
 import { Select, TextField } from "~/components/form-elements";
@@ -41,7 +41,6 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export default function NewCourseRoute() {
 	const data = useLoaderData<typeof loader>();
-	const navigate = useNavigate();
 
 	return (
 		<div className="flex h-full items-center justify-center">
@@ -79,13 +78,12 @@ export default function NewCourseRoute() {
 							<Errors />
 
 							<div className="flex justify-end gap-x-4">
-								<Button
-									type="button"
+								<ButtonLink
 									variant="secondary"
-									onClick={() => navigate(-1)}
+									to="/management/courses"
 								>
-									Volver
-								</Button>
+									Cancelar
+								</ButtonLink>
 
 								<Button type="submit">Crear</Button>
 							</div>

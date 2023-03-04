@@ -1,5 +1,4 @@
-import { useNavigate } from "@remix-run/react";
-import { Button } from "./button";
+import { ButtonLink } from "./button";
 import Card from "./card";
 import { Paragraph } from "./typography";
 
@@ -49,8 +48,6 @@ export default function StudentCard({
 	student,
 	representatives,
 }: StudentCardProps) {
-	const navigate = useNavigate();
-
 	return (
 		<Card title={`${student.firstname} ${student.lastname}`}>
 			<div className="flex flex-col gap-y-4">
@@ -86,13 +83,9 @@ export default function StudentCard({
 			</div>
 
 			<div className="flex justify-end">
-				<Button
-					variant="secondary"
-					onClick={() => navigate(-1)}
-					type="button"
-				>
+				<ButtonLink variant="secondary" to="/management/students">
 					Volver
-				</Button>
+				</ButtonLink>
 			</div>
 		</Card>
 	);

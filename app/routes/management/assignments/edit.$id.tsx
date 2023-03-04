@@ -1,9 +1,9 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
+import { useLoaderData, useParams } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
-import { Button } from "~/components/button";
+import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
 import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
@@ -137,13 +137,12 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export default function EditAssignmentRoute() {
 	const id = useParams().id;
 	const data = useLoaderData<typeof loader>();
-	const navigate = useNavigate();
 
 	if (!data.assignment) {
 		return (
 			<div className="flex h-full items-center justify-center">
 				<DataNotFound
-					to="/management/coordinators"
+					to="/management/assignments"
 					description={`Evaluación con ID #${id} no ha sido
 						encontrado`}
 				/>
@@ -211,13 +210,12 @@ export default function EditAssignmentRoute() {
 							<Errors />
 
 							<div className="flex justify-end gap-x-4">
-								<Button
-									type="button"
+								<ButtonLink
 									variant="secondary"
-									onClick={() => navigate(-1)}
+									to="/management/assignments"
 								>
-									Volver
-								</Button>
+									Cancelar
+								</ButtonLink>
 
 								<Button type="submit">Actualizar</Button>
 							</div>

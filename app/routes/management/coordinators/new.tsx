@@ -1,7 +1,6 @@
 import type { ActionArgs } from "@remix-run/node";
-import { useNavigate } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
-import { Button } from "~/components/button";
+import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
 import { Form } from "~/components/form";
 import { TextField } from "~/components/form-elements";
@@ -43,8 +42,6 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export default function NewCoordinatorRoute() {
-	const navigate = useNavigate();
-
 	return (
 		<div className="flex h-full items-center justify-center">
 			<Card
@@ -82,13 +79,13 @@ export default function NewCoordinatorRoute() {
 							<Errors />
 
 							<div className="flex justify-end gap-4">
-								<Button
+								<ButtonLink
 									type="button"
 									variant="secondary"
-									onClick={() => navigate(-1)}
+									to="/management/coordinators"
 								>
-									Volver
-								</Button>
+									Cancelar
+								</ButtonLink>
 
 								<Button type="submit">Crear</Button>
 							</div>

@@ -1,10 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
+import { useLoaderData, useParams } from "@remix-run/react";
 import { getYear } from "date-fns";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
-import { Button } from "~/components/button";
+import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
 import DataNotFound from "~/components/data-not-found";
 import { Form } from "~/components/form";
@@ -94,7 +94,6 @@ export const loader = async ({ params }: LoaderArgs) => {
 export default function EditAcademicLoadRoute() {
 	const id = useParams().id;
 	const data = useLoaderData<typeof loader>();
-	const navigate = useNavigate();
 
 	if (!data.academicLoad) {
 		return (
@@ -102,7 +101,7 @@ export default function EditAcademicLoadRoute() {
 				<DataNotFound
 					description={`Carga Académica con ID #${id} no ha sido
 						encontrado`}
-					to="/management/academic-periods"
+					to="/management/academic-loads"
 				/>
 			</div>
 		);
@@ -161,13 +160,12 @@ export default function EditAcademicLoadRoute() {
 							<Errors />
 
 							<div className="flex justify-end gap-x-4">
-								<Button
-									type="button"
+								<ButtonLink
 									variant="secondary"
-									onClick={() => navigate(-1)}
+									to="/management/academic-loads"
 								>
-									Volver
-								</Button>
+									Cancelar
+								</ButtonLink>
 
 								<Button type="submit">Actualizar</Button>
 							</div>
