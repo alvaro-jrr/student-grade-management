@@ -14,7 +14,7 @@ export interface FormFieldProps {
 }
 
 const fieldClasses =
-	"min-h-[40px] w-full bg-white px-4 border border-gray-300 rounded-md text-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500  focus:outline-none aria-[invalid=true]:focus:border-red-500 aria-[invalid=true]:focus:ring-red-500";
+	"min-h-[40px] w-full bg-white px-4 border border-gray-300 rounded-md text-gray-500 disabled:opacity-75 disabled:bg-gray-50 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-1 focus:ring-blue-500  focus:outline-none aria-[invalid=true]:focus:border-red-500 aria-[invalid=true]:focus:ring-red-500";
 
 function FormField({
 	children,
