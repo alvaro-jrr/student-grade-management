@@ -108,3 +108,16 @@ export const assignmentSchema = z.object({
 			.max(100, "Debe ser menor o igual a 100")
 	),
 });
+
+export const sectionSchema = z.object({
+	academicPeriodId,
+	studyYearId: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar un año" })
+	),
+	description: z
+		.string()
+		.regex(/[a-zA-Z]/, "Debe ser una letra (A-Z)")
+		.min(1, "Debe ingresar una letra")
+		.max(1, "Debe ser una sola letra"),
+});
