@@ -21,7 +21,7 @@ export default function DataNotFound({
 
 			<div className="flex flex-col gap-y-4">
 				<div className="flex items-center gap-x-4">
-					<ExclamationCircleIcon className="h-6 w-6 flex-shrink-0 text-slate-500" />
+					<ExclamationCircleIcon className="h-6 w-6 flex-shrink-0 text-gray-500" />
 
 					<Paragraph>
 						Intente nuevamente más tarde o contacte al administrador

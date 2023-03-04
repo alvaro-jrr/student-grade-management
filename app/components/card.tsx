@@ -12,7 +12,7 @@ const baseClasses =
 
 const variantsLookup = {
 	elevated: "shadow-lg",
-	outlined: "shadow-sm border border-slate-300",
+	outlined: "shadow-sm border border-gray-300",
 	filled: "bg-blue-50",
 };
 

@@ -136,7 +136,7 @@ export default function AcademicLoadsIndexRoute() {
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-col justify-center gap-4 md:flex-row md:items-center md:justify-start">
-				<FunnelIcon className="h-6 w-6 text-slate-500" />
+				<FunnelIcon className="h-6 w-6 text-gray-500" />
 
 				<Form
 					className="flex flex-col gap-4 md:flex-row"

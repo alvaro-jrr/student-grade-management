@@ -10,8 +10,8 @@ const fontSize = {
 };
 
 const titleColors = {
-	primary: "text-slate-700",
-	secondary: "text-slate-500",
+	primary: "text-gray-700",
+	secondary: "text-gray-500",
 };
 
 interface TitleProps {
@@ -74,9 +74,7 @@ function Paragraph({ as = "p", children, size = "regular" }: ParagraphProps) {
 	const Tag = as;
 
 	return (
-		<Tag
-			className={`${paragraphFontSizes[size]} max-w-full text-slate-500`}
-		>
+		<Tag className={`${paragraphFontSizes[size]} max-w-full text-gray-500`}>
 			{children}
 		</Tag>
 	);

@@ -22,9 +22,9 @@ const AUTH_LINKS = [
 const MOBILE_LINKS = [{ name: "Inicio", to: "/" }, ...LINKS];
 
 const variantsLookup = {
-	mobile: "block px-2 py-4 font-medium text-slate-500",
+	mobile: "block px-2 py-4 font-medium text-gray-500",
 	desktop:
-		"block px-5 py-2 font-medium text-slate-500 transition-colors hover:bg-gray-100 aria-[current=page]:bg-gray-100 rounded-full",
+		"block px-5 py-2 font-medium text-gray-500 transition-colors hover:bg-gray-100 aria-[current=page]:bg-gray-100 rounded-full",
 };
 
 function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
@@ -35,7 +35,7 @@ function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
 			<button
 				aria-controls="mobile-navigation"
 				aria-expanded={isOpen}
-				className="relative z-10 p-2 text-slate-900"
+				className="relative z-10 p-2 text-gray-900"
 				onClick={() => setIsOpen((isOpen) => !isOpen)}
 			>
 				{isOpen ? (
@@ -93,7 +93,7 @@ export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 				<Link className="flex gap-x-2" to="/">
 					<img src={bookIconUrl} alt="Libro" className="w-8" />
 
-					<h1 className="font-heading text-2xl font-medium uppercase text-slate-700">
+					<h1 className="font-heading text-2xl font-medium uppercase text-gray-700">
 						Santa Marta
 					</h1>
 				</Link>

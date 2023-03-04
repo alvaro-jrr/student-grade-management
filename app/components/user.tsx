@@ -8,21 +8,21 @@ interface UserProps {
 
 export default function User({ user }: UserProps) {
 	return (
-		<div className="flex items-center p-2 rounded-md gap-x-4">
+		<div className="flex items-center gap-x-4 rounded-md p-2">
 			<form action="/logout" method="post">
 				<button
-					className="p-2 transition-opacity text-slate-600 hover:opacity-80"
+					className="p-2 text-gray-600 transition-opacity hover:opacity-80"
 					title="Cerrar sesión"
 					type="submit"
 				>
-					<ArrowLeftOnRectangleIcon className="w-6 h-6" />
+					<ArrowLeftOnRectangleIcon className="h-6 w-6" />
 
 					<span className="sr-only">Cerrar sesión</span>
 				</button>
 			</form>
 
 			<div className="space-y-1">
-				<p className="font-medium text-slate-600">@{user.username}</p>
+				<p className="font-medium text-gray-600">@{user.username}</p>
 			</div>
 		</div>
 	);

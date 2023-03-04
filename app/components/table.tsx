@@ -36,7 +36,7 @@ export default function Table<T>({ columns, data }: TableProps<T>) {
 							{headerGroup.headers.map((header) => {
 								return (
 									<th
-										className="whitespace-nowrap p-4 font-medium text-slate-700"
+										className="whitespace-nowrap p-4 font-medium text-gray-700"
 										key={header.id}
 										colSpan={header.colSpan}
 									>
@@ -61,7 +61,7 @@ export default function Table<T>({ columns, data }: TableProps<T>) {
 						rows.map((row) => (
 							<tr
 								key={row.id}
-								className="border-b last:border-0 hover:bg-slate-50"
+								className="border-b last:border-0 hover:bg-gray-50"
 							>
 								{row.getVisibleCells().map((cell) => {
 									return (
@@ -81,7 +81,7 @@ export default function Table<T>({ columns, data }: TableProps<T>) {
 					) : (
 						<tr>
 							<td
-								className="p-4 text-center text-slate-500"
+								className="p-4 text-center text-gray-500"
 								colSpan={columnsCount}
 							>
 								No hay datos disponibles

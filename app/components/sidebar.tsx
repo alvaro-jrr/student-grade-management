@@ -96,13 +96,13 @@ export default function SideBar({
 								alt="Libro"
 							/>
 
-							<h1 className="font-heading text-2xl font-medium uppercase text-slate-700">
+							<h1 className="font-heading text-2xl font-medium uppercase text-gray-700">
 								Santa Marta
 							</h1>
 						</div>
 
 						<button
-							className="self-end p-2 text-slate-900 lg:hidden"
+							className="self-end p-2 text-gray-900 lg:hidden"
 							onClick={() => setIsOpen(false)}
 						>
 							<XMarkIcon className="h-6 w-6" />
@@ -116,7 +116,7 @@ export default function SideBar({
 							{accessableLinks.map((link) => (
 								<li key={link.to}>
 									<NavLink
-										className="block rounded-md px-6 py-2 font-medium text-slate-700 transition-colors hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
+										className="block rounded-md px-6 py-2 font-medium text-gray-700 transition-colors hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
 										to={link.to}
 										end={link.to === "/management"}
 									>
@@ -134,7 +134,7 @@ export default function SideBar({
 			<div
 				aria-expanded={isOpen}
 				aria-controls="sidebar"
-				className="invisible fixed inset-0 z-10 bg-slate-900/30 aria-expanded:visible lg:aria-expanded:invisible"
+				className="invisible fixed inset-0 z-10 bg-gray-900/30 aria-expanded:visible lg:aria-expanded:invisible"
 				onClick={() => setIsOpen(false)}
 			/>
 		</>

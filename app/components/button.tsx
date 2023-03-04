@@ -7,11 +7,11 @@ const baseClasses =
 
 const variantsLookup = {
 	primary:
-		"text-white bg-blue-500 hover:bg-blue-700 disabled:text-slate-700 disabled:bg-slate-200 focus:bg-blue-700",
+		"text-white bg-blue-500 hover:bg-blue-700 disabled:text-gray-700 disabled:bg-gray-200 focus:bg-blue-700",
 	secondary:
-		"text-blue-500 border border-blue-300 hover:bg-blue-50 focus:border-blue-400 disabled:border-slate-300 disabled:text-slate-500 disabled:hover:bg-slate-100 focus:ring-2 focus:ring-blue-200",
-	text: "text-blue-500 hover:bg-blue-50 disabled:text-slate-500 disabled:hover:bg-slate-100",
-	danger: "text-red-500 border border-red-300 hover:bg-red-50 focus:border-red-400 disabled:border-slate-300 disabled:text-slate-500 disabled:hover:bg-slate-100 focus:ring-2 focus:ring-red-200",
+		"text-blue-500 border border-blue-300 hover:bg-blue-50 focus:border-blue-400 disabled:border-gray-300 disabled:text-gray-500 disabled:hover:bg-gray-100 focus:ring-2 focus:ring-blue-200",
+	text: "text-blue-500 hover:bg-blue-50 disabled:text-gray-500 disabled:hover:bg-gray-100",
+	danger: "text-red-500 border border-red-300 hover:bg-red-50 focus:border-red-400 disabled:border-gray-300 disabled:text-gray-500 disabled:hover:bg-gray-100 focus:ring-2 focus:ring-red-200",
 };
 
 const sizesLookup = {

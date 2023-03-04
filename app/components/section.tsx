@@ -34,7 +34,7 @@ export default function Section({
 					<button
 						aria-controls="sidebar"
 						aria-expanded={isMenuOpen}
-						className="self-start p-2 text-slate-900 lg:hidden"
+						className="self-start p-2 text-gray-900 lg:hidden"
 						type="button"
 						onClick={() => setIsMenuOpen(true)}
 					>
