@@ -19,7 +19,7 @@ interface StudentCardProps {
 
 function SingleStudentData({ title, value }: { title: string; value: string }) {
 	return (
-		<div className="flex flex-col py-4 lg:flex-row lg:justify-between">
+		<div className="flex flex-col lg:flex-row lg:justify-between">
 			<Paragraph>
 				<span className="font-medium">{title}</span>
 			</Paragraph>
@@ -45,19 +45,44 @@ const studentData: StudentDataType[] = [
 	},
 ];
 
-export default function StudentCard({ student }: StudentCardProps) {
+export default function StudentCard({
+	student,
+	representatives,
+}: StudentCardProps) {
 	const navigate = useNavigate();
 
 	return (
 		<Card title={`${student.firstname} ${student.lastname}`}>
-			<div className="flex flex-col divide-y-2">
-				{studentData.map(({ title, key }) => (
-					<SingleStudentData
-						key={key}
-						title={title}
-						value={student[key]}
-					/>
-				))}
+			<div className="flex flex-col gap-y-4">
+				<div className="space-y-2">
+					<p className="border-b pb-2 font-semibold text-gray-700">
+						Información personal
+					</p>
+
+					<div className="flex flex-col gap-y-2">
+						{studentData.map(({ title, key }) => (
+							<SingleStudentData
+								key={key}
+								title={title}
+								value={student[key]}
+							/>
+						))}
+					</div>
+				</div>
+
+				<div className="space-y-2">
+					<p className="border-b pb-2 font-semibold text-gray-700">
+						Representantes
+					</p>
+
+					{representatives.map((representative) => (
+						<SingleStudentData
+							key={representative.phoneNumber}
+							title={`${representative.firstname} ${representative.lastname}`}
+							value={representative.phoneNumber}
+						/>
+					))}
+				</div>
 			</div>
 
 			<div className="flex justify-end">
