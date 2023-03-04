@@ -119,6 +119,7 @@ export default function EditSectionRoute() {
 				supportingText="Una sección se apertura en cada periodo para un año"
 			>
 				<Form
+                    method="post"
 					schema={sectionSchema}
 					values={{ description: data.section.description }}
 				>

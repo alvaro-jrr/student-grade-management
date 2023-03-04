@@ -129,7 +129,7 @@ export default function NewAssignmentRoute() {
 				title="Crear evaluación"
 				supportingText="Asigna una evaluación a los estudiantes de la asignatura en el periodo activo"
 			>
-				<Form schema={assignmentSchema}>
+				<Form method="post" schema={assignmentSchema}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

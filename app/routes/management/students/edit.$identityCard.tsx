@@ -104,7 +104,11 @@ export default function EditCoordinatorRoute() {
 				title="Editar estudiante"
 				supportingText="Actualiza los datos de un estudiante requerido"
 			>
-				<Form schema={studentSchema} values={data.student}>
+				<Form
+					method="post"
+					schema={studentSchema}
+					values={data.student}
+				>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

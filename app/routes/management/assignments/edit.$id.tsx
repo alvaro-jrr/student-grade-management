@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";

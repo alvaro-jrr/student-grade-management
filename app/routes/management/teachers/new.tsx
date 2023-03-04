@@ -50,7 +50,7 @@ export default function NewTeacherRoute() {
 				title="Crear docente"
 				supportingText="Un docente imparte asignaturas y asigna evaluaciones"
 			>
-				<Form schema={teacherSchema}>
+				<Form method="post" schema={teacherSchema}>
 					{({ register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

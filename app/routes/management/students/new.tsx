@@ -50,7 +50,7 @@ export default function NewStudentRoute() {
 				title="Crear estudiante"
 				supportingText="Un estudiante puede inscribirse y realizar evaluaciones"
 			>
-				<Form schema={studentSchema}>
+				<Form method="post" schema={studentSchema}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

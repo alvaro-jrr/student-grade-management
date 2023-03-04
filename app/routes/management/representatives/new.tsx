@@ -61,7 +61,7 @@ export default function NewRepresentativeRoute() {
 				title="Crear representante"
 				supportingText="Un representante puede observar las notas de sus representados"
 			>
-				<Form schema={representativeSchema}>
+				<Form method="post" schema={representativeSchema}>
 					{({ register, formState: { errors }, control, Errors }) => (
 						<>
 							<div className="space-y-4">

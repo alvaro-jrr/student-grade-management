@@ -48,7 +48,7 @@ export default function NewCoordinatorRoute() {
 				title="Crear coordinador"
 				supportingText="Un coordinador puede crear nuevos periodos académicos, aperturar secciones y asignar cargas"
 			>
-				<Form schema={personSchema}>
+				<Form method="post" schema={personSchema}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

@@ -111,7 +111,7 @@ export default function NewEnrollmentRoute() {
 				title="Crear inscripción"
 				supportingText="Inscribe a un estudiante a un año del periodo especificado"
 			>
-				<Form schema={enrollmentSchema}>
+				<Form method="post" schema={enrollmentSchema}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

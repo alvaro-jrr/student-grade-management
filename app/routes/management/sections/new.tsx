@@ -70,7 +70,7 @@ export default function NewSectionRoute() {
 				title="Crear sección"
 				supportingText="Una sección se apertura en cada periodo para un año"
 			>
-				<Form schema={sectionSchema}>
+				<Form method="post" schema={sectionSchema}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

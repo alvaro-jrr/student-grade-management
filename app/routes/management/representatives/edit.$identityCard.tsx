@@ -111,6 +111,7 @@ export default function EditRepresentativeRoute() {
 				supportingText="Actualiza los datos de un representante requerido"
 			>
 				<Form
+					method="post"
 					schema={representativeSchema}
 					values={{
 						firstname: data.representative.person.firstname,
