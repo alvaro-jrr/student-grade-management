@@ -56,30 +56,38 @@ export default function StudentCard({
 						Información personal
 					</p>
 
-					<div className="flex flex-col gap-y-2">
+					<ul className="flex flex-col gap-y-2">
 						{studentData.map(({ title, key }) => (
-							<SingleStudentData
-								key={key}
-								title={title}
-								value={student[key]}
-							/>
+							<li key={key}>
+								<SingleStudentData
+									title={title}
+									value={student[key]}
+								/>
+							</li>
 						))}
+					</ul>
+				</div>
+
+				{representatives.length ? (
+					<div className="space-y-2">
+						<p className="border-b pb-2 font-semibold text-gray-700">
+							Representantes
+						</p>
+
+						<ul className="flex flex-col gap-y-2">
+							{representatives.map(
+								({ phoneNumber, firstname, lastname }) => (
+									<li key={phoneNumber}>
+										<SingleStudentData
+											title={`${firstname} ${lastname}`}
+											value={phoneNumber}
+										/>
+									</li>
+								)
+							)}
+						</ul>
 					</div>
-				</div>
-
-				<div className="space-y-2">
-					<p className="border-b pb-2 font-semibold text-gray-700">
-						Representantes
-					</p>
-
-					{representatives.map((representative) => (
-						<SingleStudentData
-							key={representative.phoneNumber}
-							title={`${representative.firstname} ${representative.lastname}`}
-							value={representative.phoneNumber}
-						/>
-					))}
-				</div>
+				) : null}
 			</div>
 
 			<div className="flex justify-end">
