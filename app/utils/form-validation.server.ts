@@ -5,7 +5,6 @@ import {
 	isWithinInterval,
 } from "date-fns";
 import { db } from "./db.server";
-import { findActiveAcademicPeriod } from "./utils";
 
 type AcademicPeriodForm = {
 	startDate: Date;

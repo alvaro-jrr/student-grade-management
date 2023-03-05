@@ -76,6 +76,11 @@ const LINKS: Link[] = [
 		to: "assignments",
 		roles: ["COORDINATOR", "TEACHER"],
 	},
+	{
+		name: "Notas",
+		to: "grades",
+		roles: ["COORDINATOR", "TEACHER"],
+	},
 ];
 
 interface SideBarProps {

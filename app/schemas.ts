@@ -137,3 +137,19 @@ export const studentBySectionSchema = z.object({
 		z.number({ required_error: "Debe seleccionar una sección" })
 	),
 });
+
+export const gradeSchema = z.object({
+	score: z.preprocess(
+		parseNumber,
+		z
+			.number({ required_error: "Debe ingresar la nota" })
+			.min(1, "La menor nota posible es de 1")
+			.max(20, "La nota máxima debe ser menor o igual a 20")
+	),
+	studentIdentityCard: identityCard,
+	assignmentId: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar una evaluación" })
+	),
+	note: z.string().optional(),
+});
