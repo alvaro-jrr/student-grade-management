@@ -185,61 +185,58 @@ export default function NewGradeRoute() {
 				<RemixForm method="post" schema={gradeSchema}>
 					{({ register, formState: { errors }, Errors }) => (
 						<>
-							{data.courseId ? (
-								<div className="space-y-4">
-									<Select
-										error={
-											errors.studentIdentityCard?.message
-										}
-										label="Estudiante"
-										options={data.students.map(
-											({
-												student: {
-													identityCard,
-													person: {
-														firstname,
-														lastname,
-													},
-												},
-											}) => ({
-												name: `${firstname} ${lastname} - C.I: ${identityCard}`,
-												value: identityCard,
-											})
-										)}
-										{...register("studentIdentityCard")}
-									/>
+							<div className="space-y-4">
+								<Select
+									error={errors.studentIdentityCard?.message}
+									disabled={data.courseId === null}
+									label="Estudiante"
+									options={data.students.map(
+										({
+											student: {
+												identityCard,
+												person: { firstname, lastname },
+											},
+										}) => ({
+											name: `${firstname} ${lastname} - C.I: ${identityCard}`,
+											value: identityCard,
+										})
+									)}
+									{...register("studentIdentityCard")}
+								/>
 
-									<Select
-										error={errors.assignmentId?.message}
-										label="Evaluación"
-										options={data.assignments.map(
-											({ id, description, lapse }) => ({
-												name: `${description} - Lapso ${lapse.description}`,
-												value: id,
-											})
-										)}
-										{...register("assignmentId")}
-									/>
+								<Select
+									disabled={data.courseId === null}
+									error={errors.assignmentId?.message}
+									label="Evaluación"
+									options={data.assignments.map(
+										({ id, description, lapse }) => ({
+											name: `${description} - Lapso ${lapse.description}`,
+											value: id,
+										})
+									)}
+									{...register("assignmentId")}
+								/>
 
-									<TextField
-										error={errors.score?.message}
-										label="Nota"
-										supportingText="La nota debe ser estar entre 1 y 20"
-										type="number"
-										placeholder="ej: 15"
-										{...register("score")}
-									/>
+								<TextField
+									disabled={data.courseId === null}
+									error={errors.score?.message}
+									label="Nota"
+									supportingText="La nota debe ser estar entre 1 y 20"
+									type="number"
+									placeholder="ej: 15"
+									{...register("score")}
+								/>
 
-									<TextField
-										optional={true}
-										label="Observación"
-										supportingText="Alguna observación sobre la evaluación de este estudiante"
-										error={errors.note?.message}
-										placeholder="ej: Tenia una chuleta en el bolso"
-										{...register("note")}
-									/>
-								</div>
-							) : null}
+								<TextField
+									disabled={data.courseId === null}
+									optional={true}
+									label="Observación"
+									supportingText="Alguna observación sobre la evaluación de este estudiante"
+									error={errors.note?.message}
+									placeholder="ej: Tenia una chuleta en el bolso"
+									{...register("note")}
+								/>
+							</div>
 
 							<Errors />
 
