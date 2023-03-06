@@ -15,14 +15,30 @@ interface RegisterForm extends LoginForm {
 export async function login({ username, password }: LoginForm) {
 	const user = await db.user.findUnique({
 		where: { username },
-		select: { id: true, password: true },
+		select: { id: true, password: true, role: true, identityCard: true },
 	});
 
+	// In case user doesn't exist
 	if (!user) return null;
 
 	const isCorrectPassword = await bcrypt.compare(password, user.password);
 
+	// In case password doesn't match
 	if (!isCorrectPassword) return null;
+
+	if (user.role === "COORDINATOR") {
+		const coordinator = await db.coordinator.findUnique({
+			where: { identityCard: user.identityCard },
+		});
+
+		// In case coordinator isn't active
+		if (
+			typeof coordinator?.isActive === "boolean" &&
+			!coordinator.isActive
+		) {
+			throw "Coordinador ya no está activo";
+		}
+	}
 
 	return user.id;
 }

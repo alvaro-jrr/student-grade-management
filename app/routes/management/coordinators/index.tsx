@@ -65,7 +65,7 @@ const columns = [
 		cell: (info) => {
 			const retirementDate = info.getValue();
 
-			if (retirementDate) dateFormat(retirementDate);
+			if (retirementDate) return dateFormat(retirementDate);
 
 			return "";
 		},
