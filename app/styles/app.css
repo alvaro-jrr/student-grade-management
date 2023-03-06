@@ -617,6 +617,10 @@ video {
   height: 1rem;
 }
 
+.h-screen {
+  height: 100vh;
+}
+
 .min-h-screen {
   min-height: 100vh;
 }
@@ -674,6 +678,14 @@ video {
 
 .grid-rows-\[auto_1fr\] {
   grid-template-rows: auto 1fr;
+}
+
+.grid-rows-\[auto_1fr_auto\] {
+  grid-template-rows: auto 1fr auto;
+}
+
+.grid-rows-\[auto_80\%_auto\] {
+  grid-template-rows: auto 80% auto;
 }
 
 .flex-row {

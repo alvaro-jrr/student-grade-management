@@ -103,50 +103,48 @@ export default function SideBar({
 	return (
 		<>
 			<div
-				className="fixed inset-0 z-20 flex min-h-screen w-full max-w-xs translate-x-[-100%] flex-col justify-between border-r bg-white p-6 shadow-sm transition-transform will-change-transform data-[visible=true]:translate-x-0 lg:relative lg:left-0 lg:translate-x-0"
+				className="fixed inset-0 z-20 flex h-screen w-full max-w-xs translate-x-[-100%] flex-col justify-between gap-y-6 overflow-auto border-r bg-white p-6 shadow-sm transition-transform will-change-transform data-[visible=true]:translate-x-0 lg:relative lg:left-0 lg:translate-x-0"
 				data-visible={isOpen}
 				id="sidebar"
 			>
-				<div className="flex flex-col gap-y-6">
-					<div className="flex justify-between">
-						<div className="flex items-center gap-x-2">
-							<img
-								src={bookIconUrl}
-								className="h-6 w-6"
-								alt="Libro"
-							/>
+				<div className="flex justify-between">
+					<div className="flex items-center gap-x-2">
+						<img
+							src={bookIconUrl}
+							className="h-6 w-6"
+							alt="Libro"
+						/>
 
-							<h1 className="font-heading text-2xl font-medium uppercase text-gray-700">
-								Santa Marta
-							</h1>
-						</div>
-
-						<button
-							className="self-end p-2 text-gray-900 lg:hidden"
-							onClick={() => setIsOpen(false)}
-						>
-							<XMarkIcon className="h-6 w-6" />
-
-							<span className="sr-only">Cerrar menú</span>
-						</button>
+						<h1 className="font-heading text-2xl font-medium uppercase text-gray-700">
+							Santa Marta
+						</h1>
 					</div>
 
-					<nav>
-						<ul className="flex flex-col gap-y-2">
-							{accessableLinks.map((link) => (
-								<li key={link.to}>
-									<NavLink
-										className="block rounded-md px-6 py-2 font-medium text-gray-700 transition-colors hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
-										to={link.to}
-										end={link.to === "/management"}
-									>
-										{link.name}
-									</NavLink>
-								</li>
-							))}
-						</ul>
-					</nav>
+					<button
+						className="self-end p-2 text-gray-900 lg:hidden"
+						onClick={() => setIsOpen(false)}
+					>
+						<XMarkIcon className="h-6 w-6" />
+
+						<span className="sr-only">Cerrar menú</span>
+					</button>
 				</div>
+
+				<nav>
+					<ul className="flex flex-col gap-y-2">
+						{accessableLinks.map((link) => (
+							<li key={link.to}>
+								<NavLink
+									className="block rounded-md px-6 py-2 font-medium text-gray-700 transition-colors hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
+									to={link.to}
+									end={link.to === "/management"}
+								>
+									{link.name}
+								</NavLink>
+							</li>
+						))}
+					</ul>
+				</nav>
 
 				{children}
 			</div>
