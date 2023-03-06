@@ -227,7 +227,11 @@ export default function GradesIndexRoute() {
 					className="flex flex-col gap-4 md:flex-row"
 					method="get"
 					onChange={(event) => {
-						const isFirstSearch = data.academicPeriodId === null;
+						const isFirstSearch =
+							data.academicPeriodId === null &&
+							data.lapseId === null &&
+							data.courseId === null &&
+							data.studyYearId === null;
 
 						submit(event.currentTarget, {
 							replace: !isFirstSearch,
