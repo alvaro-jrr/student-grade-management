@@ -1,4 +1,9 @@
-import type { AcademicPeriod, Course, Student } from "@prisma/client";
+import type {
+	AcademicPeriod,
+	Course,
+	Student,
+	StudyYear,
+} from "@prisma/client";
 import { db } from "./db.server";
 
 const MAX_SCORE = 20;
@@ -28,6 +33,60 @@ export function calculateAssignmentGrade({
 	score: number;
 }) {
 	return (score * weight) / MAX_SCORE;
+}
+
+type GetStudyYearFinalScores = Omit<GetCourseFinalScore, "courseId"> & {
+	studyYearId: StudyYear["id"];
+};
+
+export async function getStudyYearFinalScores({
+	studyYearId,
+	studentIdentityCard,
+	academicPeriodId,
+}: GetStudyYearFinalScores) {
+	// Get courses
+	const courses = await db.course.findMany({
+		where: {
+			studyYearId,
+		},
+		select: {
+			id: true,
+		},
+	});
+
+	const coursesFinalScore: { [courseId: number]: number } = {};
+
+	// Get score by course
+	for (const course of courses) {
+		coursesFinalScore[course.id] = await getCourseFinalScore({
+			courseId: course.id,
+			studentIdentityCard,
+			academicPeriodId,
+		});
+	}
+
+	return coursesFinalScore;
+}
+
+export async function isStudentApproved({
+	studyYearId,
+	studentIdentityCard,
+	academicPeriodId,
+}: GetStudyYearFinalScores) {
+	const coursesFinalScore = await getStudyYearFinalScores({
+		studyYearId,
+		studentIdentityCard,
+		academicPeriodId,
+	});
+
+	// Get scores
+	const finalScores: number[] = [];
+
+	for (const finalScore in coursesFinalScore) {
+		finalScores.push(coursesFinalScore[finalScore]);
+	}
+
+	return finalScores.every((score) => score >= 10);
 }
 
 export async function getCourseFinalScoreByLapse({
