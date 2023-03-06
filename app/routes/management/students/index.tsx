@@ -107,11 +107,13 @@ export default function StudentsIndexRoute() {
 
 				<Form
 					method="get"
-					onChange={(event) =>
+					onChange={(event) => {
+						const isFirstSearch = data.identityCard === null;
+
 						submit(event.currentTarget, {
-							replace: data.identityCard === null,
-						})
-					}
+							replace: !isFirstSearch,
+						});
+					}}
 				>
 					<TextField
 						type="search"

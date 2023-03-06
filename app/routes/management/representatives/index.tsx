@@ -101,11 +101,13 @@ export default function RepresentativesIndexRoute() {
 
 				<Form
 					method="get"
-					onChange={(event) =>
+					onChange={(event) => {
+						const isFirstSearch = data.representativeId === null;
+
 						submit(event.currentTarget, {
-							replace: data.representativeId === null,
-						})
-					}
+							replace: !isFirstSearch,
+						});
+					}}
 				>
 					<TextField
 						type="search"
