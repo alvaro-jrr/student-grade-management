@@ -25,7 +25,7 @@ function NavBar({ routes }: NavBarProps) {
 		<nav>
 			<ul className="flex gap-x-4 overflow-auto">
 				{routes.map((route) => (
-					<li key={route.to}>
+					<li className="whitespace-nowrap" key={route.to}>
 						<NavLink
 							className="block rounded-full border border-gray-200 p-2 px-4 font-medium text-gray-500 transition-colors hover:border-blue-200 hover:text-blue-500 aria-[current=page]:border-transparent aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
 							to={route.to}
@@ -51,8 +51,8 @@ export default function Section({
 		useOutletContext<[boolean, Dispatch<SetStateAction<boolean>>]>();
 
 	return (
-		<div className="grid h-full grid-rows-[auto_1fr] gap-y-6">
-			<div className="flex flex-col gap-y-4">
+		<div className="grid h-screen flex-1 grid-rows-[auto_1fr] gap-y-6 overflow-auto p-6">
+			<div className="flex min-w-0 flex-col gap-y-4">
 				<header className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 					<div className="flex justify-between gap-x-2">
 						<div className="space-y-2">
@@ -86,9 +86,7 @@ export default function Section({
 				{routes ? <NavBar routes={routes} /> : null}
 			</div>
 
-			<main className="overflow-auto">
-				{children ? children : <Outlet />}
-			</main>
+			<main className="min-w-0">{children ? children : <Outlet />}</main>
 		</div>
 	);
 }

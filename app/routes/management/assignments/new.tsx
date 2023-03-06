@@ -99,7 +99,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 	const courses = await db.course.findMany({
 		where: {
 			academicLoads: {
-				every: {
+				some: {
 					teacherIdentityCard: user.identityCard,
 					academicPeriodId: academicPeriod && academicPeriod.id,
 				},

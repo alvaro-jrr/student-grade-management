@@ -26,9 +26,7 @@ export default function ManagementIndex() {
 				<User user={data.user} />
 			</SideBar>
 
-			<div className="min-h-screen flex-1 p-6">
-				<Outlet context={[isMenuOpen, setIsMenuOpen]} />
-			</div>
+			<Outlet context={[isMenuOpen, setIsMenuOpen]} />
 		</div>
 	);
 }

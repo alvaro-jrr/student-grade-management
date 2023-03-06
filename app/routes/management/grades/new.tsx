@@ -45,7 +45,7 @@ export const action = async ({ request }: ActionArgs) => {
 		request,
 		mutation,
 		schema: gradeSchema,
-		successPath: "/management/grades",
+		successPath: "/management/grades/all",
 	});
 };
 
@@ -84,7 +84,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 		where: {
 			studyYear: {
 				courses: {
-					every: {
+					some: {
 						id: courseId ? Number(courseId) : undefined,
 					},
 				},
@@ -242,7 +242,7 @@ export default function NewGradeRoute() {
 							<div className="flex justify-end gap-x-4">
 								<ButtonLink
 									variant="secondary"
-									to="/management/grades"
+									to="/management/grades/all"
 								>
 									Cancelar
 								</ButtonLink>

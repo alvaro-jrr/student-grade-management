@@ -1,3 +1,208 @@
+import { FunnelIcon } from "@heroicons/react/24/outline";
+import type { LoaderArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Form, useLoaderData, useSubmit } from "@remix-run/react";
+import { createColumnHelper } from "@tanstack/react-table";
+import { Select } from "~/components/form-elements";
+import Table from "~/components/table";
+import { db } from "~/utils/db.server";
+import { getCourseFinalScore } from "~/utils/grades.server";
+import { requireUserWithRole } from "~/utils/session.server";
+import { getAcademicPeriodRange } from "~/utils/utils";
+
+type GradeSectionSummary = {
+	student: {
+		identityCard: string;
+		person: {
+			firstname: string;
+			lastname: string;
+		};
+	};
+	score: number;
+};
+
+export const loader = async ({ request }: LoaderArgs) => {
+	await requireUserWithRole(request, ["COORDINATOR"]);
+	const url = new URL(request.url);
+
+	// Get search params
+	const academicPeriodId = url.searchParams.get("academic-period");
+	const studyYearId = url.searchParams.get("study-year");
+	const sectionId = url.searchParams.get("section");
+	const courseId = url.searchParams.get("course");
+
+	// Get periods, study years, courses and sections
+	const academicPeriods = await db.academicPeriod.findMany();
+	const studyYears = await db.studyYear.findMany();
+
+	const sections = await db.section.findMany({
+		where: {
+			academicPeriodId: academicPeriodId
+				? Number(academicPeriodId)
+				: undefined,
+			studyYearId: studyYearId ? Number(studyYearId) : undefined,
+		},
+	});
+
+	const courses = await db.course.findMany({
+		where: {
+			studyYearId: studyYearId ? Number(studyYearId) : undefined,
+		},
+	});
+
+	// Get grades
+	const students = await db.student.findMany({
+		where: {
+			sections: {
+				some: {
+					sectionId: sectionId ? Number(sectionId) : undefined,
+				},
+			},
+		},
+		select: {
+			identityCard: true,
+			person: {
+				select: {
+					firstname: true,
+					lastname: true,
+				},
+			},
+		},
+	});
+
+	const grades: GradeSectionSummary[] = [];
+
+	if (academicPeriodId && courseId && sectionId) {
+		for (const student of students) {
+			// Get final score
+			const finalScore = await getCourseFinalScore({
+				studentIdentityCard: student.identityCard,
+				academicPeriodId: Number(academicPeriodId),
+				courseId: Number(courseId),
+			});
+
+			grades.push({
+				student,
+				score: finalScore,
+			});
+		}
+	}
+
+	return json({
+		academicPeriodId,
+		studyYearId,
+		sectionId,
+		academicPeriods,
+		sections,
+		courseId,
+		studyYears,
+		courses,
+		grades,
+	});
+};
+
+const columnHelper = createColumnHelper<GradeSectionSummary>();
+
+// Table columns
+const columns = [
+	columnHelper.accessor("student.identityCard", {
+		header: "Cédula",
+		cell: (info) => info.getValue(),
+	}),
+	columnHelper.accessor("student.person", {
+		header: "Estudiante",
+		cell: (info) => {
+			const { firstname, lastname } = info.getValue();
+
+			return `${firstname} ${lastname}`;
+		},
+	}),
+	columnHelper.accessor("score", {
+		header: "Nota Final",
+		cell: (info) => info.getValue(),
+	}),
+];
+
 export default function SectionGradesSummary() {
-	return <p>Listado de notas por sección</p>;
+	const data = useLoaderData<typeof loader>();
+	const submit = useSubmit();
+	const isSectionSelectable = Boolean(
+		data.academicPeriodId && data.studyYearId
+	);
+
+	return (
+		<div className="space-y-6">
+			<div className="flex flex-col justify-center gap-4 md:flex-row md:items-center md:justify-start">
+				<FunnelIcon className="h-6 w-6 text-gray-500" />
+
+				<Form
+					className="flex flex-col gap-4 md:flex-row"
+					method="get"
+					onChange={(event) => {
+						const isFirstSearch =
+							data.academicPeriodId === null &&
+							data.sectionId === null &&
+							data.studyYearId;
+
+						submit(event.currentTarget, {
+							replace: !isFirstSearch,
+						});
+					}}
+				>
+					<Select
+						label="Periodo Académico"
+						name="academic-period"
+						placeholder="Seleccione un periodo"
+						defaultValue={data.academicPeriodId || ""}
+						options={data.academicPeriods.map(
+							({ id, startDate, endDate }) => ({
+								name: getAcademicPeriodRange(
+									startDate,
+									endDate
+								),
+								value: id,
+							})
+						)}
+					/>
+
+					<Select
+						label="Año"
+						name="study-year"
+						placeholder="Seleccione un año"
+						defaultValue={data.studyYearId || ""}
+						options={data.studyYears.map(({ id, year }) => ({
+							name: year,
+							value: id,
+						}))}
+					/>
+
+					<Select
+						label="Asignatura"
+						name="course"
+						disabled={data.studyYearId === null}
+						placeholder="Seleccione una asignatura"
+						defaultValue={data.courseId || ""}
+						options={data.courses.map(({ id, title }) => ({
+							name: title,
+							value: id,
+						}))}
+					/>
+
+					<Select
+						label="Sección"
+						name="section"
+						disabled={!isSectionSelectable}
+						placeholder="Seleccione una sección"
+						defaultValue={data.sectionId || ""}
+						options={data.sections.map(({ id, description }) => ({
+							name: description,
+							value: id,
+						}))}
+					/>
+				</Form>
+			</div>
+
+			<Table columns={columns} data={data.grades} />
+		</div>
+	);
 }
