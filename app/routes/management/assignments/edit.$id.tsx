@@ -69,7 +69,7 @@ const mutation = makeDomainFunction(editAssignmentSchema)(
 		if (weightsTotal + weight > 100) {
 			throw `Debe asignar como máximo ${
 				100 - weightsTotal
-			} como peso, para crear evaluación`;
+			} como ponderación, para crear evaluación`;
 		}
 
 		return db.assignment.update({
@@ -160,7 +160,7 @@ export default function EditAssignmentRoute() {
 		<div className="flex h-full items-center justify-center">
 			<Card
 				title="Editar evaluación"
-				supportingText="Modifica la descripción o peso de la evaluación"
+				supportingText="Modifica la descripción o ponderación de la evaluación"
 			>
 				<Form
 					method="post"
@@ -204,7 +204,7 @@ export default function EditAssignmentRoute() {
 
 								<TextField
 									error={errors.weight?.message}
-									label="Peso"
+									label="Ponderación"
 									type="number"
 									min="1"
 									max="100"

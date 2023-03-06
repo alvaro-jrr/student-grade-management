@@ -52,13 +52,13 @@ const mutation = makeDomainFunction(assignmentSchema)(
 
 		// In case it's complete
 		if (weightsTotal === 100)
-			throw "No se puede crear evaluación, las evaluaciones de la asignatura completan el peso del lapso";
+			throw "No se puede crear evaluación, las evaluaciones de la asignatura completan el ponderación del lapso";
 
 		// In case weight can't be assigned
 		if (weightsTotal + weight > 100) {
 			throw `Debe asignar como máximo ${
 				100 - weightsTotal
-			} como peso, para crear evaluación`;
+			} como ponderación, para crear evaluación`;
 		}
 
 		return db.assignment.create({
@@ -180,7 +180,7 @@ export default function NewAssignmentRoute() {
 
 								<TextField
 									error={errors.weight?.message}
-									label="Peso"
+									label="Ponderación"
 									type="number"
 									min="1"
 									max="100"

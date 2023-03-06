@@ -102,7 +102,7 @@ export const assignmentSchema = z.object({
 	weight: z.preprocess(
 		parseNumber,
 		z
-			.number({ required_error: "Debe ingresar un peso" })
+			.number({ required_error: "Debe ingresar una ponderación" })
 			.int("Debe ser un número entero")
 			.min(1, "Debe ser mayor o igual a 0")
 			.max(100, "Debe ser menor o igual a 100")

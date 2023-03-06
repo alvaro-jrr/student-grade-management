@@ -187,7 +187,7 @@ const columns = [
 		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("assignment.weight", {
-		header: "Peso",
+		header: "Ponderación",
 		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("score", {

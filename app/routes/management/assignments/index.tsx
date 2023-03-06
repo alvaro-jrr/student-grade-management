@@ -148,7 +148,7 @@ const columns = [
 		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("weight", {
-		header: "Peso",
+		header: "Ponderación",
 		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("academicLoad.course.title", {
