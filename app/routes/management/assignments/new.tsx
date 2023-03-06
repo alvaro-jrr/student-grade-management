@@ -10,7 +10,10 @@ import { assignmentSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import { findActiveAcademicPeriod } from "~/utils/utils";
+import {
+	findActiveAcademicPeriod,
+	getAcademicPeriodRange,
+} from "~/utils/utils";
 
 const mutation = makeDomainFunction(assignmentSchema)(
 	async ({ courseId, lapseId, description, weight }) => {
@@ -82,7 +85,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 	const user = await requireUserWithRole(request, ["TEACHER"]);
 
 	// Get active academic period
-	const activeAcademicPeriod = await findActiveAcademicPeriod();
+	const academicPeriod = await findActiveAcademicPeriod();
 
 	// Get lapses
 	const lapses = await db.lapse.findMany({
@@ -98,8 +101,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 			academicLoads: {
 				every: {
 					teacherIdentityCard: user.identityCard,
-					academicPeriodId:
-						activeAcademicPeriod && activeAcademicPeriod.id,
+					academicPeriodId: academicPeriod && academicPeriod.id,
 				},
 			},
 		},
@@ -115,6 +117,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	return json({
+		academicPeriod,
 		courses,
 		lapses,
 	});
@@ -133,6 +136,21 @@ export default function NewAssignmentRoute() {
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
+								<TextField
+									label="Periodo Académico"
+									disabled={true}
+									name="academic-period"
+									defaultValue={
+										data.academicPeriod
+											? getAcademicPeriodRange(
+													data.academicPeriod
+														.startDate,
+													data.academicPeriod.endDate
+											  )
+											: "No hay periodo académico activo"
+									}
+								/>
+
 								<Select
 									error={errors.courseId?.message}
 									label="Asignatura"
