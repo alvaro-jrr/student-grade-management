@@ -67,18 +67,8 @@ export const loader = async () => {
 	});
 
 	return json({
-		representatives: representatives.map(
-			({ person: { firstname, lastname }, identityCard }) => ({
-				fullname: `${firstname} ${lastname}`,
-				identityCard,
-			})
-		),
-		students: students.map(
-			({ person: { firstname, lastname }, identityCard }) => ({
-				fullname: `${firstname} ${lastname}`,
-				identityCard,
-			})
-		),
+		representatives,
+		students,
 	});
 };
 
@@ -103,9 +93,12 @@ export default function NewRepresentationRoute() {
 									label="Representante"
 									placeholder="Seleccione un representante"
 									options={data.representatives.map(
-										(representative) => ({
-											name: `${representative.fullname} - CI: ${representative.identityCard}`,
-											value: representative.identityCard,
+										({
+											person: { firstname, lastname },
+											identityCard,
+										}) => ({
+											name: `${firstname} ${lastname} - CI: ${identityCard}`,
+											value: identityCard,
 										})
 									)}
 									{...register("representativeIdentityCard")}
@@ -115,10 +108,15 @@ export default function NewRepresentationRoute() {
 									error={errors.studentIdentityCard?.message}
 									label="Estudiante"
 									placeholder="Seleccione un estudiante"
-									options={data.students.map((student) => ({
-										name: `${student.fullname} - CI: ${student.identityCard}`,
-										value: student.identityCard,
-									}))}
+									options={data.students.map(
+										({
+											person: { firstname, lastname },
+											identityCard,
+										}) => ({
+											name: `${firstname} ${lastname} - CI: ${identityCard}`,
+											value: identityCard,
+										})
+									)}
 									{...register("studentIdentityCard")}
 								/>
 							</div>

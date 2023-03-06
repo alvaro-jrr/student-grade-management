@@ -23,20 +23,23 @@ const mutation = makeDomainFunction(editAcademicPeriodSchema)(
 	}
 );
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request, params }: ActionArgs) => {
+	const id = Number(params.id);
+
 	return formAction({
 		request,
-		schema: editAcademicPeriodSchema,
+		schema: academicPeriodSchema,
 		mutation,
+		transformValues: (values) => ({ ...values, id }),
 		successPath: "/management/academic-periods",
 	});
 };
 
 export const loader = async ({ params }: LoaderArgs) => {
-	const academicPeriodId = Number(params.academicPeriodId);
+	const id = Number(params.id);
 
 	const academicPeriod = await db.academicPeriod.findUnique({
-		where: { id: academicPeriodId },
+		where: { id },
 		select: { startDate: true, endDate: true, id: true },
 	});
 
@@ -65,7 +68,7 @@ export default function EditAcademicPeriodRoute() {
 				supportingText="Realiza cambios de fecha en el periodo académico requerido"
 			>
 				<Form
-					schema={editAcademicPeriodSchema}
+					schema={academicPeriodSchema}
 					method="post"
 					values={data.academicPeriod}
 				>
@@ -85,8 +88,6 @@ export default function EditAcademicPeriodRoute() {
 									label="Fecha de Fin"
 									{...register("endDate")}
 								/>
-
-								<input {...register("id")} type="hidden" />
 							</div>
 
 							<Errors />

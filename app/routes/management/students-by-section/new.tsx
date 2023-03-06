@@ -127,17 +127,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	return json({
-		academicPeriod: academicPeriod
-			? {
-					id: academicPeriod.id,
-					range: academicPeriodInterval(
-						academicPeriod.startDate,
-						academicPeriod.endDate
-					),
-			  }
-			: undefined,
-		sections: sections || [],
-		students: students || [],
+		academicPeriod,
+		sections,
+		students,
 	});
 };
 
@@ -159,8 +151,13 @@ export default function NewStudentBySectionRoute() {
 									label="Periodo Académico"
 									disabled={true}
 									defaultValue={
-										data.academicPeriod?.range ||
-										"No hay periodo académico activo"
+										data.academicPeriod
+											? academicPeriodInterval(
+													data.academicPeriod
+														.startDate,
+													data.academicPeriod.endDate
+											  )
+											: "No hay periodo académico activo"
 									}
 								/>
 

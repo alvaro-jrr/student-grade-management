@@ -57,10 +57,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 	}
 
 	return json({
-		course: {
-			title: course.title,
-			year: course.studyYearId,
-		},
+		course,
 		years: await db.studyYear.findMany({
 			select: { id: true, year: true },
 		}),
@@ -76,7 +73,14 @@ export default function EditCourseRoute() {
 				title="Editar asignatura"
 				supportingText="Modifica los datos de una asignatura"
 			>
-				<Form method="post" schema={courseSchema} values={data.course}>
+				<Form
+					method="post"
+					schema={courseSchema}
+					values={{
+						title: data.course.title,
+						year: data.course.studyYearId,
+					}}
+				>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">

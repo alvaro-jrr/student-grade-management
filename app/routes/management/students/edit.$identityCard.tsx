@@ -69,6 +69,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 	const student = await db.student.findUnique({
 		where: { identityCard },
 		select: {
+			identityCard: true,
 			person: {
 				select: {
 					firstname: true,
@@ -86,12 +87,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 	}
 
 	return json({
-		student: {
-			identityCard,
-			firstname: student.person.firstname,
-			lastname: student.person.lastname,
-			birthDate: student.birthDate,
-		},
+		student,
 	});
 };
 
@@ -107,7 +103,12 @@ export default function EditCoordinatorRoute() {
 				<Form
 					method="post"
 					schema={studentSchema}
-					values={data.student}
+					values={{
+						birthDate: data.student.birthDate,
+						firstname: data.student.person.firstname,
+						lastname: data.student.person.lastname,
+						identityCard: data.student.identityCard,
+					}}
 				>
 					{({ Errors, register, formState: { errors } }) => (
 						<>

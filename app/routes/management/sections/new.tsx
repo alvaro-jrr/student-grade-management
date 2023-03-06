@@ -53,10 +53,7 @@ export const loader = async () => {
 	const studyYears = await db.studyYear.findMany();
 
 	return json({
-		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
-			id,
-			range: academicPeriodInterval(startDate, endDate),
-		})),
+		academicPeriods,
 		studyYears,
 	});
 };
@@ -79,8 +76,11 @@ export default function NewSectionRoute() {
 									label="Periodo Académico"
 									placeholder="Seleccione un periodo"
 									options={data.academicPeriods.map(
-										({ id, range }) => ({
-											name: range,
+										({ id, startDate, endDate }) => ({
+											name: academicPeriodInterval(
+												startDate,
+												endDate
+											),
 											value: id,
 										})
 									)}

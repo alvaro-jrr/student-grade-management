@@ -112,21 +112,15 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 	});
 
 	return json({
-		academicPeriod: {
-			id: academicPeriod.id,
-			range: academicPeriodInterval(
-				academicPeriod.startDate,
-				academicPeriod.endDate
-			),
-		},
+		academicPeriod,
 		sections: sections || [],
-		student: studentBySection.student,
 		studentBySection,
 	});
 };
 
 export default function EditStudentBySection() {
 	const data = useLoaderData<typeof loader>();
+	const student = data.studentBySection.student;
 
 	return (
 		<div className="flex h-full items-center justify-center">
@@ -148,7 +142,10 @@ export default function EditStudentBySection() {
 									label="Periodo Académico"
 									disabled={true}
 									name="academic-period"
-									defaultValue={data.academicPeriod.range}
+									defaultValue={academicPeriodInterval(
+										data.academicPeriod.startDate,
+										data.academicPeriod.endDate
+									)}
 								/>
 
 								<Select
@@ -167,7 +164,7 @@ export default function EditStudentBySection() {
 									label="Estudiante"
 									disabled={true}
 									name="student"
-									defaultValue={`${data.student.person.firstname} ${data.student.person.lastname} - C.I: ${data.student.identityCard}`}
+									defaultValue={`${student.person.firstname} ${student.person.lastname} - C.I: ${student.identityCard}`}
 								/>
 							</div>
 

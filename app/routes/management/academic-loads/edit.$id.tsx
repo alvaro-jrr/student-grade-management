@@ -1,7 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getYear } from "date-fns";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
@@ -9,6 +8,7 @@ import Card from "~/components/card";
 import { Form } from "~/components/form";
 import { Select } from "~/components/form-elements";
 import { academicLoadSchema } from "~/schemas";
+import { academicPeriodInterval } from "~/utils";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 
@@ -81,16 +81,8 @@ export const loader = async ({ params }: LoaderArgs) => {
 	}
 
 	return json({
-		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
-			id,
-			range: `${getYear(startDate)}-${getYear(endDate)}`,
-		})),
-		teachers: teachers.map(
-			({ person: { firstname, lastname }, identityCard }) => ({
-				name: `${firstname} ${lastname} - CI: ${identityCard}`,
-				identityCard,
-			})
-		),
+		academicPeriods,
+		teachers,
 		courses,
 		academicLoad,
 	});
@@ -118,9 +110,12 @@ export default function EditAcademicLoadRoute() {
 									label="Periodo Académico"
 									placeholder="Seleccione un periodo"
 									options={data.academicPeriods.map(
-										(academicPeriod) => ({
-											name: academicPeriod.range,
-											value: academicPeriod.id,
+										({ id, startDate, endDate }) => ({
+											name: academicPeriodInterval(
+												startDate,
+												endDate
+											),
+											value: id,
 										})
 									)}
 									{...register("academicPeriodId")}
@@ -141,10 +136,15 @@ export default function EditAcademicLoadRoute() {
 									error={errors.teacherIdentityCard?.message}
 									label="Docente"
 									placeholder="Seleccione un docente"
-									options={data.teachers.map((teacher) => ({
-										name: teacher.name,
-										value: teacher.identityCard,
-									}))}
+									options={data.teachers.map(
+										({
+											identityCard,
+											person: { firstname, lastname },
+										}) => ({
+											name: `${firstname} ${lastname}`,
+											value: identityCard,
+										})
+									)}
 									{...register("teacherIdentityCard")}
 								/>
 							</div>

@@ -72,6 +72,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 	const coordinator = await db.coordinator.findUnique({
 		where: { identityCard },
 		select: {
+			identityCard: true,
 			person: {
 				select: {
 					firstname: true,
@@ -88,11 +89,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 	}
 
 	return json({
-		coordinator: {
-			identityCard,
-			firstname: coordinator.person.firstname,
-			lastname: coordinator.person.lastname,
-		},
+		coordinator,
 	});
 };
 
@@ -108,7 +105,11 @@ export default function EditCoordinatorRoute() {
 				<Form
 					schema={personSchema}
 					method="post"
-					values={data.coordinator}
+					values={{
+						firstname: data.coordinator.person.firstname,
+						lastname: data.coordinator.person.lastname,
+						identityCard: data.coordinator.identityCard,
+					}}
 				>
 					{({ register }) => (
 						<>

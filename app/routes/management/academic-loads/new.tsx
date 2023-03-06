@@ -65,16 +65,8 @@ export const loader = async () => {
 	});
 
 	return json({
-		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
-			id,
-			range: academicPeriodInterval(startDate, endDate),
-		})),
-		teachers: teachers.map(
-			({ person: { firstname, lastname }, identityCard }) => ({
-				name: `${firstname} ${lastname} - C.I: ${identityCard}`,
-				identityCard,
-			})
-		),
+		academicPeriods,
+		teachers,
 		courses,
 	});
 };
@@ -97,9 +89,12 @@ export default function NewAcademicLoadRoute() {
 									label="Periodo Académico"
 									placeholder="Seleccione un periodo"
 									options={data.academicPeriods.map(
-										(academicPeriod) => ({
-											name: academicPeriod.range,
-											value: academicPeriod.id,
+										({ id, startDate, endDate }) => ({
+											name: academicPeriodInterval(
+												startDate,
+												endDate
+											),
+											value: id,
 										})
 									)}
 									{...register("academicPeriodId")}
@@ -120,10 +115,15 @@ export default function NewAcademicLoadRoute() {
 									error={errors.teacherIdentityCard?.message}
 									label="Docente"
 									placeholder="Seleccione un docente"
-									options={data.teachers.map((teacher) => ({
-										name: teacher.name,
-										value: teacher.identityCard,
-									}))}
+									options={data.teachers.map(
+										({
+											identityCard,
+											person: { firstname, lastname },
+										}) => ({
+											name: `${firstname} ${lastname}`,
+											value: identityCard,
+										})
+									)}
 									{...register("teacherIdentityCard")}
 								/>
 							</div>

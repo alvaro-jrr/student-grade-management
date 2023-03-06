@@ -77,6 +77,13 @@ export const loader = async () => {
 	});
 
 	const students = await db.student.findMany({
+		where: {
+			enrollments: {
+				none: {
+					academicPeriodId: academicPeriod?.id,
+				},
+			},
+		},
 		select: {
 			identityCard: true,
 			person: {

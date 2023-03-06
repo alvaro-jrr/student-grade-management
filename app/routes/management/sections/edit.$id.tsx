@@ -98,14 +98,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 	}
 
 	return json({
-		section: {
-			description: section.description,
-			academicPeriod: academicPeriodInterval(
-				section.academicPeriod.startDate,
-				section.academicPeriod.endDate
-			),
-			studyYear: section.studyYear.year,
-		},
+		section,
 	});
 };
 
@@ -130,14 +123,17 @@ export default function EditSectionRoute() {
 									disabled={true}
 									label="Periodo Académico"
 									name="academicPeriod"
-									value={data.section.academicPeriod}
+									value={academicPeriodInterval(
+										data.section.academicPeriod.startDate,
+										data.section.academicPeriod.endDate
+									)}
 								/>
 
 								<TextField
 									disabled={true}
 									label="Año"
 									name="year"
-									value={data.section.studyYear}
+									value={data.section.studyYear.year}
 								/>
 
 								<TextField
