@@ -20,6 +20,18 @@ const routes = [
 		name: "Todas",
 		to: "all",
 	},
+	{
+		name: "Resumen por Sección",
+		to: "sections-summary",
+	},
+	{
+		name: "Finales",
+		to: "finals",
+	},
+	{
+		name: "Boletín",
+		to: "students-summary",
+	},
 ];
 
 export default function GradesRoute() {
