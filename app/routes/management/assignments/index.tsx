@@ -234,7 +234,7 @@ export default function EvaluationsIndexRoute() {
 					<Select
 						label="Año"
 						name="study-year"
-						placeholder="Seleccione una año"
+						placeholder="Seleccione un año"
 						defaultValue={data.studyYearId || ""}
 						options={data.studyYears.map(({ id, year }) => ({
 							value: id,

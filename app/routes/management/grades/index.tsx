@@ -1,8 +1,10 @@
+import { FunnelIcon } from "@heroicons/react/24/outline";
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ButtonLink } from "~/components/button";
+import { Select } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
@@ -10,10 +12,28 @@ import { getAcademicPeriodRange } from "~/utils/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	const user = await requireUserWithRole(request, ["COORDINATOR", "TEACHER"]);
+	const url = new URL(request.url);
 
 	// Get teacher identity card
 	const teacherIdentityCard =
 		user.role === "TEACHER" ? user.identityCard : undefined;
+
+	// Get search params
+	const academicPeriodId = url.searchParams.get("academic-period");
+	const lapseId = url.searchParams.get("lapse");
+	const courseId = url.searchParams.get("course");
+	const studyYearId = url.searchParams.get("study-year");
+
+	// Get lapses, periods, study years and courses
+	const lapses = await db.lapse.findMany();
+	const academicPeriods = await db.academicPeriod.findMany();
+	const studyYears = await db.studyYear.findMany();
+	const courses = await db.course.findMany({
+		select: {
+			id: true,
+			title: true,
+		},
+	});
 
 	// Get grades
 	const grades = await db.grade.findMany({
@@ -21,7 +41,17 @@ export const loader = async ({ request }: LoaderArgs) => {
 			assignment: {
 				academicLoad: {
 					teacherIdentityCard,
+					academicPeriodId: academicPeriodId
+						? Number(academicPeriodId)
+						: undefined,
+					courseId: courseId ? Number(courseId) : undefined,
+					course: {
+						studyYearId: studyYearId
+							? Number(studyYearId)
+							: undefined,
+					},
 				},
+				lapseId: lapseId ? Number(lapseId) : undefined,
 			},
 		},
 		select: {
@@ -74,7 +104,15 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	return json({
+		courseId,
+		lapseId,
+		studyYearId,
+		courses,
+		lapses,
+		studyYears,
 		grades,
+		academicPeriods,
+		academicPeriodId,
 	});
 };
 
@@ -178,6 +216,75 @@ const columns = [
 
 export default function GradesIndexRoute() {
 	const data = useLoaderData<typeof loader>();
+	const submit = useSubmit();
 
-	return <Table columns={columns} data={data.grades} />;
+	return (
+		<div className="space-y-6">
+			<div className="flex flex-col justify-center gap-4 md:flex-row md:items-center md:justify-start">
+				<FunnelIcon className="h-6 w-6 text-gray-500" />
+
+				<Form
+					className="flex flex-col gap-4 md:flex-row"
+					method="get"
+					onChange={(event) => {
+						const isFirstSearch = data.academicPeriodId === null;
+
+						submit(event.currentTarget, {
+							replace: !isFirstSearch,
+						});
+					}}
+				>
+					<Select
+						label="Periodo Académico"
+						name="academic-period"
+						placeholder="Seleccione un periodo"
+						options={data.academicPeriods.map(
+							({ id, startDate, endDate }) => ({
+								name: getAcademicPeriodRange(
+									startDate,
+									endDate
+								),
+								value: id,
+							})
+						)}
+					/>
+
+					<Select
+						label="Asignatura"
+						name="course"
+						placeholder="Seleccione una asignatura"
+						defaultValue={data.courseId || ""}
+						options={data.courses.map(({ id, title }) => ({
+							value: id,
+							name: title,
+						}))}
+					/>
+
+					<Select
+						label="Año"
+						name="study-year"
+						placeholder="Seleccione un año"
+						defaultValue={data.studyYearId || ""}
+						options={data.studyYears.map(({ id, year }) => ({
+							value: id,
+							name: year,
+						}))}
+					/>
+
+					<Select
+						label="Lapso"
+						name="lapse"
+						placeholder="Seleccione un lapso"
+						defaultValue={data.lapseId || ""}
+						options={data.lapses.map(({ id, description }) => ({
+							value: id,
+							name: description,
+						}))}
+					/>
+				</Form>
+			</div>
+
+			<Table columns={columns} data={data.grades} />
+		</div>
+	);
 }
