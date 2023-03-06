@@ -125,12 +125,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	return json({
-		academicPeriod: academicPeriod && {
-			range: getAcademicPeriodRange(
-				academicPeriod.startDate,
-				academicPeriod.endDate
-			),
-		},
+		academicPeriod,
 		courseId,
 		academicLoads,
 		students,
@@ -158,8 +153,12 @@ export default function NewGradeRoute() {
 						name="academic-period"
 						disabled={true}
 						defaultValue={
-							data.academicPeriod?.range ||
-							"No hay periodo académico activo"
+							data.academicPeriod
+								? getAcademicPeriodRange(
+										data.academicPeriod.startDate,
+										data.academicPeriod.endDate
+								  )
+								: "No hay periodo académico activo"
 						}
 					/>
 

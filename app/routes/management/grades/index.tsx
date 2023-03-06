@@ -2,6 +2,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
+import { ButtonLink } from "~/components/button";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
@@ -135,11 +136,22 @@ const columns = [
 		header: "Evaluación",
 		cell: (info) => info.getValue(),
 	}),
+	columnHelper.accessor("student.person", {
+		header: "Estudiante",
+		cell: (info) => {
+			const { firstname, lastname } = info.getValue();
+
+			return `${firstname} ${lastname}`;
+		},
+	}),
+	columnHelper.accessor("student.identityCard", {
+		header: "Cédula",
+		cell: (info) => info.getValue(),
+	}),
 	columnHelper.accessor("assignment.weight", {
 		header: "Peso",
 		cell: (info) => info.getValue(),
 	}),
-
 	columnHelper.accessor("score", {
 		header: "Nota",
 		cell: (info) => info.getValue(),
@@ -147,6 +159,20 @@ const columns = [
 	columnHelper.accessor("note", {
 		header: "Observación",
 		cell: (info) => info.getValue(),
+	}),
+	columnHelper.accessor("id", {
+		header: "",
+		cell: (info) => {
+			const id = info.getValue();
+
+			return (
+				<div className="flex justify-end">
+					<ButtonLink variant="text" to={`edit/${id}`}>
+						Editar
+					</ButtonLink>
+				</div>
+			);
+		},
 	}),
 ];
 
