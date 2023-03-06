@@ -17,7 +17,7 @@ const editAssignmentSchema = assignmentSchema.extend({
 });
 
 const mutation = makeDomainFunction(editAssignmentSchema)(
-	async ({ id, description, weight }) => {
+	async ({ id, description, weight, lapseId, courseId }) => {
 		// Find assignment
 		const assignment = await db.assignment.findUnique({
 			where: { id },
@@ -33,6 +33,18 @@ const mutation = makeDomainFunction(editAssignmentSchema)(
 		});
 
 		if (!assignment) throw "Asignación no encontrada";
+
+		// Get academic load
+		const academicLoad = await db.academicLoad.findFirst({
+			where: {
+				academicPeriodId: assignment.academicLoad.academicPeriodId,
+				courseId,
+			},
+		});
+
+		if (!academicLoad) {
+			throw "No existe carga académica para la asignatura seleccionada";
+		}
 
 		// Get weights total of that course in that lapse and period
 		const weights = await db.assignment.aggregate({
@@ -65,6 +77,8 @@ const mutation = makeDomainFunction(editAssignmentSchema)(
 			data: {
 				description,
 				weight,
+				lapseId,
+				academicLoadId: academicLoad.id,
 			},
 		});
 	}
