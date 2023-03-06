@@ -1,7 +1,7 @@
 import { isWithinInterval } from "date-fns";
 import { db } from "./db.server";
 
-export async function findActiveAcademicPeriod() {
+export async function getActiveAcademicPeriod() {
 	// Get periods ordered by start date min to max
 	const academicPeriods = await db.academicPeriod.findMany({
 		select: {
@@ -23,7 +23,7 @@ export async function findActiveAcademicPeriod() {
 	});
 }
 
-export async function findLastAcademicPeriod() {
+export async function getLastAcademicPeriod() {
 	// Get periods ordered by start date min to max
 	const academicPeriods = await db.academicPeriod.findMany({
 		select: {

@@ -3,11 +3,12 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
+import { format } from "date-fns";
 import { Select, TextField } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import { dateFormat, getAcademicPeriodRange } from "~/utils/utils";
+import { academicPeriodInterval } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["COORDINATOR"]);
@@ -93,14 +94,14 @@ const columnHelper = createColumnHelper<{
 const columns = [
 	columnHelper.accessor("createdAt", {
 		header: "Fecha",
-		cell: (info) => dateFormat(info.getValue()),
+		cell: (info) => format(new Date(info.getValue()), "dd/MM/yyyy"),
 	}),
 	columnHelper.accessor("academicPeriod", {
 		header: "Periodo",
 		cell: (info) => {
 			const { startDate, endDate } = info.getValue();
 
-			return getAcademicPeriodRange(startDate, endDate);
+			return academicPeriodInterval(startDate, endDate);
 		},
 	}),
 	columnHelper.accessor("studyYear.year", {
@@ -150,7 +151,7 @@ export default function EnrollmentsIndexRoute() {
 						placeholder="Seleccione un periodo"
 						options={data.academicPeriods.map(
 							({ id, startDate, endDate }) => ({
-								name: getAcademicPeriodRange(
+								name: academicPeriodInterval(
 									startDate,
 									endDate
 								),

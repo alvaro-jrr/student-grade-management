@@ -8,7 +8,7 @@ import { requireUserWithRole } from "~/utils/session.server";
 import { ButtonLink } from "~/components/button";
 import { FunnelIcon } from "@heroicons/react/24/outline";
 import { TextField } from "~/components/form-elements";
-import { dateFormat } from "~/utils/utils";
+import { format } from "date-fns";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["COORDINATOR"]);
@@ -34,6 +34,11 @@ export const loader = async ({ request }: LoaderArgs) => {
 			},
 			identityCard: true,
 			birthDate: true,
+		},
+		orderBy: {
+			person: {
+				firstname: "asc",
+			},
 		},
 	});
 
@@ -68,7 +73,7 @@ const columns = [
 	}),
 	columnHelper.accessor("birthDate", {
 		header: "Fecha de Nacimiento",
-		cell: (info) => dateFormat(info.getValue()),
+		cell: (info) => format(new Date(info.getValue()), "dd/MM/yyyy"),
 	}),
 	columnHelper.accessor("identityCard", {
 		id: "actions",

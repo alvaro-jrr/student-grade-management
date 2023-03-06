@@ -8,7 +8,7 @@ import { Select } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import { getAcademicPeriodRange } from "~/utils/utils";
+import { academicPeriodInterval } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	const user = await requireUserWithRole(request, ["COORDINATOR", "TEACHER"]);
@@ -128,7 +128,7 @@ const columns = [
 		cell: (info) => {
 			const { startDate, endDate } = info.getValue();
 
-			return getAcademicPeriodRange(startDate, endDate);
+			return academicPeriodInterval(startDate, endDate);
 		},
 	}),
 	columnHelper.accessor("description", {
@@ -205,7 +205,7 @@ export default function EvaluationsIndexRoute() {
 						options={data.academicPeriods.map(
 							({ id, startDate, endDate }) => ({
 								value: id,
-								name: getAcademicPeriodRange(
+								name: academicPeriodInterval(
 									startDate,
 									endDate
 								),

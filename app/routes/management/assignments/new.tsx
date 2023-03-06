@@ -10,15 +10,13 @@ import { assignmentSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import {
-	findActiveAcademicPeriod,
-	getAcademicPeriodRange,
-} from "~/utils/utils";
+import { getActiveAcademicPeriod } from "~/utils/academic-period.server";
+import { academicPeriodInterval } from "~/utils";
 
 const mutation = makeDomainFunction(assignmentSchema)(
 	async ({ courseId, lapseId, description, weight }) => {
 		// Find active academic period
-		const activeAcademicPeriod = await findActiveAcademicPeriod();
+		const activeAcademicPeriod = await getActiveAcademicPeriod();
 
 		if (!activeAcademicPeriod)
 			throw "No se pueden asignar evaluaciones si no hay un periodo académico activo";
@@ -85,7 +83,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 	const user = await requireUserWithRole(request, ["TEACHER"]);
 
 	// Get active academic period
-	const academicPeriod = await findActiveAcademicPeriod();
+	const academicPeriod = await getActiveAcademicPeriod();
 
 	// Get lapses
 	const lapses = await db.lapse.findMany({
@@ -142,7 +140,7 @@ export default function NewAssignmentRoute() {
 									name="academic-period"
 									defaultValue={
 										data.academicPeriod
-											? getAcademicPeriodRange(
+											? academicPeriodInterval(
 													data.academicPeriod
 														.startDate,
 													data.academicPeriod.endDate

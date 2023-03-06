@@ -10,10 +10,8 @@ import { gradeSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import {
-	findActiveAcademicPeriod,
-	getAcademicPeriodRange,
-} from "~/utils/utils";
+import { getActiveAcademicPeriod } from "~/utils/academic-period.server";
+import { academicPeriodInterval } from "~/utils";
 
 const mutation = makeDomainFunction(gradeSchema)(
 	async ({ assignmentId, score, studentIdentityCard, note }) => {
@@ -57,7 +55,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 	const courseId = url.searchParams.get("course-id");
 
 	// Get active period
-	const academicPeriod = await findActiveAcademicPeriod();
+	const academicPeriod = await getActiveAcademicPeriod();
 
 	const academicLoads = await db.academicLoad.findMany({
 		where: {
@@ -154,7 +152,7 @@ export default function NewGradeRoute() {
 						disabled={true}
 						defaultValue={
 							data.academicPeriod
-								? getAcademicPeriodRange(
+								? academicPeriodInterval(
 										data.academicPeriod.startDate,
 										data.academicPeriod.endDate
 								  )

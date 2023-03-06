@@ -1,10 +1,10 @@
 import { db } from "./db.server";
-import { findLastAcademicPeriod } from "./academic-period.server";
+import { getLastAcademicPeriod } from "./academic-period.server";
 import { isStudentApproved } from "./grades.server";
 
 export async function apllicableStudyYear(identityCard: string) {
 	// Last academic period
-	const lastAcademicPeriod = await findLastAcademicPeriod();
+	const lastAcademicPeriod = await getLastAcademicPeriod();
 
 	// Last enrollment
 	const lastEnrollment = await db.enrollment.findFirst({
@@ -17,6 +17,7 @@ export async function apllicableStudyYear(identityCard: string) {
 					year: true,
 				},
 			},
+			academicPeriodId: true,
 		},
 		orderBy: {
 			studyYear: {
@@ -40,7 +41,7 @@ export async function apllicableStudyYear(identityCard: string) {
 
 	// Check if student approved last study year
 	const isApproved = await isStudentApproved({
-		academicPeriodId: lastAcademicPeriod.id,
+		academicPeriodId: lastEnrollment.academicPeriodId,
 		studyYearId: lastEnrollment.studyYearId,
 		studentIdentityCard: identityCard,
 	});

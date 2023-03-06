@@ -6,7 +6,8 @@ import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
 import { ButtonLink } from "~/components/button";
-import { dateFormat, findActiveAcademicPeriod } from "~/utils/utils";
+import { getActiveAcademicPeriod } from "~/utils/academic-period.server";
+import { format } from "date-fns";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["COORDINATOR"]);
@@ -18,14 +19,14 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	// Get active
-	const activeAcademicPeriod = await findActiveAcademicPeriod();
+	const activeAcademicPeriod = await getActiveAcademicPeriod();
 
 	return json({
 		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => {
 			return {
 				id,
-				startDate: dateFormat(startDate),
-				endDate: dateFormat(endDate),
+				startDate: format(startDate, "dd/MM/yyyy"),
+				endDate: format(endDate, "dd/MM/yyyy"),
 				isActive: activeAcademicPeriod
 					? activeAcademicPeriod.id === id
 					: false,

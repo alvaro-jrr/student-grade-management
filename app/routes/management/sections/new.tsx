@@ -9,7 +9,7 @@ import { Select, TextField } from "~/components/form-elements";
 import { sectionSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
-import { getAcademicPeriodRange } from "~/utils/utils";
+import { academicPeriodInterval } from "~/utils";
 
 const mutation = makeDomainFunction(sectionSchema)(
 	async ({ academicPeriodId, description, studyYearId }) => {
@@ -55,7 +55,7 @@ export const loader = async () => {
 	return json({
 		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
 			id,
-			range: getAcademicPeriodRange(startDate, endDate),
+			range: academicPeriodInterval(startDate, endDate),
 		})),
 		studyYears,
 	});

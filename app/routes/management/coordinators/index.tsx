@@ -6,7 +6,7 @@ import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
 import { Button, ButtonLink } from "~/components/button";
-import { dateFormat } from "~/utils/utils";
+import { format } from "date-fns";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["ADMIN"]);
@@ -58,16 +58,16 @@ const columns = [
 	}),
 	columnHelper.accessor("entryDate", {
 		header: "Fecha de Ingreso",
-		cell: (info) => dateFormat(info.getValue()),
+		cell: (info) => format(new Date(info.getValue()), "dd/MM/yyyy"),
 	}),
 	columnHelper.accessor("retirementDate", {
 		header: "Fecha de Retiro",
 		cell: (info) => {
 			const retirementDate = info.getValue();
 
-			if (retirementDate) return dateFormat(retirementDate);
-
-			return "";
+			return retirementDate
+				? format(new Date(retirementDate), "dd/MM/yyyy")
+				: "";
 		},
 	}),
 	columnHelper.accessor("identityCard", {

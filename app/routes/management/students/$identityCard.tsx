@@ -1,9 +1,9 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { format } from "date-fns";
 import StudentCard from "~/components/student-card";
 import { db } from "~/utils/db.server";
-import { dateFormat } from "~/utils/utils";
 
 export const loader = async ({ params }: LoaderArgs) => {
 	const identityCard = params.identityCard;
@@ -51,7 +51,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 		})),
 		student: {
 			identityCard: student.identityCard,
-			birthDate: dateFormat(student.birthDate),
+			birthDate: format(new Date(student.birthDate), "dd/MM/yyyy"),
 			firstname: student.person.firstname,
 			lastname: student.person.lastname,
 		},

@@ -8,7 +8,7 @@ import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { getCourseFinalScore } from "~/utils/grades.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import { getAcademicPeriodRange } from "~/utils/utils";
+import { academicPeriodInterval } from "~/utils";
 
 type GradeSectionSummary = {
 	student: {
@@ -156,7 +156,7 @@ export default function SectionGradesSummary() {
 						defaultValue={data.academicPeriodId || ""}
 						options={data.academicPeriods.map(
 							({ id, startDate, endDate }) => ({
-								name: getAcademicPeriodRange(
+								name: academicPeriodInterval(
 									startDate,
 									endDate
 								),

@@ -10,14 +10,12 @@ import { studentBySectionSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import {
-	findActiveAcademicPeriod,
-	getAcademicPeriodRange,
-} from "~/utils/utils";
+import { getActiveAcademicPeriod } from "~/utils/academic-period.server";
+import { academicPeriodInterval } from "~/utils";
 
 const mutation = makeDomainFunction(studentBySectionSchema)(
 	async ({ sectionId, studentIdentityCard }) => {
-		const academicPeriod = await findActiveAcademicPeriod();
+		const academicPeriod = await getActiveAcademicPeriod();
 
 		if (!academicPeriod) throw "No hay periodo académico activo";
 
@@ -90,7 +88,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["COORDINATOR"]);
 
 	// Get active period
-	const academicPeriod = await findActiveAcademicPeriod();
+	const academicPeriod = await getActiveAcademicPeriod();
 
 	// Get sections
 	const sections = await db.section.findMany({
@@ -132,7 +130,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 		academicPeriod: academicPeriod
 			? {
 					id: academicPeriod.id,
-					range: getAcademicPeriodRange(
+					range: academicPeriodInterval(
 						academicPeriod.startDate,
 						academicPeriod.endDate
 					),

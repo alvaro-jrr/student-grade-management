@@ -9,15 +9,13 @@ import { Select, TextField } from "~/components/form-elements";
 import { enrollmentSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
-import {
-	findActiveAcademicPeriod,
-	getAcademicPeriodRange,
-	studyYearFor,
-} from "~/utils/utils";
+import { getActiveAcademicPeriod } from "~/utils/academic-period.server";
+import { apllicableStudyYear } from "~/utils/study-year.server";
+import { academicPeriodInterval } from "~/utils";
 
 const mutation = makeDomainFunction(enrollmentSchema)(
 	async ({ studentIdentityCard, studyYearId }) => {
-		const academicPeriod = await findActiveAcademicPeriod();
+		const academicPeriod = await getActiveAcademicPeriod();
 
 		// In case there's no active academic period
 		if (!academicPeriod) {
@@ -25,7 +23,7 @@ const mutation = makeDomainFunction(enrollmentSchema)(
 		}
 
 		// Get study year to enroll
-		const studyYear = await studyYearFor(studentIdentityCard);
+		const studyYear = await apllicableStudyYear(studentIdentityCard);
 
 		if (!studyYear) throw "Estudiante no puede ser inscrito";
 
@@ -69,7 +67,7 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export const loader = async () => {
-	const academicPeriod = await findActiveAcademicPeriod();
+	const academicPeriod = await getActiveAcademicPeriod();
 
 	const studyYears = await db.studyYear.findMany({
 		select: {
@@ -92,7 +90,7 @@ export const loader = async () => {
 
 	return json({
 		academicPeriod: academicPeriod
-			? getAcademicPeriodRange(
+			? academicPeriodInterval(
 					academicPeriod.startDate,
 					academicPeriod.endDate
 			  )

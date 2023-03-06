@@ -8,7 +8,7 @@ import { Select, TextField } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import { getAcademicPeriodRange } from "~/utils/utils";
+import { academicPeriodInterval } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["COORDINATOR"]);
@@ -114,7 +114,7 @@ const columns = [
 		cell: (info) => {
 			const { startDate, endDate } = info.getValue();
 
-			return getAcademicPeriodRange(startDate, endDate);
+			return academicPeriodInterval(startDate, endDate);
 		},
 	}),
 	columnHelper.accessor("section", {
@@ -183,7 +183,7 @@ export default function StudentsBySectionIndexRoute() {
 						placeholder="Seleccione un periodo"
 						options={data.academicPeriods.map(
 							({ id, startDate, endDate }) => ({
-								name: getAcademicPeriodRange(
+								name: academicPeriodInterval(
 									startDate,
 									endDate
 								),

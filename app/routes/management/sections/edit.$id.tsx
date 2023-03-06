@@ -10,7 +10,7 @@ import { TextField } from "~/components/form-elements";
 import { sectionSchema as newSectionSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
-import { getAcademicPeriodRange } from "~/utils/utils";
+import { academicPeriodInterval } from "~/utils";
 
 const sectionSchema = newSectionSchema.pick({
 	description: true,
@@ -100,7 +100,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 	return json({
 		section: {
 			description: section.description,
-			academicPeriod: getAcademicPeriodRange(
+			academicPeriod: academicPeriodInterval(
 				section.academicPeriod.startDate,
 				section.academicPeriod.endDate
 			),
@@ -119,7 +119,7 @@ export default function EditSectionRoute() {
 				supportingText="Una sección se apertura en cada periodo para un año"
 			>
 				<Form
-                    method="post"
+					method="post"
 					schema={sectionSchema}
 					values={{ description: data.section.description }}
 				>

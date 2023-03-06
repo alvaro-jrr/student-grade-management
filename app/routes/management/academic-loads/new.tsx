@@ -9,7 +9,7 @@ import { Select } from "~/components/form-elements";
 import { academicLoadSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
-import { getAcademicPeriodRange } from "~/utils/utils";
+import { academicPeriodInterval } from "~/utils";
 
 const mutation = makeDomainFunction(academicLoadSchema)(
 	async ({ academicPeriodId, courseId, teacherIdentityCard }) => {
@@ -67,7 +67,7 @@ export const loader = async () => {
 	return json({
 		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
 			id,
-			range: getAcademicPeriodRange(startDate, endDate),
+			range: academicPeriodInterval(startDate, endDate),
 		})),
 		teachers: teachers.map(
 			({ person: { firstname, lastname }, identityCard }) => ({

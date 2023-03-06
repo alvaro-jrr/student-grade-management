@@ -11,7 +11,7 @@ import { studentBySectionSchema as createStudentBySectionSchema } from "~/schema
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import { getAcademicPeriodRange } from "~/utils/utils";
+import { academicPeriodInterval } from "~/utils";
 
 const studentBySectionSchema = createStudentBySectionSchema.pick({
 	sectionId: true,
@@ -114,7 +114,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 	return json({
 		academicPeriod: {
 			id: academicPeriod.id,
-			range: getAcademicPeriodRange(
+			range: academicPeriodInterval(
 				academicPeriod.startDate,
 				academicPeriod.endDate
 			),

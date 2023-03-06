@@ -11,7 +11,7 @@ import { gradeSchema as createGradeSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { requireUserWithRole } from "~/utils/session.server";
-import { getAcademicPeriodRange } from "~/utils/utils";
+import { academicPeriodInterval } from "~/utils";
 
 const gradeSchema = createGradeSchema.pick({
 	note: true,
@@ -142,7 +142,7 @@ export default function EditGradeRoute() {
 									label="Periodo Académico"
 									name="academic-period"
 									disabled={true}
-									defaultValue={getAcademicPeriodRange(
+									defaultValue={academicPeriodInterval(
 										academicPeriod.startDate,
 										academicPeriod.endDate
 									)}
