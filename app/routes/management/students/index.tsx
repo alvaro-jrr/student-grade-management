@@ -12,7 +12,6 @@ import { dateFormat } from "~/utils/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUserWithRole(request, ["COORDINATOR"]);
-
 	const url = new URL(request.url);
 
 	// Get search param
