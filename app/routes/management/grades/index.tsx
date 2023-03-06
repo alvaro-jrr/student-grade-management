@@ -104,6 +104,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	return json({
+		user,
 		courseId,
 		lapseId,
 		studyYearId,
@@ -198,20 +199,26 @@ const columns = [
 		header: "Observación",
 		cell: (info) => info.getValue(),
 	}),
-	columnHelper.accessor("id", {
-		header: "",
-		cell: (info) => {
-			const id = info.getValue();
+];
 
-			return (
-				<div className="flex justify-end">
-					<ButtonLink variant="text" to={`edit/${id}`}>
-						Editar
-					</ButtonLink>
-				</div>
-			);
-		},
-	}),
+const columnsWithEditLink = [
+	...columns,
+	...[
+		columnHelper.accessor("id", {
+			header: "",
+			cell: (info) => {
+				const id = info.getValue();
+
+				return (
+					<div className="flex justify-end">
+						<ButtonLink variant="text" to={`edit/${id}`}>
+							Editar
+						</ButtonLink>
+					</div>
+				);
+			},
+		}),
+	],
 ];
 
 export default function GradesIndexRoute() {
@@ -288,7 +295,11 @@ export default function GradesIndexRoute() {
 				</Form>
 			</div>
 
-			<Table columns={columns} data={data.grades} />
+			{data.user.role === "COORDINATOR" ? (
+				<Table columns={columnsWithEditLink} data={data.grades} />
+			) : (
+				<Table columns={columns} data={data.grades} />
+			)}
 		</div>
 	);
 }
