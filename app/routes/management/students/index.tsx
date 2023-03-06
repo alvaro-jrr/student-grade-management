@@ -39,33 +39,28 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 	return json({
 		identityCard: studentId,
-		students: students.map(
-			({
-				person: { firstname, lastname },
-				birthDate,
-				...restOfStudent
-			}) => {
-				return {
-					fullname: `${firstname} ${lastname}`,
-					birthDate: dateFormat(birthDate),
-					...restOfStudent,
-				};
-			}
-		),
+		students,
 	});
 };
 
 const columnHelper = createColumnHelper<{
-	fullname: string;
 	identityCard: string;
 	birthDate: string;
+	person: {
+		firstname: string;
+		lastname: string;
+	};
 }>();
 
 // Table columns
 const columns = [
-	columnHelper.accessor("fullname", {
+	columnHelper.accessor("person", {
 		header: "Nombre Completo",
-		cell: (info) => info.getValue(),
+		cell: (info) => {
+			const { firstname, lastname } = info.getValue();
+
+			return `${firstname} ${lastname}`;
+		},
 	}),
 	columnHelper.accessor("identityCard", {
 		header: "Cédula",
@@ -73,7 +68,7 @@ const columns = [
 	}),
 	columnHelper.accessor("birthDate", {
 		header: "Fecha de Nacimiento",
-		cell: (info) => info.getValue(),
+		cell: (info) => dateFormat(info.getValue()),
 	}),
 	columnHelper.accessor("identityCard", {
 		id: "actions",

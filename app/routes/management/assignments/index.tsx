@@ -95,27 +95,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 		lapses,
 		studyYears,
 		user,
-		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
-			id,
-			range: getAcademicPeriodRange(startDate, endDate),
-		})),
-		assignments: assignments.map(
-			({
-				academicLoad: { academicPeriod, course },
-				...restOfEvaluation
-			}) => {
-				return {
-					academicLoad: {
-						academicPeriod: getAcademicPeriodRange(
-							academicPeriod.startDate,
-							academicPeriod.endDate
-						),
-						course,
-					},
-					...restOfEvaluation,
-				};
-			}
-		),
+		academicPeriods,
+		assignments,
 	});
 };
 
@@ -133,7 +114,10 @@ const columnHelper = createColumnHelper<{
 				year: number;
 			};
 		};
-		academicPeriod: string;
+		academicPeriod: {
+			startDate: string;
+			endDate: string;
+		};
 	};
 }>();
 
@@ -141,7 +125,11 @@ const columnHelper = createColumnHelper<{
 const columns = [
 	columnHelper.accessor("academicLoad.academicPeriod", {
 		header: "Periodo",
-		cell: (info) => info.getValue(),
+		cell: (info) => {
+			const { startDate, endDate } = info.getValue();
+
+			return getAcademicPeriodRange(startDate, endDate);
+		},
 	}),
 	columnHelper.accessor("description", {
 		header: "Evaluación",
@@ -214,10 +202,15 @@ export default function EvaluationsIndexRoute() {
 						name="academic-period"
 						placeholder="Seleccione un periodo"
 						defaultValue={data.academicPeriodId || ""}
-						options={data.academicPeriods.map(({ id, range }) => ({
-							value: id,
-							name: range,
-						}))}
+						options={data.academicPeriods.map(
+							({ id, startDate, endDate }) => ({
+								value: id,
+								name: getAcademicPeriodRange(
+									startDate,
+									endDate
+								),
+							})
+						)}
 					/>
 
 					<Select

@@ -27,39 +27,30 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	return json({
-		coordinators: coordinators.map(
-			({
-				person: { firstname, lastname },
-				entryDate,
-				retirementDate,
-				...restOfCoordinator
-			}) => {
-				return {
-					fullname: `${firstname} ${lastname}`,
-					entryDate: dateFormat(entryDate),
-					retirementDate: retirementDate
-						? dateFormat(retirementDate)
-						: "",
-					...restOfCoordinator,
-				};
-			}
-		),
+		coordinators,
 	});
 };
 
 const columnHelper = createColumnHelper<{
-	fullname: string;
 	identityCard: string;
 	entryDate: string;
-	retirementDate: string;
+	retirementDate: string | null;
 	isActive: boolean;
+	person: {
+		firstname: string;
+		lastname: string;
+	};
 }>();
 
 // Table columns
 const columns = [
-	columnHelper.accessor("fullname", {
+	columnHelper.accessor("person", {
 		header: "Nombre Completo",
-		cell: (info) => info.getValue(),
+		cell: (info) => {
+			const { firstname, lastname } = info.getValue();
+
+			return `${firstname} ${lastname}`;
+		},
 	}),
 	columnHelper.accessor("identityCard", {
 		header: "Cédula",
@@ -67,11 +58,17 @@ const columns = [
 	}),
 	columnHelper.accessor("entryDate", {
 		header: "Fecha de Ingreso",
-		cell: (info) => info.getValue(),
+		cell: (info) => dateFormat(info.getValue()),
 	}),
 	columnHelper.accessor("retirementDate", {
 		header: "Fecha de Retiro",
-		cell: (info) => info.getValue() || "",
+		cell: (info) => {
+			const retirementDate = info.getValue();
+
+			if (retirementDate) dateFormat(retirementDate);
+
+			return "";
+		},
 	}),
 	columnHelper.accessor("identityCard", {
 		id: "actions",

@@ -46,9 +46,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 						select: {
 							firstname: true,
 							lastname: true,
-							identityCard: true,
 						},
 					},
+					identityCard: true,
 				},
 			},
 			course: {
@@ -62,54 +62,52 @@ export const loader = async ({ request }: LoaderArgs) => {
 	return json({
 		teacherId,
 		academicPeriodId,
-		academicPeriods: academicPeriods.map(({ id, startDate, endDate }) => ({
-			id,
-			range: getAcademicPeriodRange(startDate, endDate),
-		})),
-		academicLoads: academicLoads.map(
-			({
-				id,
-				academicPeriod: { startDate, endDate },
-				course,
-				teacher: {
-					person: { identityCard, firstname, lastname },
-				},
-			}) => {
-				return {
-					id,
-					range: getAcademicPeriodRange(startDate, endDate),
-					title: course.title,
-					fullname: `${firstname} ${lastname}`,
-					identityCard: identityCard,
-				};
-			}
-		),
+		academicPeriods,
+		academicLoads,
 	});
 };
 
 const columnHelper = createColumnHelper<{
 	id: number;
-	range: string;
-	title: string;
-	fullname: string;
-	identityCard: string;
+	academicPeriod: {
+		startDate: string;
+		endDate: string;
+	};
+	teacher: {
+		person: {
+			firstname: string;
+			lastname: string;
+		};
+		identityCard: string;
+	};
+	course: {
+		title: string;
+	};
 }>();
 
 // Table columns
 const columns = [
-	columnHelper.accessor("range", {
+	columnHelper.accessor("academicPeriod", {
 		header: "Periodo Académico",
-		cell: (info) => info.getValue(),
+		cell: (info) => {
+			const { startDate, endDate } = info.getValue();
+
+			return getAcademicPeriodRange(startDate, endDate);
+		},
 	}),
-	columnHelper.accessor("fullname", {
+	columnHelper.accessor("teacher.person", {
 		header: "Docente",
-		cell: (info) => info.getValue(),
+		cell: (info) => {
+			const { firstname, lastname } = info.getValue();
+
+			return `${firstname} ${lastname}`;
+		},
 	}),
-	columnHelper.accessor("identityCard", {
+	columnHelper.accessor("teacher.identityCard", {
 		header: "Cédula de Identidad",
 		cell: (info) => info.getValue(),
 	}),
-	columnHelper.accessor("title", {
+	columnHelper.accessor("course.title", {
 		header: "Asignatura",
 		cell: (info) => info.getValue(),
 	}),
@@ -164,10 +162,15 @@ export default function AcademicLoadsIndexRoute() {
 						name="academic-period"
 						placeholder="Seleccione un periodo"
 						defaultValue={data.academicPeriodId || ""}
-						options={data.academicPeriods.map(({ id, range }) => ({
-							value: id,
-							name: range,
-						}))}
+						options={data.academicPeriods.map(
+							({ id, startDate, endDate }) => ({
+								value: id,
+								name: getAcademicPeriodRange(
+									startDate,
+									endDate
+								),
+							})
+						)}
 					/>
 				</Form>
 			</div>

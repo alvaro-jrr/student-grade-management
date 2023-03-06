@@ -107,44 +107,46 @@ export default function SideBar({
 				data-visible={isOpen}
 				id="sidebar"
 			>
-				<div className="flex justify-between">
-					<div className="flex items-center gap-x-2">
-						<img
-							src={bookIconUrl}
-							className="h-6 w-6"
-							alt="Libro"
-						/>
+				<div className="flex flex-col gap-y-6">
+					<div className="flex justify-between">
+						<div className="flex items-center gap-x-2">
+							<img
+								src={bookIconUrl}
+								className="h-6 w-6"
+								alt="Libro"
+							/>
 
-						<h1 className="font-heading text-2xl font-medium uppercase text-gray-700">
-							Santa Marta
-						</h1>
+							<h1 className="font-heading text-2xl font-medium uppercase text-gray-700">
+								Santa Marta
+							</h1>
+						</div>
+
+						<button
+							className="self-end p-2 text-gray-900 lg:hidden"
+							onClick={() => setIsOpen(false)}
+						>
+							<XMarkIcon className="h-6 w-6" />
+
+							<span className="sr-only">Cerrar menú</span>
+						</button>
 					</div>
 
-					<button
-						className="self-end p-2 text-gray-900 lg:hidden"
-						onClick={() => setIsOpen(false)}
-					>
-						<XMarkIcon className="h-6 w-6" />
-
-						<span className="sr-only">Cerrar menú</span>
-					</button>
+					<nav>
+						<ul className="flex flex-col gap-y-2">
+							{accessableLinks.map((link) => (
+								<li key={link.to}>
+									<NavLink
+										className="block rounded-md px-6 py-2 font-medium text-gray-700 transition-colors hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
+										to={link.to}
+										end={link.to === "/management"}
+									>
+										{link.name}
+									</NavLink>
+								</li>
+							))}
+						</ul>
+					</nav>
 				</div>
-
-				<nav>
-					<ul className="flex flex-col gap-y-2">
-						{accessableLinks.map((link) => (
-							<li key={link.to}>
-								<NavLink
-									className="block rounded-md px-6 py-2 font-medium text-gray-700 transition-colors hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
-									to={link.to}
-									end={link.to === "/management"}
-								>
-									{link.name}
-								</NavLink>
-							</li>
-						))}
-					</ul>
-				</nav>
 
 				{children}
 			</div>
