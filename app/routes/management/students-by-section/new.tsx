@@ -153,7 +153,7 @@ export default function NewStudentBySectionRoute() {
 				supportingText="Asigna a un estudiante en una sección"
 			>
 				<Form method="post" schema={studentBySectionSchema}>
-					{({ register, formState: { errors } }) => (
+					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
 								<TextField
@@ -193,6 +193,8 @@ export default function NewStudentBySectionRoute() {
 									{...register("studentIdentityCard")}
 								/>
 							</div>
+
+							<Errors />
 
 							<div className="flex justify-end gap-x-4">
 								<ButtonLink
