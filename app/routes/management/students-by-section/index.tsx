@@ -168,7 +168,9 @@ export default function StudentsBySectionIndexRoute() {
 					onChange={(event) => {
 						const isFirstSearch =
 							data.academicPeriodId === null &&
-							data.studyYearId === null;
+							data.studyYearId === null &&
+							data.studentId === null &&
+							data.section === null;
 
 						submit(event.currentTarget, {
 							replace: !isFirstSearch,

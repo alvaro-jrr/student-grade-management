@@ -285,4 +285,5 @@ export const getAcademicPeriodRange = (
 	return `${getYear(startDate)}-${getYear(endDate)}`;
 };
 
-export const dateFormat = (date: Date) => format(date, "dd/MM/yyyy");
+export const dateFormat = (date: Date | string) =>
+	format(date instanceof Date ? date : new Date(date), "dd/MM/yyyy");
