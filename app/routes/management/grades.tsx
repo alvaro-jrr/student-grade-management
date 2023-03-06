@@ -11,6 +11,17 @@ export const loader = async ({ request }: LoaderArgs) => {
 	return json({ user });
 };
 
+const routes = [
+	{
+		name: "Inicio",
+		to: "/management/grades",
+	},
+	{
+		name: "Todas",
+		to: "all",
+	},
+];
+
 export default function GradesRoute() {
 	const data = useLoaderData<typeof loader>();
 
@@ -23,6 +34,7 @@ export default function GradesRoute() {
 			}
 			description="Visualiza, agrega o edita los notas de la evaluaciones"
 			title="Notas"
+			routes={routes}
 		>
 			<Outlet />
 		</Section>
