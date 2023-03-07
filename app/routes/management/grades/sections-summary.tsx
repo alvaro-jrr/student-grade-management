@@ -75,8 +75,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 	const grades: GradeSectionSummary[] = [];
 
 	const courseSummary = {
-		studentsApproved: 0,
-		studentsReproved: 0,
+		approvedStudents: 0,
+		failedStudents: 0,
 		studentsCount: students.length,
 		gradesAverage: 0,
 	};
@@ -97,8 +97,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 			// Count students approved/reprobed
 			finalScore >= 10
-				? courseSummary.studentsApproved++
-				: courseSummary.studentsReproved++;
+				? courseSummary.approvedStudents++
+				: courseSummary.failedStudents++;
 
 			grades.push({
 				student,
@@ -232,16 +232,16 @@ export default function SectionGradesSummary() {
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 					<StatCard
 						name="Aprobados"
-						stat={`${data.courseSummary.studentsApproved} - ${
-							(data.courseSummary.studentsApproved * 100) /
+						stat={`${data.courseSummary.approvedStudents} - ${
+							(data.courseSummary.approvedStudents * 100) /
 							(data.courseSummary.studentsCount || 1)
 						} %`}
 					/>
 
 					<StatCard
 						name="Reprobados"
-						stat={`${data.courseSummary.studentsReproved} - ${
-							(data.courseSummary.studentsReproved * 100) /
+						stat={`${data.courseSummary.failedStudents} - ${
+							(data.courseSummary.failedStudents * 100) /
 							(data.courseSummary.studentsCount || 1)
 						} %`}
 					/>
