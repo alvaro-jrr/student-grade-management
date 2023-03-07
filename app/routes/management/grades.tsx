@@ -30,7 +30,7 @@ const routes = [
 	},
 	{
 		name: "Boletín",
-		to: "students-summary",
+		to: "students-bulletin",
 	},
 ];
 
