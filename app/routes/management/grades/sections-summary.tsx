@@ -9,6 +9,8 @@ import { db } from "~/utils/db.server";
 import { getCourseFinalScore } from "~/utils/grades.server";
 import { requireUserWithRole } from "~/utils/session.server";
 import { academicPeriodInterval } from "~/utils";
+import StatCard from "~/components/stat-card";
+import { H3 } from "~/components/typography";
 
 type GradeSectionSummary = {
 	student: {
@@ -72,7 +74,16 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 	const grades: GradeSectionSummary[] = [];
 
-	if (academicPeriodId && courseId && sectionId) {
+	const courseSummary = {
+		studentsApproved: 0,
+		studentsReproved: 0,
+		studentsCount: students.length,
+		gradeAverage: 0,
+	};
+
+	if (academicPeriodId && courseId && sectionId && students.length) {
+		let gradesTotal = 0;
+
 		for (const student of students) {
 			// Get final score
 			const finalScore = await getCourseFinalScore({
@@ -81,14 +92,25 @@ export const loader = async ({ request }: LoaderArgs) => {
 				courseId: Number(courseId),
 			});
 
+			// Add grade
+			gradesTotal += finalScore;
+
+			// Count students approved/reprobed
+			finalScore >= 10
+				? courseSummary.studentsApproved++
+				: courseSummary.studentsReproved++;
+
 			grades.push({
 				student,
 				score: finalScore,
 			});
 		}
+
+		courseSummary.gradeAverage = gradesTotal / students.length;
 	}
 
 	return json({
+		courseSummary,
 		academicPeriodId,
 		studyYearId,
 		sectionId,
@@ -130,13 +152,15 @@ export default function SectionGradesSummary() {
 		data.academicPeriodId && data.studyYearId
 	);
 
+	// Get course data
+
 	return (
 		<div className="space-y-6">
-			<div className="flex flex-col justify-center gap-4 md:flex-row md:items-center md:justify-start">
+			<div className="flex flex-col justify-center gap-4 lg:flex-row lg:items-center lg:justify-start">
 				<FunnelIcon className="h-6 w-6 text-gray-500" />
 
 				<Form
-					className="flex flex-col gap-4 md:flex-row"
+					className="flex flex-col gap-4 lg:flex-row"
 					method="get"
 					onChange={(event) => {
 						const isFirstSearch =
@@ -201,6 +225,33 @@ export default function SectionGradesSummary() {
 					/>
 				</Form>
 			</div>
+
+			<section className="flex flex-col gap-y-2">
+				<H3>Resumen</H3>
+
+				<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+					<StatCard
+						name="Aprobados"
+						stat={`${data.courseSummary.studentsApproved} - ${
+							(data.courseSummary.studentsApproved * 100) /
+							(data.courseSummary.studentsCount || 1)
+						} %`}
+					/>
+
+					<StatCard
+						name="Reprobados"
+						stat={`${data.courseSummary.studentsReproved} - ${
+							(data.courseSummary.studentsReproved * 100) /
+							(data.courseSummary.studentsCount || 1)
+						} %`}
+					/>
+
+					<StatCard
+						name="Promedio General"
+						stat={data.courseSummary.gradeAverage}
+					/>
+				</div>
+			</section>
 
 			<Table columns={columns} data={data.grades} />
 		</div>
