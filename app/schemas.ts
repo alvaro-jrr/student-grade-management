@@ -26,6 +26,14 @@ export const registerSchema = z.object({
 		.min(5, "La contraseña debe tener como mínimo 5 caracteres"),
 });
 
+export const changePasswordSchema = z.object({
+	currentPassword: z.string().min(1, "Debe ingresar su contraseña actual"),
+	newPassword: z
+		.string()
+		.min(1, "Debe ingresar su nueva contraseña")
+		.min(5, "La nueva contraseña debe tener como mínimo 5 caracteres"),
+});
+
 export const personSchema = z.object({
 	firstname: z
 		.string()

@@ -43,6 +43,46 @@ export async function login({ username, password }: LoginForm) {
 	return user.id;
 }
 
+interface ChangePasswordForm {
+	username: string;
+	currentPassword: string;
+	newPassword: string;
+}
+
+export async function changePassword({
+	username,
+	currentPassword,
+	newPassword,
+}: ChangePasswordForm) {
+	const user = await db.user.findUnique({
+		where: { username },
+		select: { id: true, password: true, role: true, identityCard: true },
+	});
+
+	// In case user doesn't exist
+	if (!user) return null;
+
+	const isCorrectPassword = await bcrypt.compare(
+		currentPassword,
+		user.password
+	);
+
+	// In case password doesn't match
+	if (!isCorrectPassword) return null;
+
+	// Hash new password
+	const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+	return await db.user.update({
+		where: {
+			username,
+		},
+		data: {
+			password: newPasswordHash,
+		},
+	});
+}
+
 export async function register({
 	username,
 	identityCard,
