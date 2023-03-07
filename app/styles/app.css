@@ -1289,6 +1289,11 @@ video {
   border-color: transparent;
 }
 
+.aria-\[current\=page\]\:border-blue-200[aria-current=page] {
+  --tw-border-opacity: 1;
+  border-color: rgb(191 219 254 / var(--tw-border-opacity));
+}
+
 .aria-\[current\=page\]\:bg-gray-100[aria-current=page] {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));

@@ -27,7 +27,7 @@ function NavBar({ routes }: NavBarProps) {
 				{routes.map((route) => (
 					<li className="whitespace-nowrap" key={route.to}>
 						<NavLink
-							className="block rounded-full border border-gray-200 p-2 px-4 font-medium text-gray-500 transition-colors hover:border-blue-200 hover:text-blue-500 aria-[current=page]:border-transparent aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
+							className="block rounded-full border border-gray-200 p-2 px-4 font-medium text-gray-500 transition-colors hover:border-blue-200 hover:text-blue-500 aria-[current=page]:border-blue-200 aria-[current=page]:text-blue-500"
 							to={route.to}
 							end={route.to.includes("management")}
 						>
