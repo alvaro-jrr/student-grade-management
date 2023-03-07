@@ -1,7 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
-import type { FinalScore } from "~/utils/grades.server";
+import type { FinalGrade } from "~/utils/grades.server";
 import { json } from "@remix-run/node";
-import { getAllFinalScores } from "~/utils/grades.server";
+import { getAllFinalGrades } from "~/utils/grades.server";
 import { requireUserWithRole } from "~/utils/session.server";
 import { AcademicCapIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
@@ -33,15 +33,11 @@ export const loader = async ({ request }: LoaderArgs) => {
 	});
 
 	// Final scores
-	let finalScores: FinalScore[] = [];
+	let finalGrades: FinalGrade[] = [];
 
-	if (studentId) {
-		finalScores = await getAllFinalScores({
-			studentIdentityCard: studentId,
-		});
-	}
+	if (studentId) finalGrades = await getAllFinalGrades(studentId);
 
-	return json({ student, studentId, finalScores });
+	return json({ student, studentId, finalGrades });
 };
 
 const columnHelper = createColumnHelper<{
@@ -54,7 +50,7 @@ const columnHelper = createColumnHelper<{
 		id: number;
 		year: number;
 	};
-	score: number;
+	grade: number;
 }>();
 
 // Table columns
@@ -71,7 +67,7 @@ const columns = [
 		header: "Año",
 		cell: (info) => info.getValue(),
 	}),
-	columnHelper.accessor("score", {
+	columnHelper.accessor("grade", {
 		header: "Nota Final",
 		cell: (info) => info.getValue(),
 	}),
@@ -123,7 +119,7 @@ export default function FinalGradesRoute() {
 				</div>
 			</div>
 
-			<Table columns={columns} data={data.finalScores} />
+			<Table columns={columns} data={data.finalGrades} />
 		</div>
 	);
 }

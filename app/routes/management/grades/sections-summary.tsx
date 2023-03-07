@@ -6,7 +6,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { Select } from "~/components/form-elements";
 import Table from "~/components/table";
 import { db } from "~/utils/db.server";
-import { getCourseFinalScore } from "~/utils/grades.server";
+import { getCourseFinalGrade } from "~/utils/grades.server";
 import { requireUserWithRole } from "~/utils/session.server";
 import { academicPeriodInterval } from "~/utils";
 import StatCard from "~/components/stat-card";
@@ -78,7 +78,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 		studentsApproved: 0,
 		studentsReproved: 0,
 		studentsCount: students.length,
-		gradeAverage: 0,
+		gradesAverage: 0,
 	};
 
 	if (academicPeriodId && courseId && sectionId && students.length) {
@@ -86,7 +86,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 		for (const student of students) {
 			// Get final score
-			const finalScore = await getCourseFinalScore({
+			const finalScore = await getCourseFinalGrade({
 				studentIdentityCard: student.identityCard,
 				academicPeriodId: Number(academicPeriodId),
 				courseId: Number(courseId),
@@ -106,7 +106,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 			});
 		}
 
-		courseSummary.gradeAverage = gradesTotal / students.length;
+		courseSummary.gradesAverage = gradesTotal / students.length;
 	}
 
 	return json({
@@ -248,7 +248,7 @@ export default function SectionGradesSummary() {
 
 					<StatCard
 						name="Promedio General"
-						stat={data.courseSummary.gradeAverage}
+						stat={data.courseSummary.gradesAverage}
 					/>
 				</div>
 			</section>

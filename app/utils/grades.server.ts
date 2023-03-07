@@ -9,12 +9,6 @@ import { db } from "./db.server";
 const MAX_SCORE = 20;
 const MAX_WEIGHT = 100;
 
-type GetCourseFinalScore = {
-	courseId: Course["id"];
-	studentIdentityCard: Student["identityCard"];
-	academicPeriodId: AcademicPeriod["id"];
-};
-
 export function total(numbers: number[]) {
 	return numbers.reduce((prev, curr) => prev + curr, 0);
 }
@@ -35,15 +29,103 @@ export function calculateAssignmentGrade({
 	return (score * weight) / MAX_SCORE;
 }
 
-type GetStudyYearFinalScores = Omit<GetCourseFinalScore, "courseId"> & {
+type GetStudyYearFinalGrade = {
+	studentIdentityCard: Student["identityCard"];
 	studyYearId: StudyYear["id"];
+	academicPeriodId: AcademicPeriod["id"];
 };
 
-export async function getStudyYearFinalScores({
+export async function getStudyYearFinalGrade({
+	studentIdentityCard,
+	studyYearId,
+	academicPeriodId,
+}: GetStudyYearFinalGrade) {
+	const courses = await db.course.findMany({
+		where: {
+			studyYearId,
+		},
+		select: {
+			id: true,
+		},
+	});
+
+	const finalGrades: number[] = [];
+
+	for (const course of courses) {
+		const finalGrade = await getCourseFinalGrade({
+			courseId: course.id,
+			academicPeriodId,
+			studentIdentityCard,
+		});
+
+		finalGrades.push(finalGrade);
+	}
+
+	return (total(finalGrades) * MAX_SCORE) / MAX_WEIGHT;
+}
+
+export type FinalGrade = {
+	academicPeriod: Pick<AcademicPeriod, "id" | "startDate" | "endDate">;
+	studyYear: StudyYear;
+	grade: number;
+};
+
+export async function getAllFinalGrades(
+	studentIdentityCard: Student["identityCard"]
+) {
+	// Get student
+	const student = await db.student.findUnique({
+		where: {
+			identityCard: studentIdentityCard,
+		},
+		select: {
+			enrollments: {
+				select: {
+					academicPeriod: {
+						select: {
+							id: true,
+							startDate: true,
+							endDate: true,
+						},
+					},
+					studyYear: true,
+				},
+			},
+		},
+	});
+
+	// Store scores
+	const finalGrades: FinalGrade[] = [];
+
+	if (!student) return finalGrades;
+
+	for (const enrollment of student.enrollments) {
+		const finalGrade = await getStudyYearFinalGrade({
+			studentIdentityCard,
+			studyYearId: enrollment.studyYear.id,
+			academicPeriodId: enrollment.academicPeriod.id,
+		});
+
+		finalGrades.push({
+			academicPeriod: enrollment.academicPeriod,
+			studyYear: enrollment.studyYear,
+			grade: finalGrade,
+		});
+	}
+
+	return finalGrades;
+}
+
+interface GetStudyYearFinalGrades
+	extends Omit<GetCourseFinalGrade, "courseId"> {
+	studyYearId: StudyYear["id"];
+}
+
+export async function getStudyYearFinalGrades({
 	studyYearId,
 	studentIdentityCard,
 	academicPeriodId,
-}: GetStudyYearFinalScores) {
+}: GetStudyYearFinalGrades) {
 	// Get courses
 	const courses = await db.course.findMany({
 		where: {
@@ -54,67 +136,73 @@ export async function getStudyYearFinalScores({
 		},
 	});
 
-	const coursesFinalScore: { [courseId: number]: number } = {};
+	const coursesFinalGrade: { [courseId: number]: number } = {};
 
 	// Get score by course
 	for (const course of courses) {
-		coursesFinalScore[course.id] = await getCourseFinalScore({
+		coursesFinalGrade[course.id] = await getCourseFinalGrade({
 			courseId: course.id,
 			studentIdentityCard,
 			academicPeriodId,
 		});
 	}
 
-	return coursesFinalScore;
+	return coursesFinalGrade;
 }
 
-export async function getStudyYearScoreAverage({
+export async function getStudyYearGradeAverage({
 	studyYearId,
 	studentIdentityCard,
 	academicPeriodId,
-}: GetStudyYearFinalScores) {
-	const coursesFinalScore = await getStudyYearFinalScores({
+}: GetStudyYearFinalGrades) {
+	const coursesFinalGrade = await getStudyYearFinalGrades({
 		studyYearId,
 		studentIdentityCard,
 		academicPeriodId,
 	});
 
 	// Get scores
-	const finalScores: number[] = [];
+	const finalGrades: number[] = [];
 
-	for (const finalScore in coursesFinalScore) {
-		finalScores.push(coursesFinalScore[finalScore]);
+	for (const finalGrade in coursesFinalGrade) {
+		finalGrades.push(coursesFinalGrade[finalGrade]);
 	}
 
-	return finalScores;
+	return finalGrades;
 }
 
 export async function isStudentApproved({
 	studyYearId,
 	studentIdentityCard,
 	academicPeriodId,
-}: GetStudyYearFinalScores) {
-	const coursesFinalScore = await getStudyYearFinalScores({
+}: GetStudyYearFinalGrades) {
+	const coursesFinalScore = await getStudyYearFinalGrades({
 		studyYearId,
 		studentIdentityCard,
 		academicPeriodId,
 	});
 
 	// Get scores
-	const finalScores: number[] = [];
+	const finalGrades: number[] = [];
 
-	for (const finalScore in coursesFinalScore) {
-		finalScores.push(coursesFinalScore[finalScore]);
+	for (const finalGrade in coursesFinalScore) {
+		finalGrades.push(coursesFinalScore[finalGrade]);
 	}
 
-	return finalScores.every((score) => score >= 10);
+	return finalGrades.every((score) => score >= 10);
 }
 
-export async function getCourseFinalScoreByLapse({
+interface GetCourseFinalGrade {
+	courseId: Course["id"];
+	studentIdentityCard: Student["identityCard"];
+	academicPeriodId: AcademicPeriod["id"];
+}
+
+export async function getCourseFinalGradeByLapse({
 	courseId,
 	studentIdentityCard,
 	academicPeriodId,
-}: GetCourseFinalScore) {
+}: GetCourseFinalGrade) {
 	// Get lapses
 	const lapses = await db.lapse.findMany({
 		select: {
@@ -122,7 +210,7 @@ export async function getCourseFinalScoreByLapse({
 		},
 	});
 
-	const scoreByLapse: { [lapse: number]: number } = {};
+	const gradeByLapse: { [lapse: number]: number } = {};
 
 	// Group by lapse
 	for (const lapse of lapses) {
@@ -149,127 +237,37 @@ export async function getCourseFinalScoreByLapse({
 		});
 
 		// Calculate lapse final score
-		const lapseScores = lapseGrades.map(
+		const lapseFinalGrades = lapseGrades.map(
 			({ score, assignment: { weight } }) => {
 				return calculateAssignmentGrade({ weight, score });
 			}
 		);
 
-		scoreByLapse[lapse.id] = (total(lapseScores) * MAX_SCORE) / MAX_WEIGHT;
+		gradeByLapse[lapse.id] =
+			(total(lapseFinalGrades) * MAX_SCORE) / MAX_WEIGHT;
 	}
 
-	return scoreByLapse;
+	return gradeByLapse;
 }
 
-export async function getCourseFinalScore({
+export async function getCourseFinalGrade({
 	courseId,
 	studentIdentityCard,
 	academicPeriodId,
-}: GetCourseFinalScore) {
+}: GetCourseFinalGrade) {
 	// Get student grades from that course in that period
-	const courseFinalScoreByLapse = await getCourseFinalScoreByLapse({
+	const courseFinalGradeByLapse = await getCourseFinalGradeByLapse({
 		courseId,
 		studentIdentityCard,
 		academicPeriodId,
 	});
 
-	const lapseFinalScores: number[] = [];
+	const lapseFinalGrades: number[] = [];
 
 	// Get scores
-	for (const lapse in courseFinalScoreByLapse) {
-		lapseFinalScores.push(courseFinalScoreByLapse[lapse]);
+	for (const lapse in courseFinalGradeByLapse) {
+		lapseFinalGrades.push(courseFinalGradeByLapse[lapse]);
 	}
 
-	return Math.round(average(lapseFinalScores));
-}
-
-type GetAllFinalScores = {
-	studentIdentityCard: Student["identityCard"];
-};
-
-type GetStudyYearFinalScore = {
-	studentIdentityCard: Student["identityCard"];
-	studyYearId: StudyYear["id"];
-	academicPeriodId: AcademicPeriod["id"];
-};
-
-export async function getStudyYearFinalScore({
-	studentIdentityCard,
-	studyYearId,
-	academicPeriodId,
-}: GetStudyYearFinalScore) {
-	const courses = await db.course.findMany({
-		where: {
-			studyYearId,
-		},
-		select: {
-			id: true,
-		},
-	});
-
-	const finalScores: number[] = [];
-
-	for (const course of courses) {
-		const finalScore = await getCourseFinalScore({
-			courseId: course.id,
-			academicPeriodId,
-			studentIdentityCard,
-		});
-
-		finalScores.push(finalScore);
-	}
-
-	return (total(finalScores) * MAX_SCORE) / MAX_WEIGHT;
-}
-
-export type FinalScore = {
-	academicPeriod: Pick<AcademicPeriod, "id" | "startDate" | "endDate">;
-	studyYear: StudyYear;
-	score: number;
-};
-
-export async function getAllFinalScores({
-	studentIdentityCard,
-}: GetAllFinalScores) {
-	// Get student
-	const student = await db.student.findUnique({
-		where: {
-			identityCard: studentIdentityCard,
-		},
-		select: {
-			enrollments: {
-				select: {
-					academicPeriod: {
-						select: {
-							id: true,
-							startDate: true,
-							endDate: true,
-						},
-					},
-					studyYear: true,
-				},
-			},
-		},
-	});
-
-	// Store scores
-	const finalScores: FinalScore[] = [];
-
-	if (!student) return finalScores;
-
-	for (const enrollment of student.enrollments) {
-		const finalScore = await getStudyYearFinalScore({
-			studentIdentityCard,
-			studyYearId: enrollment.studyYear.id,
-			academicPeriodId: enrollment.academicPeriod.id,
-		});
-
-		finalScores.push({
-			academicPeriod: enrollment.academicPeriod,
-			studyYear: enrollment.studyYear,
-			score: finalScore,
-		});
-	}
-
-	return finalScores;
+	return Math.round(average(lapseFinalGrades));
 }
