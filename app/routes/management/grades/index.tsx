@@ -3,7 +3,11 @@ import { json } from "@remix-run/node";
 import { requireUserWithRole } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
-	const user = await requireUserWithRole(request, ["COORDINATOR", "TEACHER"]);
+	const user = await requireUserWithRole(request, [
+		"COORDINATOR",
+		"TEACHER",
+		"REPRESENTATIVE",
+	]);
 
 	return json({
 		user,

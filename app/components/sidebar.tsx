@@ -79,7 +79,7 @@ const LINKS: Link[] = [
 	{
 		name: "Notas",
 		to: "grades",
-		roles: ["COORDINATOR", "TEACHER"],
+		roles: ["COORDINATOR", "TEACHER", "REPRESENTATIVE"],
 	},
 ];
 

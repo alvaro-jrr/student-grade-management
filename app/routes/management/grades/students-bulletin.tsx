@@ -1,7 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import type { StudyYearGrade } from "~/utils/grades.server";
 import { getStudyYearGrades } from "~/utils/grades.server";
-import { FunnelIcon } from "@heroicons/react/24/outline";
+import { AcademicCapIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { Select, TextField } from "~/components/form-elements";
@@ -9,6 +9,7 @@ import { db } from "~/utils/db.server";
 import { requireUserWithRole } from "~/utils/session.server";
 import { createColumnHelper } from "@tanstack/react-table";
 import Table from "~/components/table";
+import { Paragraph } from "~/components/typography";
 
 export const loader = async ({ request }: LoaderArgs) => {
 	const user = await requireUserWithRole(request, [
@@ -152,6 +153,22 @@ export default function StudentsBulletin() {
 						}))}
 					/>
 				</Form>
+			</div>
+
+			<div className="flex flex-row gap-x-4">
+				<AcademicCapIcon className="h-6 w-6 text-gray-500" />
+
+				<div className="flex flex-row gap-x-4">
+					<Paragraph>
+						<span className="font-medium">Estudiante</span>
+					</Paragraph>
+
+					<Paragraph>
+						{data.student
+							? `${data.student.person.firstname} ${data.student.person.lastname}`
+							: "No encontrado"}
+					</Paragraph>
+				</div>
 			</div>
 
 			<Table columns={columns} data={data.grades} />
