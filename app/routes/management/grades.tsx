@@ -14,11 +14,6 @@ interface Link {
 
 const LINKS: Link[] = [
 	{
-		name: "Inicio",
-		to: "/management/grades",
-		roles: ["COORDINATOR", "REPRESENTATIVE", "TEACHER"],
-	},
-	{
 		name: "Todas",
 		to: "all",
 		roles: ["COORDINATOR", "TEACHER"],

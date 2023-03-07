@@ -12,11 +12,6 @@ interface Link {
 
 const LINKS: Link[] = [
 	{
-		name: "Inicio",
-		to: "/management",
-		roles: ["ADMIN", "COORDINATOR", "REPRESENTATIVE", "TEACHER"],
-	},
-	{
 		name: "Coordinadores",
 		to: "coordinators",
 		roles: ["ADMIN"],
@@ -138,7 +133,6 @@ export default function SideBar({
 									<NavLink
 										className="block rounded-md px-6 py-2 font-medium text-gray-700 transition-colors hover:text-blue-500 aria-[current=page]:bg-blue-50 aria-[current=page]:text-blue-500"
 										to={link.to}
-										end={link.to === "/management"}
 									>
 										{link.name}
 									</NavLink>
