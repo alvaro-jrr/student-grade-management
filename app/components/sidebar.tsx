@@ -76,6 +76,11 @@ const LINKS: Link[] = [
 		to: "grades",
 		roles: ["COORDINATOR", "TEACHER", "REPRESENTATIVE"],
 	},
+	{
+		name: "Cambiar Contraseña",
+		to: "change-password",
+		roles: ["TEACHER"],
+	},
 ];
 
 interface SideBarProps {
