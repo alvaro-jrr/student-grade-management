@@ -198,6 +198,57 @@ interface GetCourseFinalGrade {
 	academicPeriodId: AcademicPeriod["id"];
 }
 
+export type StudyYearGrade = {
+	course: {
+		id: number;
+		title: string;
+	};
+	lapse: {
+		first: number;
+		second: number;
+		third: number;
+	};
+};
+
+export async function getStudyYearGrades({
+	studyYearId,
+	studentIdentityCard,
+	academicPeriodId,
+}: GetStudyYearFinalGrade) {
+	const courses = await db.course.findMany({
+		where: {
+			studyYearId,
+		},
+		select: {
+			id: true,
+			title: true,
+		},
+	});
+
+	const gradesByCourse: StudyYearGrade[] = [];
+
+	// Assign grade of each course
+	for (const course of courses) {
+		const courseGradeByLapse = await getCourseFinalGradeByLapse({
+			courseId: course.id,
+			academicPeriodId,
+			studentIdentityCard,
+		});
+
+		// Add value
+		gradesByCourse.push({
+			course,
+			lapse: {
+				first: courseGradeByLapse[1],
+				second: courseGradeByLapse[2],
+				third: courseGradeByLapse[3],
+			},
+		});
+	}
+
+	return gradesByCourse;
+}
+
 export async function getCourseFinalGradeByLapse({
 	courseId,
 	studentIdentityCard,
