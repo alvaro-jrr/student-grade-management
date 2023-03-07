@@ -68,6 +68,27 @@ export async function getStudyYearFinalScores({
 	return coursesFinalScore;
 }
 
+export async function getStudyYearScoreAverage({
+	studyYearId,
+	studentIdentityCard,
+	academicPeriodId,
+}: GetStudyYearFinalScores) {
+	const coursesFinalScore = await getStudyYearFinalScores({
+		studyYearId,
+		studentIdentityCard,
+		academicPeriodId,
+	});
+
+	// Get scores
+	const finalScores: number[] = [];
+
+	for (const finalScore in coursesFinalScore) {
+		finalScores.push(coursesFinalScore[finalScore]);
+	}
+
+	return finalScores;
+}
+
 export async function isStudentApproved({
 	studyYearId,
 	studentIdentityCard,
@@ -160,4 +181,95 @@ export async function getCourseFinalScore({
 	}
 
 	return Math.round(average(lapseFinalScores));
+}
+
+type GetAllFinalScores = {
+	studentIdentityCard: Student["identityCard"];
+};
+
+type GetStudyYearFinalScore = {
+	studentIdentityCard: Student["identityCard"];
+	studyYearId: StudyYear["id"];
+	academicPeriodId: AcademicPeriod["id"];
+};
+
+export async function getStudyYearFinalScore({
+	studentIdentityCard,
+	studyYearId,
+	academicPeriodId,
+}: GetStudyYearFinalScore) {
+	const courses = await db.course.findMany({
+		where: {
+			studyYearId,
+		},
+		select: {
+			id: true,
+		},
+	});
+
+	const finalScores: number[] = [];
+
+	for (const course of courses) {
+		const finalScore = await getCourseFinalScore({
+			courseId: course.id,
+			academicPeriodId,
+			studentIdentityCard,
+		});
+
+		finalScores.push(finalScore);
+	}
+
+	return (total(finalScores) * MAX_SCORE) / MAX_WEIGHT;
+}
+
+export type FinalScore = {
+	academicPeriod: Pick<AcademicPeriod, "id" | "startDate" | "endDate">;
+	studyYear: StudyYear;
+	score: number;
+};
+
+export async function getAllFinalScores({
+	studentIdentityCard,
+}: GetAllFinalScores) {
+	// Get student
+	const student = await db.student.findUnique({
+		where: {
+			identityCard: studentIdentityCard,
+		},
+		select: {
+			enrollments: {
+				select: {
+					academicPeriod: {
+						select: {
+							id: true,
+							startDate: true,
+							endDate: true,
+						},
+					},
+					studyYear: true,
+				},
+			},
+		},
+	});
+
+	// Store scores
+	const finalScores: FinalScore[] = [];
+
+	if (!student) return finalScores;
+
+	for (const enrollment of student.enrollments) {
+		const finalScore = await getStudyYearFinalScore({
+			studentIdentityCard,
+			studyYearId: enrollment.studyYear.id,
+			academicPeriodId: enrollment.academicPeriod.id,
+		});
+
+		finalScores.push({
+			academicPeriod: enrollment.academicPeriod,
+			studyYear: enrollment.studyYear,
+			score: finalScore,
+		});
+	}
+
+	return finalScores;
 }
