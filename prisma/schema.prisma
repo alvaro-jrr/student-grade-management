@@ -40,6 +40,8 @@ model Representative {
     person       Person                    @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade, onUpdate: Cascade)
     phoneNumber  String
     students     RepresentativeByStudent[]
+    user         User?                     @relation(fields: [userId], references: [id])
+    userId       Int?                      @unique
 }
 
 // Coordinador
@@ -49,6 +51,8 @@ model Coordinator {
     entryDate      DateTime  @default(now())
     retirementDate DateTime?
     isActive       Boolean   @default(true)
+    user           User?     @relation(fields: [userId], references: [id])
+    userId         Int?      @unique
 }
 
 // Docente
@@ -57,6 +61,8 @@ model Teacher {
     person        Person         @relation(fields: [identityCard], references: [identityCard], onDelete: Cascade, onUpdate: Cascade)
     specialty     String
     academicLoads AcademicLoad[]
+    user          User?          @relation(fields: [userId], references: [id])
+    userId        Int?           @unique
 }
 
 // Estudiante
@@ -79,6 +85,10 @@ model User {
     username     String   @unique
     password     String
     role         RoleName
+
+    representative Representative?
+    teacher        Teacher?
+    coordinator    Coordinator?
 }
 
 // Representante

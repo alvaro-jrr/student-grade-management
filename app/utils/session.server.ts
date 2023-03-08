@@ -87,7 +87,7 @@ export async function register({
 	username,
 	identityCard,
 	password,
-}: RegisterForm) {
+}: RegisterForm): Promise<{ id: number; username: string } | null> {
 	// Get person
 	const person = await db.person.findUnique({
 		where: { identityCard },
@@ -101,17 +101,56 @@ export async function register({
 
 	const passwordHash = await bcrypt.hash(password, 10);
 
-	// Create user
-	const user = await db.user.create({
-		data: {
-			username,
-			password: passwordHash,
-			identityCard,
-			role: person.role,
-		},
-	});
+	const userData = {
+		username,
+		password: passwordHash,
+		identityCard,
+		role: person.role,
+	};
 
-	return { id: user.id, username };
+	// Create user
+	if (person.role === "COORDINATOR") {
+		const coordinator = await db.coordinator.update({
+			where: { identityCard },
+			data: {
+				user: {
+					create: userData,
+				},
+			},
+		});
+
+		return coordinator.userId ? { id: coordinator.userId, username } : null;
+	}
+
+	if (person.role === "REPRESENTATIVE") {
+		const representative = await db.representative.update({
+			where: { identityCard },
+			data: {
+				user: {
+					create: userData,
+				},
+			},
+		});
+
+		return representative.userId
+			? { id: representative.userId, username }
+			: null;
+	}
+
+	if (person.role === "TEACHER") {
+		const teacher = await db.teacher.update({
+			where: { identityCard },
+			data: {
+				user: {
+					create: userData,
+				},
+			},
+		});
+
+		return teacher.userId ? { id: teacher.userId, username } : null;
+	}
+
+	return null;
 }
 
 export async function isIdentityCardStored(identityCard: string) {
