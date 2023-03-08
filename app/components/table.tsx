@@ -24,11 +24,13 @@ interface PaginationProps<T> {
 }
 
 function Pagination<T>({ table }: PaginationProps<T>) {
+	const pageIndex = table.getState().pagination.pageIndex;
+	const pageCount = table.getPageCount();
+
 	return (
 		<div className="flex items-center justify-between">
 			<Paragraph>
-				Página {table.getState().pagination.pageIndex + 1} de{" "}
-				{table.getPageCount()}
+				Página {pageCount ? pageIndex + 1 : 0} de {pageCount}
 			</Paragraph>
 
 			<div>
