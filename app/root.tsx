@@ -45,7 +45,7 @@ export function CatchBoundary() {
 	const caught = useCatch();
 
 	return (
-		<html>
+		<html className="scroll-smooth">
 			<head>
 				<title>Oops!</title>
 				<Meta />

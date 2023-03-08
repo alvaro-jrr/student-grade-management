@@ -8,18 +8,12 @@ import {
 import bookIconUrl from "~/assets/book-icon.svg";
 import { ButtonLink } from "./button";
 
-const LINKS = [
-	{ name: "Asignaturas", to: "/courses" },
-	{ name: "Sobre Nosotros", to: "/about-us" },
-	{ name: "Contacto", to: "/contact" },
-];
-
 const AUTH_LINKS = [
 	{ name: "Iniciar Sesión", to: "/login" },
 	{ name: "Registro", to: "/register" },
 ];
 
-const MOBILE_LINKS = [{ name: "Inicio", to: "/" }, ...LINKS];
+const MOBILE_LINKS = [{ name: "Inicio", to: "/" }];
 
 const variantsLookup = {
 	mobile: "block px-2 py-4 font-medium text-gray-500",
@@ -89,7 +83,7 @@ function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
 export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 	return (
 		<header className="sticky top-0 z-10 bg-white px-[5vw] py-6">
-			<nav className="flex items-center justify-between lg:grid lg:grid-cols-3">
+			<nav className="flex items-center justify-between">
 				<Link className="flex gap-x-2" to="/">
 					<img src={bookIconUrl} alt="Libro" className="w-8" />
 
@@ -97,19 +91,6 @@ export default function NavBar({ isLoggedIn }: { isLoggedIn: boolean }) {
 						Santa Marta
 					</h1>
 				</Link>
-
-				<ul className="hidden gap-x-2 lg:flex lg:justify-center">
-					{LINKS.map((link) => (
-						<li key={link.to} className="whitespace-nowrap">
-							<NavLink
-								className={variantsLookup.desktop}
-								to={link.to}
-							>
-								{link.name}
-							</NavLink>
-						</li>
-					))}
-				</ul>
 
 				<div className="lg:hidden">
 					<MobileMenu isLoggedIn={isLoggedIn} />
