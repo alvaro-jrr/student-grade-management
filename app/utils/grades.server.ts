@@ -65,7 +65,7 @@ export async function getStudyYearFinalGrade({
 		finalGrades.push(finalGrade);
 	}
 
-	return (total(finalGrades) * MAX_SCORE) / MAX_WEIGHT;
+	return average(finalGrades);
 }
 
 export type FinalGrade = {
