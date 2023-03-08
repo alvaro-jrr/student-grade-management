@@ -55,6 +55,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 			academicPeriod: true,
 			courseByStudyYear: {
 				select: {
+					id: true,
 					course: true,
 					studyYearId: true,
 				},
@@ -168,7 +169,7 @@ export default function EditAcademicLoadRoute() {
 					schema={academicLoadSchema}
 					values={{
 						courseByStudyYearId:
-							data.academicLoad.courseByStudyYear.course.id,
+							data.academicLoad.courseByStudyYear.id,
 						teacherIdentityCard:
 							data.academicLoad.teacherIdentityCard,
 					}}
