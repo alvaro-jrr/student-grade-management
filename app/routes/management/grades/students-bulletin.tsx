@@ -138,7 +138,7 @@ export default function StudentsBulletin() {
 						label="Cédula"
 						name="student"
 						type="search"
-						placeholder="ej: 123"
+						placeholder="ej: 28385587"
 						defaultValue={data.studentId || ""}
 					/>
 

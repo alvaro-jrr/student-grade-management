@@ -101,7 +101,7 @@ export default function CoursesIndexRoute() {
 					<TextField
 						type="search"
 						name="title"
-						placeholder="ej: Historia"
+						placeholder="ej: Historia Universal"
 						label="Titulo"
 						defaultValue={data.title || ""}
 					/>

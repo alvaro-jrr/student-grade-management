@@ -158,7 +158,7 @@ export default function RepresentationsIndexRoute() {
 						type="search"
 						name="representative-id"
 						placeholder="ej: 28385587"
-						label="Represetante C.I"
+						label="Representante C.I"
 						defaultValue={data.representativeId || ""}
 					/>
 

@@ -126,13 +126,13 @@ export default function EditRepresentativeRoute() {
 									<TextField
 										error={errors.firstname?.message}
 										label="Nombre"
-										placeholder="ej: Carolina"
+										placeholder="ej: John"
 										{...register("firstname")}
 									/>
 
 									<TextField
 										error={errors.lastname?.message}
-										placeholder="ej: Giraldo"
+										placeholder="ej: Doe"
 										label="Apellido"
 										{...register("lastname")}
 									/>
@@ -141,14 +141,14 @@ export default function EditRepresentativeRoute() {
 								<TextField
 									error={errors.identityCard?.message}
 									label="Cédula de Identidad"
-									placeholder="ej: 0516"
+									placeholder="ej: 28385587"
 									{...register("identityCard")}
 								/>
 
 								<TextField
 									error={errors.email?.message}
 									type="email"
-									placeholder="ej: karolg@bichota.com"
+									placeholder="ej: johndoe@gmail.com"
 									label="Email"
 									{...register("email")}
 								/>

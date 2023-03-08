@@ -117,13 +117,13 @@ export default function EditCoordinatorRoute() {
 									<TextField
 										error={errors.firstname?.message}
 										label="Nombre"
-										placeholder="ej: Carolina"
+										placeholder="ej: John"
 										{...register("firstname")}
 									/>
 
 									<TextField
 										error={errors.lastname?.message}
-										placeholder="ej: Giraldo"
+										placeholder="ej: Doe"
 										label="Apellido"
 										{...register("lastname")}
 									/>
@@ -132,7 +132,7 @@ export default function EditCoordinatorRoute() {
 								<TextField
 									error={errors.identityCard?.message}
 									label="Cédula de Identidad"
-									placeholder="ej: 0516"
+									placeholder="ej: 28385587"
 									{...register("identityCard")}
 								/>
 

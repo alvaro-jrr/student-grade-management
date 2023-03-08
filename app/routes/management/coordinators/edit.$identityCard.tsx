@@ -118,12 +118,12 @@ export default function EditCoordinatorRoute() {
 									<TextField
 										type="text"
 										label="Nombre"
-										placeholder="ej: Benito"
+										placeholder="ej: John"
 										{...register("firstname")}
 									/>
 
 									<TextField
-										placeholder="ej: Martinez"
+										placeholder="ej: Doe"
 										label="Apellido"
 										{...register("lastname")}
 									/>
@@ -131,7 +131,7 @@ export default function EditCoordinatorRoute() {
 
 								<TextField
 									label="Cédula de Identidad"
-									placeholder="ej: 25605"
+									placeholder="ej: 28385587"
 									{...register("identityCard")}
 								/>
 							</div>

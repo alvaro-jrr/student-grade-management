@@ -97,7 +97,7 @@ export default function FinalGradesRoute() {
 						label="Cédula"
 						name="student-id"
 						type="search"
-						placeholder="ej: 123"
+						placeholder="ej: 28385587"
 						defaultValue={data.studentId || ""}
 					/>
 				</Form>

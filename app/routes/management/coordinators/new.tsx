@@ -56,13 +56,13 @@ export default function NewCoordinatorRoute() {
 									<TextField
 										error={errors.firstname?.message}
 										label="Nombre"
-										placeholder="ej: Benito"
+										placeholder="ej: John"
 										{...register("firstname")}
 									/>
 
 									<TextField
 										error={errors.lastname?.message}
-										placeholder="ej: Martinez"
+										placeholder="ej: Doe"
 										label="Apellido"
 										{...register("lastname")}
 									/>
@@ -71,7 +71,7 @@ export default function NewCoordinatorRoute() {
 								<TextField
 									error={errors.identityCard?.message}
 									label="Cédula de Identidad"
-									placeholder="ej: 25605"
+									placeholder="ej: 28385587"
 									{...register("identityCard")}
 								/>
 							</div>

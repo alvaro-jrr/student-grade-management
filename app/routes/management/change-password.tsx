@@ -68,7 +68,7 @@ export default function ChangePasswordRoute() {
 										error={errors.currentPassword?.message}
 										label="Contraseña Actual"
 										type="password"
-										placeholder="ej: abcdef"
+										placeholder="ej: abcde"
 										{...register("currentPassword")}
 									/>
 

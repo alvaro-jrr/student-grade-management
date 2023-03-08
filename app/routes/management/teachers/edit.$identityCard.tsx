@@ -131,13 +131,13 @@ export default function EditTeacherRoute() {
 									<TextField
 										error={errors.firstname?.message}
 										label="Nombre"
-										placeholder="ej: Cristiano"
+										placeholder="ej: John"
 										{...register("firstname")}
 									/>
 
 									<TextField
 										error={errors.lastname?.message}
-										placeholder="ej: Ronaldo"
+										placeholder="ej: Doe"
 										label="Apellido"
 										{...register("lastname")}
 									/>
@@ -146,7 +146,7 @@ export default function EditTeacherRoute() {
 								<TextField
 									error={errors.identityCard?.message}
 									label="Cédula de Identidad"
-									placeholder="ej: 25600"
+									placeholder="ej: 28385587"
 									{...register("identityCard")}
 								/>
 
