@@ -6,18 +6,22 @@ import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
 import { Form } from "~/components/form";
-import { RadioGroup, Select, TextField } from "~/components/form-elements";
-import { assignmentSchema } from "~/schemas";
+import { RadioGroup, TextField } from "~/components/form-elements";
+import { assignmentSchema as newAssignmentSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
 import { requireUserWithRole } from "~/utils/session.server";
+
+const assignmentSchema = newAssignmentSchema.omit({
+	courseByStudyYearId: true,
+});
 
 const editAssignmentSchema = assignmentSchema.extend({
 	id: z.number(),
 });
 
 const mutation = makeDomainFunction(editAssignmentSchema)(
-	async ({ id, description, weight, lapseId, courseId }) => {
+	async ({ id, description, weight, lapseId }) => {
 		// Find assignment
 		const assignment = await db.assignment.findUnique({
 			where: { id },
@@ -25,7 +29,7 @@ const mutation = makeDomainFunction(editAssignmentSchema)(
 				academicLoad: {
 					select: {
 						academicPeriodId: true,
-						courseId: true,
+						courseByStudyYearId: true,
 					},
 				},
 				lapseId: true,
@@ -38,7 +42,8 @@ const mutation = makeDomainFunction(editAssignmentSchema)(
 		const academicLoad = await db.academicLoad.findFirst({
 			where: {
 				academicPeriodId: assignment.academicLoad.academicPeriodId,
-				courseId,
+				courseByStudyYearId:
+					assignment.academicLoad.courseByStudyYearId,
 			},
 		});
 
@@ -54,7 +59,8 @@ const mutation = makeDomainFunction(editAssignmentSchema)(
 			where: {
 				academicLoad: {
 					academicPeriodId: assignment.academicLoad.academicPeriodId,
-					courseId: assignment.academicLoad.courseId,
+					courseByStudyYearId:
+						assignment.academicLoad.courseByStudyYearId,
 				},
 				lapseId: assignment.lapseId,
 				id: {
@@ -100,27 +106,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 	await requireUserWithRole(request, ["COORDINATOR"]);
 	const id = Number(params.id);
 
-	// Get lapses
-	const lapses = await db.lapse.findMany({
-		select: {
-			id: true,
-			description: true,
-		},
-	});
-
-	// Get courses
-	const courses = await db.course.findMany({
-		select: {
-			id: true,
-			title: true,
-			studyYear: {
-				select: {
-					year: true,
-				},
-			},
-		},
-	});
-
+	// Get assignment
 	const assignment = await db.assignment.findUnique({
 		where: { id },
 		select: {
@@ -128,8 +114,22 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 			weight: true,
 			academicLoad: {
 				select: {
-					academicPeriodId: true,
-					courseId: true,
+					academicPeriod: true,
+					courseByStudyYear: {
+						select: {
+							id: true,
+							course: {
+								select: {
+									title: true,
+								},
+							},
+							studyYear: {
+								select: {
+									year: true,
+								},
+							},
+						},
+					},
 				},
 			},
 			lapse: {
@@ -146,9 +146,16 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 		});
 	}
 
+	// Get lapses and study years
+	const lapses = await db.lapse.findMany({
+		select: {
+			id: true,
+			description: true,
+		},
+	});
+
 	return json({
 		assignment,
-		courses,
 		lapses,
 	});
 };
@@ -166,7 +173,6 @@ export default function EditAssignmentRoute() {
 					method="post"
 					schema={assignmentSchema}
 					values={{
-						courseId: data.assignment.academicLoad.courseId,
 						description: data.assignment.description,
 						lapseId: data.assignment.lapse.id,
 						weight: data.assignment.weight,
@@ -175,14 +181,14 @@ export default function EditAssignmentRoute() {
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
-								<Select
-									error={errors.courseId?.message}
+								<TextField
 									label="Asignatura"
-									options={data.courses.map((course) => ({
-										name: `${course.title} - Año ${course.studyYear.year}`,
-										value: course.id,
-									}))}
-									{...register("courseId")}
+									name="course"
+									disabled={true}
+									defaultValue={
+										data.assignment.academicLoad
+											.courseByStudyYear.course.title
+									}
 								/>
 
 								<RadioGroup

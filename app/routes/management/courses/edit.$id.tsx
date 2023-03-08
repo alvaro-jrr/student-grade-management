@@ -1,12 +1,12 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { makeDomainFunction } from "domain-functions";
+import { InputError, makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
 import { Form } from "~/components/form";
-import { Select, TextField } from "~/components/form-elements";
+import { TextField } from "~/components/form-elements";
 import { courseSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
@@ -15,17 +15,26 @@ const editCourseSchema = courseSchema.extend({
 	id: z.number(),
 });
 
-const mutation = makeDomainFunction(editCourseSchema)(
-	async ({ id, title, year }) => {
-		return db.course.update({
-			where: { id },
-			data: {
-				title,
-				studyYearId: year,
+const mutation = makeDomainFunction(editCourseSchema)(async ({ id, title }) => {
+	const course = await db.course.findFirst({
+		where: {
+			title,
+			id: {
+				not: id,
 			},
-		});
-	}
-);
+		},
+	});
+
+	// In case course exists with that title
+	if (course) throw new InputError("Título ya está tomado", "title");
+
+	return db.course.update({
+		where: { id },
+		data: {
+			title,
+		},
+	});
+});
 
 export const action = async ({ request, params }: ActionArgs) => {
 	const id = Number(params.id || "");
@@ -46,7 +55,6 @@ export const loader = async ({ params }: LoaderArgs) => {
 		where: { id },
 		select: {
 			title: true,
-			studyYearId: true,
 		},
 	});
 
@@ -58,9 +66,6 @@ export const loader = async ({ params }: LoaderArgs) => {
 
 	return json({
 		course,
-		years: await db.studyYear.findMany({
-			select: { id: true, year: true },
-		}),
 	});
 };
 
@@ -78,34 +83,17 @@ export default function EditCourseRoute() {
 					schema={courseSchema}
 					values={{
 						title: data.course.title,
-						year: data.course.studyYearId,
 					}}
 				>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
-							<div className="space-y-4">
-								<Select
-									label="Año"
-									error={errors.year?.message}
-									supportingText="Año de estudio en el que será impartida la asignatura"
-									placeholder="Seleccione un año"
-									options={data.years.map(({ year, id }) => {
-										return {
-											name: year,
-											value: id,
-										};
-									})}
-									{...register("year")}
-								/>
-
-								<TextField
-									error={errors.title?.message}
-									label="Titulo"
-									supportingText="Descripción de la asignaura"
-									placeholder="ej: Historia Universal"
-									{...register("title")}
-								/>
-							</div>
+							<TextField
+								error={errors.title?.message}
+								label="Titulo"
+								supportingText="Descripción de la asignaura"
+								placeholder="ej: Historia Universal"
+								{...register("title")}
+							/>
 
 							<Errors />
 

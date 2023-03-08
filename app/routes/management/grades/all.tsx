@@ -44,8 +44,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 					academicPeriodId: academicPeriodId
 						? Number(academicPeriodId)
 						: undefined,
-					courseId: courseId ? Number(courseId) : undefined,
-					course: {
+					courseByStudyYear: {
+						courseId: courseId ? Number(courseId) : undefined,
 						studyYearId: studyYearId
 							? Number(studyYearId)
 							: undefined,
@@ -81,14 +81,18 @@ export const loader = async ({ request }: LoaderArgs) => {
 									endDate: true,
 								},
 							},
-							course: {
+							courseByStudyYear: {
 								select: {
 									studyYear: {
 										select: {
 											year: true,
 										},
 									},
-									title: true,
+									course: {
+										select: {
+											title: true,
+										},
+									},
 								},
 							},
 						},
@@ -134,8 +138,10 @@ const columnHelper = createColumnHelper<{
 				startDate: string;
 				endDate: string;
 			};
-			course: {
-				title: string;
+			courseByStudyYear: {
+				course: {
+					title: string;
+				};
 				studyYear: {
 					year: number;
 				};
@@ -159,14 +165,20 @@ const columns = [
 			return academicPeriodInterval(startDate, endDate);
 		},
 	}),
-	columnHelper.accessor("assignment.academicLoad.course.studyYear.year", {
-		header: "Año",
-		cell: (info) => info.getValue(),
-	}),
-	columnHelper.accessor("assignment.academicLoad.course.title", {
-		header: "Asignatura",
-		cell: (info) => info.getValue(),
-	}),
+	columnHelper.accessor(
+		"assignment.academicLoad.courseByStudyYear.studyYear.year",
+		{
+			header: "Año",
+			cell: (info) => info.getValue(),
+		}
+	),
+	columnHelper.accessor(
+		"assignment.academicLoad.courseByStudyYear.course.title",
+		{
+			header: "Asignatura",
+			cell: (info) => info.getValue(),
+		}
+	),
 	columnHelper.accessor("assignment.lapse.description", {
 		header: "Lapso",
 		cell: (info) => info.getValue(),
@@ -211,7 +223,10 @@ const columnsWithEditLink = [
 
 				return (
 					<div className="flex justify-end">
-						<ButtonLink variant="text" to={`edit/${id}`}>
+						<ButtonLink
+							variant="text"
+							to={`/management/grades/edit/${id}`}
+						>
 							Editar
 						</ButtonLink>
 					</div>

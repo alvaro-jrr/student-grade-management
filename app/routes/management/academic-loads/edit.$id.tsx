@@ -1,29 +1,29 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Form, useSubmit } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { z } from "zod";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
-import { Form } from "~/components/form";
-import { Select } from "~/components/form-elements";
+import { Form as RemixForm } from "~/components/form";
+import { Select, TextField } from "~/components/form-elements";
 import { academicLoadSchema } from "~/schemas";
 import { academicPeriodInterval } from "~/utils";
 import { db } from "~/utils/db.server";
 import { formAction } from "~/utils/form-action.server";
+import { requireUserWithRole } from "~/utils/session.server";
 
 const editAcademicLoadSchema = academicLoadSchema.extend({
 	id: z.number(),
 });
 
 const mutation = makeDomainFunction(editAcademicLoadSchema)(
-	async ({ academicPeriodId, courseId, teacherIdentityCard, id }) => {
+	async ({ id, courseByStudyYearId, teacherIdentityCard }) => {
 		// Update
 		return await db.academicLoad.update({
 			where: { id },
 			data: {
-				academicPeriodId,
-				courseId,
+				courseByStudyYearId,
 				teacherIdentityCard,
 			},
 		});
@@ -42,13 +42,39 @@ export const action = async ({ request, params }: ActionArgs) => {
 	});
 };
 
-export const loader = async ({ params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
+	await requireUserWithRole(request, ["COORDINATOR"]);
+	const url = new URL(request.url);
+
 	const id = Number(params.id);
 
-	const academicPeriods = await db.academicPeriod.findMany({
-		select: { id: true, startDate: true, endDate: true },
+	// Get academic load
+	const academicLoad = await db.academicLoad.findUnique({
+		where: { id },
+		select: {
+			academicPeriod: true,
+			courseByStudyYear: {
+				select: {
+					course: true,
+					studyYearId: true,
+				},
+			},
+			teacherIdentityCard: true,
+		},
 	});
 
+	if (!academicLoad) {
+		throw new Response("Carga académica no ha sido encontrada", {
+			status: 404,
+		});
+	}
+
+	// Get search params
+	const studyYearId =
+		url.searchParams.get("study-year") ||
+		academicLoad.courseByStudyYear.studyYearId;
+
+	// Get teachers, study years and courses
 	const teachers = await db.teacher.findMany({
 		select: {
 			person: {
@@ -61,35 +87,36 @@ export const loader = async ({ params }: LoaderArgs) => {
 		},
 	});
 
-	const courses = await db.course.findMany({
-		select: { id: true, title: true },
-	});
+	const studyYears = await db.studyYear.findMany();
 
-	const academicLoad = await db.academicLoad.findUnique({
-		where: { id },
+	const coursesByStudyYear = await db.courseByStudyYear.findMany({
+		where: {
+			studyYearId: studyYearId
+				? Number(studyYearId)
+				: academicLoad.courseByStudyYear.studyYearId,
+		},
 		select: {
-			academicPeriodId: true,
-			courseId: true,
-			teacherIdentityCard: true,
+			id: true,
+			course: {
+				select: {
+					title: true,
+				},
+			},
 		},
 	});
 
-	if (!academicLoad) {
-		throw new Response("Estudiante no ha sido encontrado", {
-			status: 404,
-		});
-	}
-
 	return json({
-		academicPeriods,
 		teachers,
-		courses,
+		studyYearId,
+		studyYears,
 		academicLoad,
+		coursesByStudyYear,
 	});
 };
 
 export default function EditAcademicLoadRoute() {
 	const data = useLoaderData<typeof loader>();
+	const submit = useSubmit();
 
 	return (
 		<div className="flex h-full items-center justify-center">
@@ -98,38 +125,68 @@ export default function EditAcademicLoadRoute() {
 				supportingText="Editar la carga académica de un docente en un periodo académico"
 			>
 				<Form
+					method="get"
+					onChange={(event) => {
+						const isFirstSearch = data.studyYearId === null;
+
+						submit(event.currentTarget, {
+							replace: !isFirstSearch,
+						});
+					}}
+				>
+					<div className="space-y-4">
+						<TextField
+							label="Periodo Académico"
+							name="academic-period"
+							disabled={true}
+							defaultValue={
+								data.academicLoad.academicPeriod
+									? academicPeriodInterval(
+											data.academicLoad.academicPeriod
+												.startDate,
+											data.academicLoad.academicPeriod
+												.endDate
+									  )
+									: "No hay periodo académico activo"
+							}
+						/>
+
+						<Select
+							label="Año"
+							name="study-year"
+							defaultValue={data.studyYearId || ""}
+							options={data.studyYears.map(({ id, year }) => ({
+								name: year,
+								value: id,
+							}))}
+						/>
+					</div>
+				</Form>
+
+				<RemixForm
 					method="post"
 					schema={academicLoadSchema}
-					values={data.academicLoad}
+					values={{
+						courseByStudyYearId:
+							data.academicLoad.courseByStudyYear.course.id,
+						teacherIdentityCard:
+							data.academicLoad.teacherIdentityCard,
+					}}
 				>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
 								<Select
-									error={errors.academicPeriodId?.message}
-									label="Periodo Académico"
-									placeholder="Seleccione un periodo"
-									options={data.academicPeriods.map(
-										({ id, startDate, endDate }) => ({
-											name: academicPeriodInterval(
-												startDate,
-												endDate
-											),
+									error={errors.courseByStudyYearId?.message}
+									label="Asignatura"
+									placeholder="Seleccione una asignatura"
+									options={data.coursesByStudyYear.map(
+										({ course, id }) => ({
+											name: course.title,
 											value: id,
 										})
 									)}
-									{...register("academicPeriodId")}
-								/>
-
-								<Select
-									error={errors.courseId?.message}
-									label="Asignatura"
-									placeholder="Seleccione una asignatura"
-									options={data.courses.map((course) => ({
-										name: course.title,
-										value: course.id,
-									}))}
-									{...register("courseId")}
+									{...register("courseByStudyYearId")}
 								/>
 
 								<Select
@@ -163,7 +220,7 @@ export default function EditAcademicLoadRoute() {
 							</div>
 						</>
 					)}
-				</Form>
+				</RemixForm>
 			</Card>
 		</div>
 	);

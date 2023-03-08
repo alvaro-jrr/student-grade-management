@@ -52,41 +52,52 @@ export const loader = async ({ request }: LoaderArgs) => {
 	const url = new URL(request.url);
 
 	// Get params
+	const studyYearId = url.searchParams.get("study-year");
 	const courseId = url.searchParams.get("course-id");
 
 	// Get active period
 	const academicPeriod = await getActiveAcademicPeriod();
+	const studyYears = await db.studyYear.findMany();
 
-	const academicLoads = await db.academicLoad.findMany({
-		where: {
-			teacherIdentityCard: user.identityCard,
-			academicPeriodId: academicPeriod?.id,
-		},
-		select: {
+	let academicLoads: {
+		courseByStudyYear: {
 			course: {
-				select: {
-					id: true,
-					title: true,
-					studyYear: {
-						select: {
-							year: true,
+				id: number;
+				title: string;
+			};
+		};
+	}[] = [];
+
+	// Search academic loads for that study year
+	if (studyYearId) {
+		academicLoads = await db.academicLoad.findMany({
+			where: {
+				teacherIdentityCard: user.identityCard,
+				academicPeriodId: academicPeriod?.id,
+				courseByStudyYear: {
+					studyYearId: Number(studyYearId),
+				},
+			},
+			select: {
+				courseByStudyYear: {
+					select: {
+						course: {
+							select: {
+								id: true,
+								title: true,
+							},
 						},
 					},
 				},
 			},
-		},
-	});
+		});
+	}
 
 	// Get students according to course id
 	const students = await db.enrollment.findMany({
 		where: {
-			studyYear: {
-				courses: {
-					some: {
-						id: courseId ? Number(courseId) : undefined,
-					},
-				},
-			},
+			academicPeriodId: academicPeriod?.id,
+			studyYearId: studyYearId ? Number(studyYearId) : undefined,
 		},
 		select: {
 			student: {
@@ -108,7 +119,14 @@ export const loader = async ({ request }: LoaderArgs) => {
 		where: {
 			academicLoad: {
 				academicPeriodId: academicPeriod?.id,
-				courseId: courseId ? Number(courseId) : undefined,
+				AND: {
+					courseByStudyYear: {
+						courseId: courseId ? Number(courseId) : undefined,
+						studyYearId: studyYearId
+							? Number(studyYearId)
+							: undefined,
+					},
+				},
 			},
 		},
 		select: {
@@ -127,6 +145,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 		courseId,
 		academicLoads,
 		students,
+		studyYearId,
+		studyYears,
 		assignments,
 	});
 };
@@ -134,6 +154,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function NewGradeRoute() {
 	const data = useLoaderData<typeof loader>();
 	const submit = useSubmit();
+	const isAllowed = data.courseId && data.studyYearId;
 
 	return (
 		<div className="flex h-full items-center justify-center">
@@ -161,19 +182,23 @@ export default function NewGradeRoute() {
 					/>
 
 					<Select
+						defaultValue={data.studyYearId || ""}
+						label="Año"
+						name="study-year"
+						options={data.studyYears.map(({ id, year }) => ({
+							name: year,
+							value: id,
+						}))}
+					/>
+
+					<Select
 						defaultValue={data.courseId || ""}
 						label="Asignatura"
 						name="course-id"
 						options={data.academicLoads.map(
-							({
-								course: {
-									id,
-									title,
-									studyYear: { year },
-								},
-							}) => ({
-								name: `${title} - Año ${year}`,
-								value: id,
+							({ courseByStudyYear: { course } }) => ({
+								name: course.title,
+								value: course.id,
 							})
 						)}
 					/>
@@ -185,7 +210,7 @@ export default function NewGradeRoute() {
 							<div className="space-y-4">
 								<Select
 									error={errors.studentIdentityCard?.message}
-									disabled={data.courseId === null}
+									disabled={!isAllowed}
 									label="Estudiante"
 									options={data.students.map(
 										({
@@ -202,7 +227,7 @@ export default function NewGradeRoute() {
 								/>
 
 								<Select
-									disabled={data.courseId === null}
+									disabled={!isAllowed}
 									error={errors.assignmentId?.message}
 									label="Evaluación"
 									options={data.assignments.map(
@@ -215,7 +240,7 @@ export default function NewGradeRoute() {
 								/>
 
 								<TextField
-									disabled={data.courseId === null}
+									disabled={!isAllowed}
 									error={errors.score?.message}
 									label="Nota"
 									supportingText="La nota debe ser estar entre 1 y 20"
@@ -225,7 +250,7 @@ export default function NewGradeRoute() {
 								/>
 
 								<TextField
-									disabled={data.courseId === null}
+									disabled={!isAllowed}
 									optional={true}
 									label="Observación"
 									supportingText="Alguna observación sobre la evaluación de este estudiante"
@@ -245,7 +270,7 @@ export default function NewGradeRoute() {
 									Cancelar
 								</ButtonLink>
 
-								<Button disabled={!data.courseId} type="submit">
+								<Button disabled={!isAllowed} type="submit">
 									Asignar
 								</Button>
 							</div>

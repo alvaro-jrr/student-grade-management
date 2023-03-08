@@ -51,9 +51,18 @@ export const loader = async ({ request }: LoaderArgs) => {
 					identityCard: true,
 				},
 			},
-			course: {
+			courseByStudyYear: {
 				select: {
-					title: true,
+					course: {
+						select: {
+							title: true,
+						},
+					},
+					studyYear: {
+						select: {
+							year: true,
+						},
+					},
 				},
 			},
 		},
@@ -80,8 +89,13 @@ const columnHelper = createColumnHelper<{
 		};
 		identityCard: string;
 	};
-	course: {
-		title: string;
+	courseByStudyYear: {
+		course: {
+			title: string;
+		};
+		studyYear: {
+			year: number;
+		};
 	};
 }>();
 
@@ -95,6 +109,14 @@ const columns = [
 			return academicPeriodInterval(startDate, endDate);
 		},
 	}),
+	columnHelper.accessor("courseByStudyYear.studyYear.year", {
+		header: "Año",
+		cell: (info) => info.getValue(),
+	}),
+	columnHelper.accessor("courseByStudyYear.course.title", {
+		header: "Asignatura",
+		cell: (info) => info.getValue(),
+	}),
 	columnHelper.accessor("teacher.person", {
 		header: "Docente",
 		cell: (info) => {
@@ -105,10 +127,6 @@ const columns = [
 	}),
 	columnHelper.accessor("teacher.identityCard", {
 		header: "Cédula de Identidad",
-		cell: (info) => info.getValue(),
-	}),
-	columnHelper.accessor("course.title", {
-		header: "Asignatura",
 		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("id", {

@@ -42,7 +42,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 		mutation,
 		schema: gradeSchema,
 		transformValues: (values) => ({ ...values, id }),
-		successPath: "/management/grades",
+		successPath: "/management/grades/all",
 	});
 };
 
@@ -77,14 +77,18 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 									endDate: true,
 								},
 							},
-							course: {
+							courseByStudyYear: {
 								select: {
+									course: {
+										select: {
+											title: true,
+										},
+									},
 									studyYear: {
 										select: {
 											year: true,
 										},
 									},
-									title: true,
 								},
 							},
 						},
@@ -117,7 +121,8 @@ export default function EditGradeRoute() {
 
 	// Extract values
 	const academicPeriod = data.grade.assignment.academicLoad.academicPeriod;
-	const course = data.grade.assignment.academicLoad.course;
+	const courseByStudyYear =
+		data.grade.assignment.academicLoad.courseByStudyYear;
 	const student = data.grade.student;
 	const assignment = data.grade.assignment;
 
@@ -149,7 +154,7 @@ export default function EditGradeRoute() {
 								/>
 
 								<TextField
-									defaultValue={`${course.title} - Año ${course.studyYear.year}`}
+									defaultValue={`${courseByStudyYear.course.title} - Año ${courseByStudyYear.studyYear.year}`}
 									label="Asignatura"
 									disabled={true}
 									name="course"

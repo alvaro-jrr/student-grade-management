@@ -27,14 +27,14 @@ export const loader = async ({ request }: LoaderArgs) => {
 	const student = await db.student.findFirst({
 		where: {
 			identityCard: studentId || "",
-			representatives: {
-				some: {
-					representativeIdentityCard:
-						user.role === "REPRESENTATIVE"
-							? user.identityCard
-							: undefined,
-				},
-			},
+			representatives:
+				user.role === "REPRESENTATIVE"
+					? {
+							some: {
+								representativeIdentityCard: user.identityCard,
+							},
+					  }
+					: undefined,
 		},
 		select: {
 			identityCard: true,

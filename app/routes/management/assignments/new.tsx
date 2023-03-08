@@ -1,10 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Form, useSubmit } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { Button, ButtonLink } from "~/components/button";
 import Card from "~/components/card";
-import { Form } from "~/components/form";
+import { Form as RemixForm } from "~/components/form";
 import { RadioGroup, Select, TextField } from "~/components/form-elements";
 import { assignmentSchema } from "~/schemas";
 import { db } from "~/utils/db.server";
@@ -14,23 +14,25 @@ import { getActiveAcademicPeriod } from "~/utils/academic-period.server";
 import { academicPeriodInterval } from "~/utils";
 
 const mutation = makeDomainFunction(assignmentSchema)(
-	async ({ courseId, lapseId, description, weight }) => {
+	async ({ courseByStudyYearId, lapseId, description, weight }) => {
 		// Find active academic period
 		const activeAcademicPeriod = await getActiveAcademicPeriod();
 
-		if (!activeAcademicPeriod)
+		if (!activeAcademicPeriod) {
 			throw "No se pueden asignar evaluaciones si no hay un periodo académico activo";
+		}
 
 		// Get academic load
 		const academicLoad = await db.academicLoad.findFirst({
 			where: {
 				academicPeriodId: activeAcademicPeriod.id,
-				courseId,
+				courseByStudyYearId,
 			},
 		});
 
-		if (academicLoad === null)
+		if (!academicLoad) {
 			throw "No existe carga académica para la asignatura seleccionada";
+		}
 
 		// Get weights total of that course in that lapse and period
 		const weights = await db.assignment.aggregate({
@@ -40,7 +42,7 @@ const mutation = makeDomainFunction(assignmentSchema)(
 			where: {
 				academicLoad: {
 					academicPeriodId: activeAcademicPeriod.id,
-					courseId,
+					courseByStudyYearId,
 				},
 				lapseId,
 			},
@@ -81,11 +83,15 @@ export const action = async ({ request }: ActionArgs) => {
 
 export const loader = async ({ request }: LoaderArgs) => {
 	const user = await requireUserWithRole(request, ["TEACHER"]);
+	const url = new URL(request.url);
+
+	// Get search params
+	const studyYearId = url.searchParams.get("study-year");
 
 	// Get active academic period
 	const academicPeriod = await getActiveAcademicPeriod();
 
-	// Get lapses
+	// Get lapses and study years
 	const lapses = await db.lapse.findMany({
 		select: {
 			id: true,
@@ -93,28 +99,36 @@ export const loader = async ({ request }: LoaderArgs) => {
 		},
 	});
 
+	const studyYears = await db.studyYear.findMany();
+
 	// Get only courses given by the teacher in current academic period
-	const courses = await db.course.findMany({
+	const courses = await db.academicLoad.findMany({
 		where: {
-			academicLoads: {
-				some: {
-					teacherIdentityCard: user.identityCard,
-					academicPeriodId: academicPeriod && academicPeriod.id,
+			teacherIdentityCard: user.identityCard,
+			academicPeriodId: academicPeriod?.id,
+			AND: {
+				courseByStudyYear: {
+					studyYearId: studyYearId ? Number(studyYearId) : undefined,
 				},
 			},
 		},
 		select: {
-			id: true,
-			title: true,
-			studyYear: {
+			courseByStudyYear: {
 				select: {
-					year: true,
+					id: true,
+					course: {
+						select: {
+							title: true,
+						},
+					},
 				},
 			},
 		},
 	});
 
 	return json({
+		studyYearId,
+		studyYears,
 		academicPeriod,
 		courses,
 		lapses,
@@ -123,6 +137,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export default function NewAssignmentRoute() {
 	const data = useLoaderData<typeof loader>();
+	const submit = useSubmit();
 
 	return (
 		<div className="flex h-full items-center justify-center">
@@ -130,33 +145,59 @@ export default function NewAssignmentRoute() {
 				title="Crear evaluación"
 				supportingText="Asigna una evaluación a los estudiantes de la asignatura en el periodo activo"
 			>
-				<Form method="post" schema={assignmentSchema}>
+				<Form
+					method="get"
+					onChange={(event) => {
+						const isFirstSearch = data.studyYearId === null;
+
+						submit(event.currentTarget, {
+							replace: !isFirstSearch,
+						});
+					}}
+				>
+					<div className="space-y-4">
+						<TextField
+							disabled={true}
+							label="Periodo Académico"
+							name="academic-period"
+							defaultValue={
+								data.academicPeriod
+									? academicPeriodInterval(
+											data.academicPeriod.startDate,
+											data.academicPeriod.endDate
+									  )
+									: "No hay periodo académico activo"
+							}
+						/>
+
+						<Select
+							label="Año"
+							name="study-year"
+							defaultValue={data.studyYearId || ""}
+							options={data.studyYears.map(({ id, year }) => ({
+								name: year,
+								value: id,
+							}))}
+						/>
+					</div>
+				</Form>
+
+				<RemixForm method="post" schema={assignmentSchema}>
 					{({ Errors, register, formState: { errors } }) => (
 						<>
 							<div className="space-y-4">
-								<TextField
-									label="Periodo Académico"
-									disabled={true}
-									name="academic-period"
-									defaultValue={
-										data.academicPeriod
-											? academicPeriodInterval(
-													data.academicPeriod
-														.startDate,
-													data.academicPeriod.endDate
-											  )
-											: "No hay periodo académico activo"
-									}
-								/>
-
 								<Select
-									error={errors.courseId?.message}
+									error={errors.courseByStudyYearId?.message}
 									label="Asignatura"
-									options={data.courses.map((course) => ({
-										name: `${course.title} - Año ${course.studyYear.year}`,
-										value: course.id,
-									}))}
-									{...register("courseId")}
+									options={data.courses.map(
+										({
+											courseByStudyYear: { course, id },
+										}) => ({
+											name: course.title,
+											value: id,
+										})
+									)}
+									{...register("courseByStudyYearId")}
 								/>
 
 								<RadioGroup
@@ -201,7 +242,7 @@ export default function NewAssignmentRoute() {
 							</div>
 						</>
 					)}
-				</Form>
+				</RemixForm>
 			</Card>
 		</div>
 	);

@@ -65,10 +65,6 @@ const parseNumber = (value: unknown) => (value ? Number(value) : undefined);
 
 export const courseSchema = z.object({
 	title: z.string().min(1, "Debe ingresar el titulo"),
-	year: z.preprocess(
-		parseNumber,
-		z.number({ required_error: "Debe seleccionar un año" })
-	),
 });
 
 const academicPeriodId = z.preprocess(
@@ -81,9 +77,19 @@ const courseId = z.preprocess(
 	z.number({ required_error: "Debe seleccionar una asignatura" })
 );
 
-export const academicLoadSchema = z.object({
-	academicPeriodId,
+export const courseByStudyYearSchema = z.object({
 	courseId,
+	studyYearId: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar un año" })
+	),
+});
+
+export const academicLoadSchema = z.object({
+	courseByStudyYearId: z.preprocess(
+		parseNumber,
+		z.number({ required_error: "Debe seleccionar una asignatura" })
+	),
 	teacherIdentityCard: z.string().min(1, "Debe seleccionar un docente"),
 });
 
@@ -101,7 +107,7 @@ export const representationSchema = z.object({
 });
 
 export const assignmentSchema = z.object({
-	courseId,
+	courseByStudyYearId: courseId,
 	lapseId: z.preprocess(
 		parseNumber,
 		z.number({ required_error: "Debe seleccionar un lapso" })

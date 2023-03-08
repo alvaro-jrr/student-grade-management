@@ -105,24 +105,34 @@ model AcademicPeriod {
 
 // Año de Estudio
 model StudyYear {
-    id          Int          @id @default(autoincrement())
-    year        Int          @db.UnsignedInt
+    id          Int                 @id @default(autoincrement())
+    year        Int                 @db.UnsignedInt
     enrollments Enrollment[]
-    courses     Course[]
+    courses     CourseByStudyYear[]
     sections    Section[]
 }
 
-// Curso
-model Course {
+// Asignatura por Año
+model CourseByStudyYear {
     id            Int            @id @default(autoincrement())
     createdAt     DateTime       @default(now())
     updatedAt     DateTime       @updatedAt
     studyYear     StudyYear      @relation(fields: [studyYearId], references: [id])
     studyYearId   Int
-    title         String
+    course        Course         @relation(fields: [courseId], references: [id])
+    courseId      Int
     academicLoads AcademicLoad[]
 
-    @@unique([studyYearId, title])
+    @@unique([studyYearId, courseId])
+}
+
+// Asignatura
+model Course {
+    id         Int                 @id @default(autoincrement())
+    createdAt  DateTime            @default(now())
+    updatedAt  DateTime            @updatedAt
+    title      String              @unique
+    studyYears CourseByStudyYear[]
 }
 
 // Lapso
@@ -134,18 +144,18 @@ model Lapse {
 
 // Carga Academica
 model AcademicLoad {
-    id                  Int            @id @default(autoincrement())
-    createdAt           DateTime       @default(now())
-    updatedAt           DateTime       @updatedAt
-    academicPeriod      AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+    id                  Int               @id @default(autoincrement())
+    createdAt           DateTime          @default(now())
+    updatedAt           DateTime          @updatedAt
+    academicPeriod      AcademicPeriod    @relation(fields: [academicPeriodId], references: [id])
     academicPeriodId    Int
-    teacher             Teacher        @relation(fields: [teacherIdentityCard], references: [identityCard])
+    teacher             Teacher           @relation(fields: [teacherIdentityCard], references: [identityCard])
     teacherIdentityCard String
-    course              Course         @relation(fields: [courseId], references: [id])
-    courseId            Int
+    courseByStudyYear   CourseByStudyYear @relation(fields: [courseByStudyYearId], references: [id])
+    courseByStudyYearId Int
     assignments         Assignment[]
 
-    @@unique([academicPeriodId, teacherIdentityCard, courseId])
+    @@unique([academicPeriodId, teacherIdentityCard, courseByStudyYearId])
 }
 
 // Evaluacion

@@ -37,6 +37,11 @@ const LINKS: Link[] = [
 		roles: ["COORDINATOR"],
 	},
 	{
+		name: "Asignatura por Año",
+		to: "course-by-study-year",
+		roles: ["COORDINATOR"],
+	},
+	{
 		name: "Cargas Académicas",
 		to: "academic-loads",
 		roles: ["COORDINATOR"],

@@ -42,7 +42,11 @@ export async function getStudyYearFinalGrade({
 }: GetStudyYearFinalGrade) {
 	const courses = await db.course.findMany({
 		where: {
-			studyYearId,
+			studyYears: {
+				some: {
+					studyYearId,
+				},
+			},
 		},
 		select: {
 			id: true,
@@ -129,7 +133,11 @@ export async function getStudyYearFinalGrades({
 	// Get courses
 	const courses = await db.course.findMany({
 		where: {
-			studyYearId,
+			studyYears: {
+				some: {
+					studyYearId,
+				},
+			},
 		},
 		select: {
 			id: true,
@@ -217,7 +225,11 @@ export async function getStudyYearGrades({
 }: GetStudyYearFinalGrade) {
 	const courses = await db.course.findMany({
 		where: {
-			studyYearId,
+			studyYears: {
+				some: {
+					studyYearId,
+				},
+			},
 		},
 		select: {
 			id: true,
@@ -272,7 +284,9 @@ export async function getCourseFinalGradeByLapse({
 				assignment: {
 					academicLoad: {
 						academicPeriodId,
-						courseId,
+						courseByStudyYear: {
+							courseId,
+						},
 					},
 					lapseId: lapse.id,
 				},

@@ -38,12 +38,12 @@ export const loader = async ({ request }: LoaderArgs) => {
 				academicPeriodId: academicPeriodId
 					? Number(academicPeriodId)
 					: undefined,
-				teacherIdentityCard:
-					user.role === "TEACHER" ? user.identityCard : undefined,
-				courseId: courseId ? Number(courseId) : undefined,
-				course: {
+				courseByStudyYear: {
+					courseId: courseId ? Number(courseId) : undefined,
 					studyYearId: studyYearId ? Number(studyYearId) : undefined,
 				},
+				teacherIdentityCard:
+					user.role === "TEACHER" ? user.identityCard : undefined,
 			},
 			lapseId: lapseId ? Number(lapseId) : undefined,
 		},
@@ -64,9 +64,13 @@ export const loader = async ({ request }: LoaderArgs) => {
 							endDate: true,
 						},
 					},
-					course: {
+					courseByStudyYear: {
 						select: {
-							title: true,
+							course: {
+								select: {
+									title: true,
+								},
+							},
 							studyYear: {
 								select: {
 									year: true,
@@ -108,10 +112,12 @@ const columnHelper = createColumnHelper<{
 		description: number;
 	};
 	academicLoad: {
-		course: {
-			title: string;
+		courseByStudyYear: {
 			studyYear: {
 				year: number;
+			};
+			course: {
+				title: string;
 			};
 		};
 		academicPeriod: {
@@ -131,24 +137,24 @@ const columns = [
 			return academicPeriodInterval(startDate, endDate);
 		},
 	}),
+	columnHelper.accessor("academicLoad.courseByStudyYear.studyYear.year", {
+		header: "Año",
+		cell: (info) => info.getValue(),
+	}),
+	columnHelper.accessor("academicLoad.courseByStudyYear.course.title", {
+		header: "Asignatura",
+		cell: (info) => info.getValue(),
+	}),
+	columnHelper.accessor("lapse.description", {
+		header: "Lapso",
+		cell: (info) => info.getValue(),
+	}),
 	columnHelper.accessor("description", {
 		header: "Evaluación",
 		cell: (info) => info.getValue(),
 	}),
 	columnHelper.accessor("weight", {
 		header: "Ponderación",
-		cell: (info) => info.getValue(),
-	}),
-	columnHelper.accessor("academicLoad.course.title", {
-		header: "Asignatura",
-		cell: (info) => info.getValue(),
-	}),
-	columnHelper.accessor("academicLoad.course.studyYear.year", {
-		header: "Año",
-		cell: (info) => info.getValue(),
-	}),
-	columnHelper.accessor("lapse.description", {
-		header: "Lapso",
 		cell: (info) => info.getValue(),
 	}),
 ];

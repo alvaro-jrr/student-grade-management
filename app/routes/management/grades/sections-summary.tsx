@@ -48,7 +48,11 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 	const courses = await db.course.findMany({
 		where: {
-			studyYearId: studyYearId ? Number(studyYearId) : undefined,
+			studyYears: {
+				some: {
+					studyYearId: studyYearId ? Number(studyYearId) : undefined,
+				},
+			},
 		},
 	});
 
